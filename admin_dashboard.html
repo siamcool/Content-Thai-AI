@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContentThai AI — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060910;--s1:#0d1220;--s2:#131a2e;--s3:#1c2540;--border:rgba(14,165,233,.15);--primary:#0ea5e9;--accent:#f59e0b;--green:#22c55e;--red:#ef4444;--purple:#a855f7;--text:#e8f0fe;--muted:#6b7fa3;--font:'Sarabun',sans-serif;--head:'Outfit',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
+
+/* NAV */
+nav{background:var(--s1);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;height:60px;gap:20px;position:sticky;top:0;z-index:50}
+.nav-brand{font-family:var(--head);font-weight:800;font-size:16px;margin-right:8px}.nav-brand span{color:var(--accent)}
+.admin-badge{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red);font-size:10px;padding:2px 8px;border-radius:6px;font-family:monospace;font-weight:700}
+.nav-links{display:flex;gap:2px;margin-left:auto}
+.nav-link{background:none;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:var(--font);font-size:13px;color:var(--muted);transition:.15s}
+.nav-link:hover{background:var(--s2);color:var(--text)}
+.nav-link.active{background:var(--primary);color:white;font-weight:600}
+.nav-user{font-size:12px;color:var(--muted);margin-left:8px}
+.btn-logout{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red);padding:7px 16px;border-radius:8px;cursor:pointer;font-family:var(--font);font-size:13px;transition:.15s}
+.btn-logout:hover{background:var(--red);color:white}
+
+/* LAYOUT */
+.page{display:none;padding:28px;max-width:1200px;margin:0 auto}
+.page.active{display:block}
+
+/* SECTION */
+.sec-label{font-size:10px;font-family:monospace;letter-spacing:3px;text-transform:uppercase;color:var(--primary);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec-title{font-family:var(--head);font-size:22px;font-weight:700;margin-bottom:6px}
+.sec-desc{color:var(--muted);font-size:13px;margin-bottom:24px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}}
+.stat{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center}
+.stat-num{font-family:var(--head);font-size:26px;font-weight:800}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* TABLE */
+.table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:12px 16px;background:var(--s2);color:var(--muted);font-family:monospace;font-size:10px;letter-spacing:1px;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(14,165,233,.03)}
+
+/* BADGE */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.b-pending{background:rgba(245,158,11,.15);color:var(--accent);border:1px solid rgba(245,158,11,.3)}
+.b-approved{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.b-rejected{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.b-free{background:rgba(107,127,163,.15);color:var(--muted);border:1px solid rgba(107,127,163,.2)}
+.b-monthly{background:rgba(14,165,233,.15);color:var(--primary);border:1px solid rgba(14,165,233,.3)}
+.b-yearly{background:rgba(245,158,11,.15);color:var(--accent);border:1px solid rgba(245,158,11,.3)}
+.b-lifetime{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+
+/* ACTION BTNS */
+.btn-approve{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;transition:.15s;font-family:var(--font)}
+.btn-approve:hover{background:var(--green);color:var(--bg)}
+.btn-reject{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700;transition:.15s;font-family:var(--font)}
+.btn-reject:hover{background:var(--red);color:white}
+.btn-edit{background:rgba(14,165,233,.1);color:var(--primary);border:1px solid rgba(14,165,233,.25);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:12px;transition:.15s;font-family:var(--font)}
+.btn-edit:hover{background:var(--primary);color:white}
+
+/* FILTER */
+.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--muted);cursor:pointer;font-size:12px;font-family:var(--font);transition:.15s}
+.filter-btn:hover{color:var(--text)}
+.filter-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
+.search-input{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;margin-left:auto;width:200px}
+.search-input:focus{border-color:var(--primary)}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:28px;width:90%;max-width:480px}
+.modal-title{font-family:var(--head);font-size:18px;font-weight:700;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:block;font-family:monospace;letter-spacing:.5px;text-transform:uppercase}
+.form-input,.form-select{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:var(--font);font-size:13px;outline:none}
+.form-input:focus,.form-select:focus{border-color:var(--primary)}
+.btn-primary{background:var(--primary);color:white;border:none;border-radius:8px;padding:10px 20px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer}
+.btn-ghost{background:var(--s2);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-family:var(--font);font-size:13px;cursor:pointer}
+
+/* ALERT */
+.alert-toast{position:fixed;top:80px;right:24px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:13px;z-index:300;display:none;animation:slideIn .3s ease}
+.alert-toast.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--s3);border-radius:3px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">ContentThai <span>AI</span></div>
+  <span class="admin-badge">ADMIN</span>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('members')">👥 สมาชิก</button>
+    <button class="nav-link" onclick="showPage('pending')">⏳ รออนุมัติ</button>
+    <button class="nav-link" onclick="showPage('packages')">📦 แพ็กเกจ</button>
+    <button class="nav-link" onclick="showPage('activity')">📊 Activity</button>
+  </div>
+  <div class="nav-user" id="admin-name">Admin</div>
+  <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+</nav>
+
+<!-- TOAST -->
+<div class="alert-toast" id="toast"></div>
+
+<!-- ════ MEMBERS PAGE ════ -->
+<div class="page active" id="page-members">
+  <div class="sec-label">จัดการสมาชิก</div>
+  <div class="sec-title">สมาชิกทั้งหมด</div>
+
+  <div class="stats" id="stats-bar">
+    <div class="stat"><div class="stat-num" style="color:var(--primary)" id="s-total">—</div><div class="stat-label">สมาชิกทั้งหมด</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--accent)" id="s-pending">—</div><div class="stat-label">รออนุมัติ</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--green)" id="s-approved">—</div><div class="stat-label">อนุมัติแล้ว</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--red)" id="s-rejected">—</div><div class="stat-label">ไม่อนุมัติ</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--purple)" id="s-paid">—</div><div class="stat-label">สมาชิกจ่ายเงิน</div></div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterMembers('all',this)">ทั้งหมด</button>
+    <button class="filter-btn" onclick="filterMembers('pending',this)">⏳ รออนุมัติ</button>
+    <button class="filter-btn" onclick="filterMembers('approved',this)">✅ อนุมัติแล้ว</button>
+    <button class="filter-btn" onclick="filterMembers('rejected',this)">❌ ไม่อนุมัติ</button>
+    <input class="search-input" placeholder="🔍 ค้นหาชื่อ/อีเมล..." oninput="searchMembers(this.value)" id="member-search">
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>ชื่อ</th><th>อีเมล</th><th>แพ็กเกจ</th>
+        <th>สถานะ</th><th>วันสมัคร</th><th>หมดอายุ</th><th>จัดการ</th>
+      </tr></thead>
+      <tbody id="members-table">
+        <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">กำลังโหลด...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════ PENDING PAGE ════ -->
+<div class="page" id="page-pending">
+  <div class="sec-label">รออนุมัติ</div>
+  <div class="sec-title">คำขอที่รอการอนุมัติ</div>
+  <div class="sec-desc">อนุมัติหรือปฏิเสธคำขอสมาชิกใหม่</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>ชื่อ</th><th>อีเมล</th><th>แพ็กเกจที่เลือก</th><th>วันสมัคร</th><th>การดำเนินการ</th>
+      </tr></thead>
+      <tbody id="pending-table">
+        <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">กำลังโหลด...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════ PACKAGES PAGE ════ -->
+<div class="page" id="page-packages">
+  <div class="sec-label">จัดการแพ็กเกจ</div>
+  <div class="sec-title">ตั้งค่าแพ็กเกจและสิทธิ์</div>
+  <div class="sec-desc">กำหนดสิทธิ์การเข้าถึง Prompt Templates ตามแพ็กเกจ</div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+    <!-- Free Package -->
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:24px">
+      <div style="font-family:var(--head);font-size:18px;font-weight:700;margin-bottom:4px">Free</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">ฟรีตลอดกาล</div>
+      <div style="font-size:13px;line-height:2;color:var(--muted)">
+        ✅ เข้าถึง Template: <strong style="color:var(--text)">5 templates</strong><br>
+        ✅ หมวดหมู่: <strong style="color:var(--text)">ร้านอาหาร</strong><br>
+        ❌ ไม่มี Prompt ขั้นสูง<br>
+        ❌ ไม่มีระบบบริหารงาน
+      </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--muted)">ราคา:</span>
+        <strong style="color:var(--green)"> ฟรี</strong>
+      </div>
+    </div>
+    <!-- Monthly -->
+    <div style="background:var(--s1);border:1px solid rgba(14,165,233,.3);border-radius:14px;padding:24px">
+      <div style="font-family:var(--head);font-size:18px;font-weight:700;margin-bottom:4px">รายเดือน</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">ต่ออายุทุกเดือน</div>
+      <div style="font-size:13px;line-height:2;color:var(--muted)">
+        ✅ เข้าถึง Template: <strong style="color:var(--text)">ทั้งหมด 27 templates</strong><br>
+        ✅ ทุกหมวดหมู่<br>
+        ✅ ระบบบริหารงาน<br>
+        ✅ ระบบติดตามผล
+      </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--muted)">ราคา:</span>
+        <strong style="color:var(--primary)"> ฿299/เดือน</strong>
+      </div>
+    </div>
+    <!-- Yearly -->
+    <div style="background:var(--s1);border:1px solid rgba(245,158,11,.3);border-radius:14px;padding:24px">
+      <div style="font-family:var(--head);font-size:18px;font-weight:700;margin-bottom:4px">รายปี</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">ต่ออายุทุกปี</div>
+      <div style="font-size:13px;line-height:2;color:var(--muted)">
+        ✅ ทุกอย่างใน Monthly<br>
+        ✅ ประหยัด 30%<br>
+        ✅ Priority Support<br>
+        ✅ Template ใหม่ก่อนใคร
+      </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--muted)">ราคา:</span>
+        <strong style="color:var(--accent)"> ฿2,490/ปี</strong>
+      </div>
+    </div>
+    <!-- Lifetime -->
+    <div style="background:var(--s1);border:1px solid rgba(34,197,94,.3);border-radius:14px;padding:24px">
+      <div style="font-family:var(--head);font-size:18px;font-weight:700;margin-bottom:4px">ตลอดชีพ</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">จ่ายครั้งเดียวตลอดกาล</div>
+      <div style="font-size:13px;line-height:2;color:var(--muted)">
+        ✅ ทุกอย่างไม่จำกัด<br>
+        ✅ อัปเดต Template ฟรีตลอด<br>
+        ✅ VIP Support<br>
+        ✅ ปรึกษา Claude โดยตรง
+      </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--muted)">ราคา:</span>
+        <strong style="color:var(--green)"> ฿4,990 ครั้งเดียว</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ACTIVITY PAGE ════ -->
+<div class="page" id="page-activity">
+  <div class="sec-label">กิจกรรม</div>
+  <div class="sec-title">ประวัติการดำเนินการ</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>เวลา</th><th>กิจกรรม</th><th>โดย</th><th>รายละเอียด</th></tr></thead>
+      <tbody id="activity-table">
+        <tr><td colspan="4" style="text-align:center;padding:40px;color:var(--muted)">กำลังโหลด...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="modal-edit">
+  <div class="modal">
+    <div class="modal-title">✏️ แก้ไขสมาชิก</div>
+    <input type="hidden" id="edit-id">
+    <div class="form-group">
+      <label class="form-label">ชื่อ</label>
+      <input class="form-input" id="edit-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">แพ็กเกจ</label>
+      <select class="form-select" id="edit-package">
+        <option value="free">Free</option>
+        <option value="monthly">รายเดือน</option>
+        <option value="yearly">รายปี</option>
+        <option value="lifetime">ตลอดชีพ</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">สถานะ</label>
+      <select class="form-select" id="edit-status">
+        <option value="pending">รออนุมัติ</option>
+        <option value="approved">อนุมัติแล้ว</option>
+        <option value="rejected">ไม่อนุมัติ</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">วันหมดอายุ (เว้นว่างถ้าตลอดชีพ)</label>
+      <input class="form-input" id="edit-expiry" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">หมายเหตุ</label>
+      <input class="form-input" id="edit-note" placeholder="บันทึกเพิ่มเติม">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button class="btn-ghost" onclick="closeModal('modal-edit')">ยกเลิก</button>
+      <button class="btn-primary" onclick="saveEdit()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// ⚙️ CONFIG — แก้ค่าเดียวกับ index.html
+// ══════════════════════════════════════════
+const SUPABASE_URL = 'https://gpvhnrbhjymgeiujzbjt.supabase.co/';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s';
+// ══════════════════════════════════════════
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allMembers = [];
+let currentFilter = 'all';
+let adminId = '';
+
+// ── INIT ──
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'index.html'; return; }
+  adminId = session.user.id;
+  const { data: profile } = await sb.from('profiles').select('role,full_name').eq('id', adminId).single();
+  if (profile?.role !== 'admin') { window.location.href = 'dashboard.html'; return; }
+  document.getElementById('admin-name').textContent = profile.full_name || 'Admin';
+  await loadMembers();
+  await loadActivity();
+})();
+
+// ── LOAD MEMBERS ──
+async function loadMembers() {
+  const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+  if (error) { showToast('❌ โหลดข้อมูลไม่สำเร็จ: ' + error.message, 'red'); return; }
+  allMembers = data || [];
+  updateStats();
+  renderMembers(allMembers);
+  renderPending(allMembers.filter(m => m.status === 'pending'));
+}
+
+// ── STATS ──
+function updateStats() {
+  const total = allMembers.length;
+  const pending = allMembers.filter(m => m.status === 'pending').length;
+  const approved = allMembers.filter(m => m.status === 'approved').length;
+  const rejected = allMembers.filter(m => m.status === 'rejected').length;
+  const paid = allMembers.filter(m => ['monthly','yearly','lifetime'].includes(m.package) && m.status === 'approved').length;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-pending').textContent = pending;
+  document.getElementById('s-approved').textContent = approved;
+  document.getElementById('s-rejected').textContent = rejected;
+  document.getElementById('s-paid').textContent = paid;
+}
+
+// ── RENDER MEMBERS ──
+function renderMembers(list) {
+  const tb = document.getElementById('members-table');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">ไม่มีข้อมูล</td></tr>'; return; }
+  tb.innerHTML = list.map(m => `<tr>
+    <td><strong>${m.full_name || '—'}</strong></td>
+    <td>${m.email || '—'}</td>
+    <td><span class="badge b-${m.package || 'free'}">${pkgLabel(m.package)}</span></td>
+    <td><span class="badge b-${m.status || 'pending'}">${statusLabel(m.status)}</span></td>
+    <td>${fmtDate(m.created_at)}</td>
+    <td>${m.expiry_date ? fmtDate(m.expiry_date) : m.package === 'lifetime' ? '<span style="color:var(--green)">ตลอดชีพ</span>' : '—'}</td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap">
+      ${m.status === 'pending' ? `<button class="btn-approve" onclick="approve('${m.id}')">✅ อนุมัติ</button><button class="btn-reject" onclick="reject('${m.id}')">❌ ปฏิเสธ</button>` : ''}
+      <button class="btn-edit" onclick="openEdit('${m.id}')">✏️</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderPending(list) {
+  const tb = document.getElementById('pending-table');
+  if (!list.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--green)">✅ ไม่มีรายการรออนุมัติ</td></tr>'; return; }
+  tb.innerHTML = list.map(m => `<tr>
+    <td><strong>${m.full_name || '—'}</strong></td>
+    <td>${m.email || '—'}</td>
+    <td><span class="badge b-${m.package || 'free'}">${pkgLabel(m.package)}</span></td>
+    <td>${fmtDate(m.created_at)}</td>
+    <td style="display:flex;gap:8px">
+      <button class="btn-approve" onclick="approve('${m.id}')">✅ อนุมัติ</button>
+      <button class="btn-reject" onclick="reject('${m.id}')">❌ ปฏิเสธ</button>
+    </td>
+  </tr>`).join('');
+}
+
+// ── APPROVE / REJECT ──
+async function approve(id) {
+  const member = allMembers.find(m => m.id === id);
+  if (!member) return;
+  // Calculate expiry date
+  let expiry = null;
+  const now = new Date();
+  if (member.package === 'monthly') { expiry = new Date(now.setMonth(now.getMonth() + 1)).toISOString(); }
+  else if (member.package === 'yearly') { expiry = new Date(now.setFullYear(now.getFullYear() + 1)).toISOString(); }
+
+  const { error } = await sb.from('profiles').update({
+    status: 'approved',
+    approved_at: new Date().toISOString(),
+    approved_by: adminId,
+    expiry_date: expiry
+  }).eq('id', id);
+
+  if (error) { showToast('❌ เกิดข้อผิดพลาด: ' + error.message, 'red'); return; }
+  await logActivity(`อนุมัติสมาชิก: ${member.full_name} (${member.package})`);
+  showToast(`✅ อนุมัติ ${member.full_name} เรียบร้อยแล้ว`, 'green');
+  await loadMembers();
+}
+
+async function reject(id) {
+  if (!confirm('ยืนยันการปฏิเสธคำขอนี้?')) return;
+  const member = allMembers.find(m => m.id === id);
+  const { error } = await sb.from('profiles').update({ status: 'rejected' }).eq('id', id);
+  if (error) { showToast('❌ เกิดข้อผิดพลาด', 'red'); return; }
+  await logActivity(`ปฏิเสธสมาชิก: ${member?.full_name}`);
+  showToast(`❌ ปฏิเสธคำขอแล้ว`, 'red');
+  await loadMembers();
+}
+
+// ── EDIT MODAL ──
+function openEdit(id) {
+  const m = allMembers.find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-name').value = m.full_name || '';
+  document.getElementById('edit-package').value = m.package || 'free';
+  document.getElementById('edit-status').value = m.status || 'pending';
+  document.getElementById('edit-expiry').value = m.expiry_date ? m.expiry_date.split('T')[0] : '';
+  document.getElementById('edit-note').value = m.note || '';
+  document.getElementById('modal-edit').classList.add('show');
+}
+
+async function saveEdit() {
+  const id = document.getElementById('edit-id').value;
+  const pkg = document.getElementById('edit-package').value;
+  const expiry = document.getElementById('edit-expiry').value;
+  let expiryVal = null;
+  if (expiry) expiryVal = new Date(expiry).toISOString();
+  else if (pkg === 'monthly') { const d = new Date(); d.setMonth(d.getMonth()+1); expiryVal = d.toISOString(); }
+  else if (pkg === 'yearly') { const d = new Date(); d.setFullYear(d.getFullYear()+1); expiryVal = d.toISOString(); }
+
+  const { error } = await sb.from('profiles').update({
+    full_name: document.getElementById('edit-name').value,
+    package: pkg,
+    status: document.getElementById('edit-status').value,
+    expiry_date: expiryVal,
+    note: document.getElementById('edit-note').value,
+  }).eq('id', id);
+
+  if (error) { showToast('❌ บันทึกไม่สำเร็จ', 'red'); return; }
+  closeModal('modal-edit');
+  showToast('✅ บันทึกเรียบร้อยแล้ว', 'green');
+  await loadMembers();
+}
+
+// ── FILTERS ──
+function filterMembers(status, btn) {
+  currentFilter = status;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = status === 'all' ? allMembers : allMembers.filter(m => m.status === status);
+  renderMembers(filtered);
+}
+
+function searchMembers(q) {
+  const lq = q.toLowerCase();
+  const filtered = allMembers.filter(m =>
+    (m.full_name || '').toLowerCase().includes(lq) ||
+    (m.email || '').toLowerCase().includes(lq)
+  );
+  renderMembers(filtered);
+}
+
+// ── ACTIVITY LOG ──
+async function logActivity(action) {
+  await sb.from('activity_logs').insert({ admin_id: adminId, action, created_at: new Date().toISOString() });
+}
+
+async function loadActivity() {
+  const { data } = await sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(50);
+  const tb = document.getElementById('activity-table');
+  if (!data?.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--muted)">ยังไม่มีกิจกรรม</td></tr>'; return; }
+  tb.innerHTML = data.map(a => `<tr>
+    <td style="color:var(--muted);font-size:12px">${fmtDate(a.created_at)}</td>
+    <td>${a.action}</td>
+    <td>Admin</td>
+    <td>—</td>
+  </tr>`).join('');
+}
+
+// ── HELPERS ──
+function pkgLabel(pkg) { return {free:'Free',monthly:'รายเดือน',yearly:'รายปี',lifetime:'ตลอดชีพ'}[pkg] || pkg || 'Free'; }
+function statusLabel(s) { return {pending:'รออนุมัติ',approved:'อนุมัติแล้ว',rejected:'ไม่อนุมัติ'}[s] || s; }
+function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('th-TH', {day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+
+function showToast(msg, color='primary') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = color === 'green' ? 'rgba(34,197,94,.3)' : color === 'red' ? 'rgba(239,68,68,.3)' : 'var(--border)';
+  t.style.color = color === 'green' ? 'var(--green)' : color === 'red' ? 'var(--red)' : 'var(--text)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'activity') loadActivity();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

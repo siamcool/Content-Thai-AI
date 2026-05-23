@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ContentThai AI — Prompt Toolkit Full</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══ DESIGN TOKENS ══ */
+:root {
+  --bg:      #f0f4f8;
+  --surface: #ffffff;
+  --s2:      #f7f9fc;
+  --s3:      #edf1f7;
+  --border:  #dde3ee;
+  --primary: #2563eb;
+  --primary-light: #eff6ff;
+  --accent:  #f59e0b;
+  --green:   #16a34a;
+  --red:     #dc2626;
+  --purple:  #7c3aed;
+  --text:    #1e293b;
+  --text2:   #475569;
+  --muted:   #94a3b8;
+  --font:    'Sarabun', sans-serif;
+  --head:    'Outfit', sans-serif;
+  --radius:  12px;
+  --shadow:  0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+}
+
+/* ══ RESET ══ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; -webkit-text-size-adjust:100%; }
+body { background:var(--bg); color:var(--text); font-family:var(--font); font-size:15px; line-height:1.7; min-height:100vh; }
+button { cursor:pointer; font-family:var(--font); }
+input, textarea { font-family:var(--font); }
+
+/* ══ TOPBAR ══ */
+.topbar {
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:100;
+  box-shadow:var(--shadow);
+}
+.brand { font-family:var(--head); font-weight:800; font-size:18px; white-space:nowrap; }
+.brand span { color:var(--accent); }
+.brand-badge {
+  font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px;
+  background:linear-gradient(135deg,#7c3aed,#2563eb);
+  color:white; font-family:monospace; letter-spacing:.5px; margin-left:4px;
+}
+
+/* Search */
+.search-wrap { position:relative; flex:1; max-width:360px; }
+.search-wrap input {
+  width:100%; background:var(--s2); border:1.5px solid var(--border);
+  border-radius:10px; padding:9px 14px 9px 38px;
+  color:var(--text); font-size:14px; outline:none; transition:.2s;
+}
+.search-wrap input:focus { border-color:var(--primary); background:var(--surface); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+.search-wrap input::placeholder { color:var(--muted); }
+.search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); }
+
+/* Top Actions */
+.top-actions { display:flex; align-items:center; gap:8px; margin-left:auto; }
+.btn-claude {
+  display:flex; align-items:center; gap:6px;
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  color:white; border:none; border-radius:10px;
+  padding:8px 16px; font-size:13px; font-weight:700;
+  text-decoration:none; transition:.2s; white-space:nowrap;
+}
+.btn-claude:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(245,158,11,.3); }
+.top-count { font-size:12px; color:var(--muted); white-space:nowrap; }
+
+/* ══ MOBILE NAV ══ */
+.mobile-nav {
+  display:none;
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 16px; gap:6px; overflow-x:auto;
+}
+.mobile-cat-btn {
+  background:var(--s2); border:1.5px solid var(--border); border-radius:20px;
+  padding:6px 14px; font-size:12px; font-weight:600; color:var(--text2);
+  white-space:nowrap; transition:.15s;
+}
+.mobile-cat-btn.active { background:var(--primary); border-color:var(--primary); color:white; }
+
+/* ══ LAYOUT ══ */
+.layout { display:flex; height:calc(100vh - 57px); }
+
+/* Sidebar */
+.sidebar {
+  width:220px; background:var(--surface); border-right:1px solid var(--border);
+  overflow-y:auto; flex-shrink:0; padding:12px 8px;
+}
+.sidebar-section { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:2px; text-transform:uppercase; padding:8px 10px 4px; }
+.cat-btn {
+  width:100%; text-align:left; background:none; border:none;
+  border-radius:10px; padding:10px 12px; color:var(--text2);
+  font-size:13px; font-weight:600; transition:.15s; display:flex; align-items:center; justify-content:space-between;
+}
+.cat-btn:hover { background:var(--s2); color:var(--text); }
+.cat-btn.active { background:var(--primary-light); color:var(--primary); }
+.cat-count { background:var(--s3); border-radius:10px; padding:1px 7px; font-size:10px; font-weight:700; color:var(--muted); }
+.cat-btn.active .cat-count { background:rgba(37,99,235,.1); color:var(--primary); }
+
+/* Template List */
+.list {
+  width:240px; background:var(--s2); border-right:1px solid var(--border);
+  overflow-y:auto; flex-shrink:0;
+}
+.list-item {
+  display:block; width:100%; text-align:left; background:none; border:none;
+  border-bottom:1px solid var(--border); padding:14px 16px;
+  color:var(--text2); transition:.15s; position:relative;
+}
+.list-item:hover { background:var(--surface); }
+.list-item.active { background:var(--surface); border-left:3px solid var(--primary); }
+.item-name { font-size:13px; font-weight:700; color:var(--text); line-height:1.4; margin-bottom:3px; }
+.item-use { font-size:11px; color:var(--muted); line-height:1.5; }
+.item-tags { display:flex; gap:4px; flex-wrap:wrap; margin-top:6px; }
+.item-tag { font-size:10px; padding:2px 7px; border-radius:5px; font-weight:600; }
+.fav-btn {
+  position:absolute; top:12px; right:12px;
+  background:none; border:none; font-size:16px; color:var(--muted);
+  transition:.15s; padding:2px;
+}
+.fav-btn:hover { transform:scale(1.2); }
+.fav-btn.active { color:var(--accent); }
+
+/* Detail Pane */
+.detail { flex:1; overflow-y:auto; padding:24px; background:var(--bg); }
+
+/* Empty State */
+.detail-empty {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  height:100%; color:var(--muted); text-align:center; gap:14px;
+}
+.empty-icon { font-size:64px; opacity:.4; }
+
+/* Detail Header */
+.detail-cat { font-size:11px; color:var(--primary); font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+.detail-name { font-family:var(--head); font-size:22px; font-weight:800; color:var(--text); margin-bottom:10px; }
+.detail-use {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--primary-light); border:1px solid rgba(37,99,235,.2);
+  border-radius:20px; padding:5px 14px; font-size:13px; color:var(--primary); font-weight:600;
+}
+.detail-actions { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.btn-action {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:10px; font-size:13px; font-weight:700; border:none; transition:.2s;
+}
+.btn-copy { background:var(--primary); color:white; }
+.btn-copy:hover { background:#1d4ed8; transform:translateY(-1px); }
+.btn-copy.copied { background:var(--green); }
+.btn-fav { background:var(--s3); color:var(--text2); border:1.5px solid var(--border); }
+.btn-fav:hover { border-color:var(--accent); color:var(--accent); }
+.btn-fav.active { background:#fef3c7; border-color:var(--accent); color:var(--accent); }
+.btn-open-claude {
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  color:white; text-decoration:none;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:10px; font-size:13px; font-weight:700;
+}
+
+/* Warn Box */
+.warn-box {
+  background:#fff7ed; border:1.5px solid #fed7aa;
+  border-radius:10px; padding:12px 16px; font-size:13px; color:#9a3412;
+  margin-bottom:16px; display:flex; gap:10px; align-items:flex-start;
+}
+
+/* Prompt Box */
+.prompt-card {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); overflow:hidden; margin-bottom:16px;
+  box-shadow:var(--shadow);
+}
+.prompt-card-header {
+  background:#1e293b; padding:12px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.prompt-dots { display:flex; gap:6px; }
+.prompt-dots span { width:10px; height:10px; border-radius:50%; }
+.prompt-label { font-size:11px; color:#64748b; font-family:monospace; }
+.prompt-body {
+  padding:20px; font-size:14px; line-height:2; color:#334155;
+  white-space:pre-wrap; word-break:break-word;
+  max-height:400px; overflow-y:auto; background:#f8fafc;
+}
+.prompt-body .bracket { color:var(--primary); font-weight:700; background:rgba(37,99,235,.08); border-radius:3px; padding:0 2px; }
+
+/* Generate Box */
+.generate-card {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:20px; margin-bottom:16px;
+  box-shadow:var(--shadow);
+}
+.generate-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.gen-fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+@media(max-width:600px){ .gen-fields { grid-template-columns:1fr; } }
+.gen-field label { display:block; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.5px; text-transform:uppercase; margin-bottom:5px; }
+.gen-field input, .gen-field select {
+  width:100%; background:var(--s2); border:1.5px solid var(--border);
+  border-radius:8px; padding:8px 12px; font-size:13px; color:var(--text); outline:none; transition:.15s;
+}
+.gen-field input:focus, .gen-field select:focus { border-color:var(--primary); }
+.btn-generate {
+  width:100%; padding:11px; background:linear-gradient(135deg,var(--primary),#7c3aed);
+  color:white; border:none; border-radius:10px; font-size:14px; font-weight:700; transition:.2s;
+}
+.btn-generate:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(37,99,235,.3); }
+.btn-generate:disabled { opacity:.6; transform:none; cursor:not-allowed; }
+.gen-result {
+  background:#f0f9ff; border:1.5px solid #bae6fd;
+  border-radius:10px; padding:16px; font-size:13px; line-height:1.9;
+  color:var(--text); white-space:pre-wrap; display:none; margin-top:12px;
+}
+.gen-result.show { display:block; }
+
+/* How-to Box */
+.how-card {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:18px; margin-bottom:12px;
+  box-shadow:var(--shadow);
+}
+.how-title { font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; }
+.how-steps { list-style:none; }
+.how-steps li { display:flex; gap:12px; align-items:flex-start; margin-bottom:10px; font-size:13px; color:var(--text2); }
+.how-steps li::before {
+  content:counter(step); counter-increment:step;
+  min-width:22px; height:22px; border-radius:50%; background:var(--primary);
+  color:white; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px;
+}
+.how-steps { counter-reset:step; }
+
+/* Tip */
+.tip-card { background:#fefce8; border:1.5px solid #fde68a; border-radius:10px; padding:12px 16px; font-size:13px; color:#713f12; }
+
+/* Fav Page */
+.fav-empty { text-align:center; padding:60px 20px; color:var(--muted); }
+
+/* Loading spinner */
+.spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--muted); }
+
+/* ══ MOBILE ══ */
+@media(max-width:768px){
+  .sidebar { display:none; }
+  .mobile-nav { display:flex; }
+  .list { width:100%; border-right:none; border-bottom:1px solid var(--border); max-height:220px; }
+  .layout { flex-direction:column; height:auto; overflow:visible; }
+  .detail { padding:16px; }
+  .topbar { padding:10px 14px; gap:8px; }
+  .brand-badge, .top-count { display:none; }
+  .btn-claude { padding:8px 12px; font-size:12px; }
+  .detail-name { font-size:18px; }
+}
+@media(max-width:480px){
+  .top-actions { flex-shrink:0; }
+  .search-wrap { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">ContentThai <span>AI</span><span class="brand-badge">FULL</span></div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="searchInput" placeholder="ค้นหา template... (เช่น ร้านอาหาร, สคริปต์)" oninput="doSearch(this.value)">
+  </div>
+  <div class="top-actions">
+    <span class="top-count" id="totalCount"></span>
+    <button class="btn-action" style="background:#fef3c7;color:#92400e;border:1.5px solid #fde68a;font-size:13px" onclick="showFavorites()" id="btn-fav-top">⭐ Favorites <span id="fav-count-badge"></span></button>
+    <a class="btn-claude" href="https://claude.ai" target="_blank">🤖 เปิด Claude AI</a>
+  </div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav"></div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="list" id="listPane"></div>
+  <div class="detail" id="detail">
+    <div class="detail-empty">
+      <div class="empty-icon">✨</div>
+      <div style="font-size:17px;font-weight:700;color:var(--text)">เลือก Template ที่ต้องการ</div>
+      <div style="font-size:14px" id="emptyDesc">มีทั้งหมด 27 templates พร้อมใช้งาน</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// DATA — Template ทั้งหมด (ไม่แก้ไข)
+// ══════════════════════════════════════
+const DATA = [
+  {
+    cat:"🍜 ร้านอาหาร & เครื่องดื่ม", accent:"#f59e0b",
+    items:[
+      {
+        name:"FOOD-OPEN — เปิดร้าน/โปรโมทเมนู",
+        use:"โพสต์เปิดร้านประจำวัน, เมนูใหม่, วันพิเศษ",
+        tags:["Facebook","Instagram","ทุกวัน"],
+        warn:null,
+        genFields:["ชื่อร้าน","ประเภทอาหาร","จุดเด่นของร้าน","ที่ตั้ง (จังหวัด)","โทน (เป็นกันเอง/หรูหรา)","หัวข้อโพสต์วันนี้"],
+        prompt:`คุณคือนักเขียน Caption มืออาชีพสำหรับร้านอาหารและเครื่องดื่มไทย
+
+ข้อมูลร้าน:
+- ชื่อร้าน: [ชื่อร้าน]
+- ประเภทอาหาร/เครื่องดื่ม: [เช่น ก๋วยเตี๋ยวเรือ, กาแฟสด, ข้าวแกง]
+- จุดเด่นของร้าน: [เช่น สูตรโบราณ 30 ปี, วัตถุดิบสด, บรรยากาศดี]
+- ที่ตั้ง: [ย่าน/จังหวัด]
+- กลุ่มลูกค้าหลัก: [เช่น คนทำงาน, ครอบครัว, นักท่องเที่ยว]
+- เวลาเปิด-ปิด: [เช่น 07:00-15:00 น.]
+- ช่องทางติดต่อ: [เบอร์โทร/Line/ที่อยู่]
+- โทนที่ต้องการ: [เป็นกันเอง / อบอุ่น / หรูหรา / สนุกสนาน]
+- หัวข้อโพสต์วันนี้: [เช่น เปิดร้านวันจันทร์ / เมนูใหม่ / โปรพิเศษ]
+
+เขียน Caption 3 แบบ แต่ละแบบมีครบ:
+1. Hook 1 บรรทัด — ดึงดูดให้หยุดอ่านทันที
+2. เนื้อหา 3-4 บรรทัด — น่าสนใจ น่าอ่าน
+3. ข้อมูลร้าน — เวลา ที่อยู่ เบอร์ติดต่อ
+4. Call to Action ชัดเจน
+5. Hashtag 7 อัน — ผสม Hashtag ท้องถิ่น + หมวดอาหาร
+
+แบบที่ 1: เน้นอารมณ์และความรู้สึก (Emotional)
+แบบที่ 2: เน้น Promotion/ข้อเสนอ
+แบบที่ 3: เน้นการเล่าเรื่อง (Storytelling)`
+      },
+      {
+        name:"FOOD-PROMO — Flash Sale / โปรพิเศษ",
+        use:"แจ้งโปร, ลดราคา, วันหมดอายุโปร",
+        tags:["Facebook","TikTok","เร่งด่วน"],
+        warn:null,
+        genFields:["ชื่อร้าน","ชื่อโปรโมชั่น","รายละเอียดโปร","ราคาปกติ → ราคาโปร","วันสิ้นสุดโปร","เงื่อนไข"],
+        prompt:`คุณคือผู้เชี่ยวชาญด้านการเขียน Caption โปรโมชั่นสำหรับธุรกิจอาหาร
+
+ข้อมูลโปร:
+- ชื่อร้าน: [ชื่อร้าน]
+- ชื่อโปรโมชั่น: [เช่น "โปรวันจันทร์", "ฉลองครบรอบ"]
+- รายละเอียดโปร: [เช่น ซื้อ 1 แถม 1, ลด 30%, ฟรีเครื่องดื่ม]
+- เงื่อนไข: [เช่น เฉพาะ 10-14 น., จำกัด 50 สิทธิ์]
+- วันสิ้นสุดโปร: [ระบุวันที่]
+- ราคาปกติ vs ราคาโปร: [เช่น ปกติ 120 → โปร 80 บาท]
+
+เขียน Caption 2 แบบ:
+แบบที่ 1: สร้าง Urgency — ทำให้รู้สึกว่าต้องรีบตัดสินใจทันที
+แบบที่ 2: เน้นความคุ้มค่า — คำนวณให้เห็นว่าประหยัดได้เท่าไหร่
+
+ทุกแบบมี: Hook → รายละเอียดโปร → เงื่อนไข → วิธีรับสิทธิ์ → วันหมดอายุ → Hashtag 5 อัน`
+      },
+      {
+        name:"CAFE-CONTENT — คอนเทนต์คาเฟ่/บาร์",
+        use:"โพสต์เครื่องดื่ม, บรรยากาศ, เมนูซีซั่น",
+        tags:["Instagram","Facebook","Lifestyle"],
+        warn:null,
+        genFields:["ชื่อร้าน","สไตล์ร้าน","เครื่องดื่มเด่น","บรรยากาศ","กลุ่มลูกค้า","Mood ที่ต้องการ"],
+        prompt:`คุณคือนักเขียน Content สำหรับคาเฟ่และร้านเครื่องดื่ม เน้นภาพลักษณ์ Lifestyle
+
+ข้อมูลร้าน:
+- ชื่อร้าน: [ชื่อ]
+- สไตล์ร้าน: [เช่น Industrial, Minimal, Vintage, Japanese]
+- เครื่องดื่มเด่น: [ระบุ 2-3 รายการ พร้อมราคา]
+- บรรยากาศ: [เช่น วิวสวน, ริมน้ำ, บนดาดฟ้า]
+- กลุ่มลูกค้า: [เช่น นักศึกษา, Freelancer, คู่รัก]
+- Mood ที่ต้องการ: [Cozy / Aesthetic / Chill / Productive]
+
+เขียน Caption 3 แบบสำหรับ Instagram/Facebook:
+แบบที่ 1: เน้น Mood & Vibe — ให้รู้สึกอยากมา
+แบบที่ 2: เน้น Product — เล่าถึงเครื่องดื่มอย่างละเอียดน่ากิน
+แบบที่ 3: เน้น Community — ชวนคนมาใช้เวลาที่ร้าน
+
+ทุกแบบ: Hook → เนื้อหา → ข้อมูลร้าน → CTA → Hashtag 10 อัน`
+      },
+    ]
+  },
+  {
+    cat:"💆 ความงาม & สุขภาพ", accent:"#ec4899",
+    items:[
+      {
+        name:"BEAUTY-SERVICE — โปรโมทบริการความงาม",
+        use:"เสริมสวย, สปา, นวด, ต่อขนตา, เล็บ",
+        tags:["Facebook","Instagram","บริการ"],
+        warn:null,
+        genFields:["ชื่อร้าน","บริการที่โปรโมท","ราคา","จุดเด่น","กลุ่มเป้าหมาย","โทน"],
+        prompt:`คุณคือนักเขียน Content สำหรับธุรกิจความงามและสุขภาพ
+
+ข้อมูลร้าน/คลินิก:
+- ชื่อ: [ชื่อร้าน/สถาบัน]
+- บริการที่โปรโมท: [เช่น ตัดผม, นวดหน้า, ต่อขนตา, เจลเล็บ]
+- ราคา: [ระบุ หรือ "ราคาเริ่มต้น XXX บาท"]
+- จุดเด่น: [เช่น ช่างมีใบรับรอง, ใช้ผลิตภัณฑ์ระดับ Pro]
+- กลุ่มเป้าหมาย: [เช่น ผู้หญิงอายุ 20-45 ปี]
+- โทน: [หรูหรา / น่ารัก / เชี่ยวชาญ / เป็นกันเอง]
+
+เขียน Caption 3 แบบ:
+แบบที่ 1: เน้นผลลัพธ์ (ความสวย ความมั่นใจ)
+แบบที่ 2: เน้นโปรโมชั่น/ราคา
+แบบที่ 3: Social Proof (รีวิวหรือผลงานลูกค้า)
+
+ทุกแบบ: Hook → บริการ → ราคา/โปร → วิธีนัด → Hashtag 8 อัน
+ห้ามรับรองผลที่ไม่มีหลักฐาน`
+      },
+      {
+        name:"CLINIC-HEALTH — คลินิก/สุขภาพ/ทันตกรรม",
+        use:"ให้ความรู้, โปรตรวจสุขภาพ, แนะนำบริการ",
+        tags:["Facebook","ความรู้","น่าเชื่อถือ"],
+        warn:"⚠️ กฎหมายไทย: ห้ามอ้างสรรพคุณยาหรือรับรองผลการรักษาเกินจริง ตาม พ.ร.บ.สถานพยาบาล",
+        genFields:["ชื่อคลินิก","ประเภท","แพทย์/วุฒิ","บริการที่ต้องการสื่อ","กลุ่มเป้าหมาย"],
+        prompt:`คุณคือนักเขียน Medical Content ที่เข้าใจกฎหมายโฆษณาสถานพยาบาลไทย
+
+ข้อมูลคลินิก:
+- ชื่อคลินิก: [ชื่อ]
+- ประเภท: [ทั่วไป / ทันตกรรม / ความงาม / กายภาพบำบัด]
+- แพทย์/ผู้รักษา: [ชื่อ + วุฒิ ถ้ามี]
+- บริการที่ต้องการสื่อสาร: [ระบุ]
+- กลุ่มเป้าหมาย: [ระบุ]
+
+เขียน Caption 2 แบบ:
+แบบที่ 1: ให้ความรู้ (Educational) — อธิบายปัญหาสุขภาพ + แนะนำปรึกษาแพทย์
+แบบที่ 2: แนะนำบริการ — บริการ + ราคา + วิธีนัด
+
+ข้อบังคับ:
+✓ ไม่รับรองผลการรักษา
+✓ ต้องมีประโยค "ควรปรึกษาแพทย์ก่อนทุกครั้ง"
+✓ ราคาต้องระบุว่า "ราคาเริ่มต้น"`
+      },
+      {
+        name:"GYM-FITNESS — ฟิตเนส/โยคะ/สตูดิโอ",
+        use:"รับสมาชิก, โปรโมทคลาส, แรงบันดาลใจ",
+        tags:["Facebook","Instagram","Motivation"],
+        warn:null,
+        genFields:["ชื่อสถานที่","ประเภท","คลาส/บริการที่โปรโมท","ราคา/แพ็กเกจ","กลุ่มเป้าหมาย","จุดเด่น"],
+        prompt:`คุณคือนักเขียน Content สำหรับธุรกิจฟิตเนสและสุขภาพ
+
+ข้อมูล:
+- ชื่อ: [ชื่อฟิตเนส/สตูดิโอ]
+- ประเภท: [ฟิตเนส / โยคะ / CrossFit / Muay Thai / Pilates]
+- คลาส/บริการที่โปรโมท: [ระบุ]
+- ราคา/แพ็กเกจ: [ระบุ]
+- กลุ่มเป้าหมาย: [เช่น มือใหม่ ผู้หญิง อายุ 25-40]
+- จุดเด่น: [เช่น เทรนเนอร์ชำนาญ, อุปกรณ์ครบ]
+
+เขียน 3 แบบ:
+แบบที่ 1: Motivation Post — สร้างแรงบันดาลใจ
+แบบที่ 2: Promotion — แพ็กเกจ ราคา สมัครได้ที่ไหน
+แบบที่ 3: Result Post — แสดงผลลัพธ์ลูกค้า`
+      },
+    ]
+  },
+  {
+    cat:"🏪 ค้าปลีก & สินค้าออนไลน์", accent:"#22c55e",
+    items:[
+      {
+        name:"RETAIL-PRODUCT — โพสต์สินค้าทั่วไป",
+        use:"แนะนำสินค้า, Shopee, TikTok Shop, Facebook",
+        tags:["Facebook","Shopee","TikTok Shop"],
+        warn:null,
+        genFields:["ชื่อร้าน","สินค้า","ราคา (ปกติ/โปร)","จุดเด่น 3 ข้อ","กลุ่มเป้าหมาย","ปัญหาที่สินค้าแก้ได้"],
+        prompt:`คุณคือนักเขียน Product Description ที่เพิ่มยอดขายได้จริง
+
+ข้อมูลสินค้า:
+- ชื่อร้าน: [ชื่อ]
+- สินค้า: [ชื่อและรายละเอียด]
+- ราคา: [ราคาปกติ และราคาโปร ถ้ามี]
+- จุดเด่น 3 ข้อ: [ข้อที่ 1, ข้อที่ 2, ข้อที่ 3]
+- ใครควรซื้อ: [กลุ่มเป้าหมาย]
+- ปัญหาที่สินค้าแก้ได้: [ระบุ]
+- แพลตฟอร์ม: [Facebook / Shopee / TikTok]
+- วิธีสั่ง: [ระบุ]
+
+เขียน 3 แบบ:
+แบบที่ 1: Problem-Solution — เริ่มด้วยปัญหา แล้วเสนอสินค้าเป็นทางออก
+แบบที่ 2: Feature Focus — เน้นคุณสมบัติเด่น
+แบบที่ 3: Social Proof — เน้นรีวิวหรือยอดขาย
+
+ทุกแบบ: Hook → จุดเด่น → ราคา → วิธีสั่ง → Hashtag 8 อัน`
+      },
+      {
+        name:"FLASH-SALE — แฟลชเซลล์/ลดราคาด่วน",
+        use:"สร้าง Urgency ให้คนซื้อเร็ว",
+        tags:["Facebook","TikTok","ด่วน"],
+        warn:null,
+        genFields:["สินค้า","ราคาปกติ","ราคา Flash Sale","เวลาสิ้นสุด","จำนวนจำกัด","เงื่อนไขพิเศษ"],
+        prompt:`คุณคือผู้เชี่ยวชาญสร้าง Urgency และ FOMO สำหรับ Flash Sale
+
+ข้อมูล:
+- สินค้า: [ชื่อสินค้า]
+- ราคาปกติ: [บาท] / ราคา Flash Sale: [บาท] (ลด X%)
+- เริ่ม: [วัน/เวลา] / สิ้นสุด: [วัน/เวลา]
+- จำนวนจำกัด: [XX ชิ้น]
+- เงื่อนไขพิเศษ: [เช่น ส่งฟรี, แถมของ]
+
+สร้าง Caption 2 แบบ:
+แบบที่ 1: Countdown — เน้นเวลาที่เหลือน้อย
+แบบที่ 2: Scarcity — เน้นสินค้าที่เหลือน้อย
+
+ต้องมี: ราคาชัดเจน + วิธีสั่ง + เวลาหมดอายุ + Hashtag 5 อัน`
+      },
+      {
+        name:"REVIEW-POST — โพสต์รีวิวลูกค้า",
+        use:"แชร์รีวิว, สร้าง Social Proof",
+        tags:["Facebook","IG","ความน่าเชื่อถือ"],
+        warn:null,
+        genFields:["ชื่อร้าน/สินค้า","รีวิวจากลูกค้า","ชื่อลูกค้า (ถ้าได้รับอนุญาต)","มีรูปประกอบหรือเปล่า"],
+        prompt:`คุณคือนักเขียนที่ถนัดนำรีวิวลูกค้ามาสร้าง Content น่าเชื่อถือ
+
+ข้อมูล:
+- ชื่อร้าน/สินค้า: [ชื่อ]
+- รีวิวต้นฉบับ: [วางข้อความรีวิว]
+- ชื่อลูกค้า: [ชื่อ หรือ "คุณ A"]
+- มีรูปภาพประกอบ: [ใช่/ไม่ใช่]
+
+สร้าง Caption 2 แบบ:
+แบบที่ 1: Storytelling — ก่อนใช้ vs หลังใช้
+แบบที่ 2: Quote Post — เน้นคำพูดที่โดนใจ + CTA
+
+ทุกแบบขอบคุณลูกค้า + CTA + Hashtag 6 อัน
+ห้ามดัดแปลงรีวิวให้ต่างจากความจริง`
+      },
+    ]
+  },
+  {
+    cat:"🏠 อสังหาริมทรัพย์", accent:"#0ea5e9",
+    items:[
+      {
+        name:"PROPERTY-SELL — ขาย/เช่าอสังหา",
+        use:"บ้าน, คอนโด, ที่ดิน, ทาวน์โฮม",
+        tags:["Facebook","กลุ่มซื้อขาย","ครอบครัว"],
+        warn:null,
+        genFields:["ประเภท","ชื่อโครงการ/ที่อยู่","ขนาด","ราคา","จุดเด่น 3 ข้อ","กลุ่มเป้าหมาย"],
+        prompt:`คุณคือนักเขียน Content สำหรับธุรกิจอสังหาริมทรัพย์
+
+ข้อมูลทรัพย์:
+- ประเภท: [บ้านเดี่ยว / ทาวน์โฮม / คอนโด / ที่ดิน]
+- ชื่อโครงการ/ที่อยู่: [ระบุ]
+- ขนาด: [เช่น 3 ห้องนอน 2 ห้องน้ำ 120 ตรม.]
+- ราคา: [บาท หรือ "ราคาพิเศษ ติดต่อโดยตรง"]
+- ดาวน์/ผ่อน: [เช่น ดาวน์ 10% ผ่อน X บาท/เดือน]
+- จุดเด่น 3 ข้อ: [ระบุ]
+- กลุ่มเป้าหมาย: [ครอบครัว / นักลงทุน / คนโสด]
+
+เขียน Caption 3 แบบ:
+แบบที่ 1: Emotional — เน้นความฝันของการมีบ้าน
+แบบที่ 2: Rational — เน้นตัวเลข ทำเล ความคุ้มค่า
+แบบที่ 3: Investor — เน้น ROI ค่าเช่า ศักยภาพขายต่อ`
+      },
+    ]
+  },
+  {
+    cat:"🎓 การศึกษา & คอร์สออนไลน์", accent:"#a855f7",
+    items:[
+      {
+        name:"COURSE-LAUNCH — เปิดคอร์ส/รับสมัคร",
+        use:"คอร์สออนไลน์, ติวเตอร์, สถาบัน",
+        tags:["Facebook","Line","รับสมัคร"],
+        warn:null,
+        genFields:["ชื่อสถาบัน/ผู้สอน","ชื่อคอร์ส","สิ่งที่ได้เรียน","ใครเหมาะเรียน","ราคา","ผลลัพธ์ที่ได้"],
+        prompt:`คุณคือนักเขียน Content สำหรับธุรกิจการศึกษาและคอร์สออนไลน์
+
+ข้อมูลคอร์ส:
+- ชื่อสถาบัน/ผู้สอน: [ชื่อ]
+- ชื่อคอร์ส: [ชื่อ]
+- เรียนอะไร: [สรุปสิ่งที่ได้เรียน]
+- ใครเหมาะเรียน: [กลุ่มเป้าหมาย + ระดับ]
+- รูปแบบ: [Online / Offline / Hybrid]
+- ระยะเวลา: [เช่น 8 สัปดาห์]
+- ราคา: [บาท]
+- ผลลัพธ์ที่ได้: [เช่น "สร้างรายได้เสริม", "ทำงานได้เลย"]
+
+เขียน Caption 3 แบบ:
+แบบที่ 1: เน้นผลลัพธ์หลังเรียนจบ
+แบบที่ 2: เน้นปัญหาก่อนเรียน vs หลังเรียน
+แบบที่ 3: เน้นความน่าเชื่อถือของผู้สอน + Social Proof`
+      },
+    ]
+  },
+  {
+    cat:"🎬 สคริปต์วิดีโอ & โฆษณา", accent:"#f97316",
+    items:[
+      {
+        name:"SCRIPT-30SEC — โฆษณา 30 วินาที",
+        use:"TikTok, Facebook Reels, YouTube Shorts",
+        tags:["TikTok","Reels","Shorts"],
+        warn:null,
+        genFields:["สินค้า/บริการ","จุดเด่นหลัก","ปัญหาที่แก้ได้","กลุ่มเป้าหมาย","CTA สุดท้าย","โทน"],
+        prompt:`คุณคือผู้เขียนสคริปต์วิดีโอโฆษณาที่เชี่ยวชาญ Short-Form Content
+
+ข้อมูล:
+- สินค้า/บริการ: [ระบุ]
+- จุดเด่นหลัก: [3 ข้อ]
+- ปัญหาที่แก้ได้: [ลูกค้ามีปัญหาอะไรก่อนใช้]
+- กลุ่มเป้าหมาย: [ระบุ]
+- CTA สุดท้าย: [โทร / Inbox / คลิก Link]
+- โทน: [สนุก / จริงจัง / อบอุ่น]
+
+เขียนสคริปต์ 2 เวอร์ชัน:
+
+เวอร์ชัน A (Emotional):
+[0-3 วิ] HOOK: คำถามหรือภาพที่หยุดนิ้วได้ทันที
+[4-10 วิ] PROBLEM: ปัญหาที่คนดูเจอ
+[11-22 วิ] SOLUTION: แสดงว่าสินค้าแก้ปัญหาได้อย่างไร
+[23-27 วิ] PROOF: ตัวเลข รีวิว ผลลัพธ์
+[28-30 วิ] CTA: ชัดเจน ด่วน
+
+เวอร์ชัน B (Humor/Surprise): ใช้อารมณ์ขันหรือ Plot Twist
+ระบุ: คำพูด (VO) + ภาพที่ควรแสดง (Visual)`
+      },
+      {
+        name:"SCRIPT-FACELESS — คลิป YouTube ไม่ออกหน้า",
+        use:"YouTube Faceless Channel เรื่องลึกลับ/สารคดี",
+        tags:["YouTube","Faceless","เสียง AI"],
+        warn:null,
+        genFields:["หัวข้อคลิป","ประเภทเนื้อหา","ความยาวเป้าหมาย","กลุ่มเป้าหมาย","โทน"],
+        prompt:`คุณคือนักเขียนสคริปต์สำหรับ YouTube Faceless Channel
+
+ข้อมูล:
+- หัวข้อคลิป: [ระบุ]
+- ประเภท: [เรื่องลึกลับ / คดีอาชญากรรม / ประวัติศาสตร์ / สารคดี]
+- ความยาว: [5 / 8 / 10 / 15 นาที]
+- กลุ่มเป้าหมาย: [อายุ + ความสนใจ]
+- โทน: [ลึกลับน่ากลัว / สารคดี / ให้ความรู้]
+
+โครงสร้าง (เขียนสำหรับอ่านออกเสียง ประโยคสั้น ฟังเข้าใจง่าย):
+
+[HOOK 0:00-0:30] เปิดด้วยประโยคที่ทำให้หยุดดูต่อ
+[INTRO 0:30-1:00] แนะนำว่าคลิปพาไปดูอะไร + ชวน Subscribe
+[เนื้อหาหลัก] แบ่งเป็น 3-5 ช่วง มีหัวข้อย่อยชัดเจน
+[OUTRO] สรุป + คำถามชวนคิด + Preview คลิปหน้า
+
+กำกับ B-Roll: ระบุว่าแต่ละช่วงควรใช้ภาพแบบไหน`
+      },
+      {
+        name:"LIVE-SALE — สคริปต์ Live ขายของ",
+        use:"Facebook Live, TikTok Live",
+        tags:["Facebook Live","TikTok Live","ขายสด"],
+        warn:null,
+        genFields:["สินค้าที่จะขาย","โปรโมชั่น Live","เวลา Live","โทน"],
+        prompt:`คุณคือผู้เชี่ยวชาญสคริปต์ Live Commerce
+
+ข้อมูล:
+- สินค้า: [รายการ + ราคาปกติ + ราคา Live พิเศษ]
+- โปรโมชั่น Live: [เช่น ส่งฟรี, แถม, จับฉลาก]
+- เวลา Live: [กี่นาที]
+- โทน: [สนุกสนาน / เป็นกันเอง]
+
+สคริปต์แบ่งเป็นช่วง:
+
+[ช่วงเปิด 5 นาที]
+- ทักทาย + สร้าง Hype + แจ้งกติกา
+
+[นำเสนอสินค้าแต่ละชิ้น — ทำซ้ำ]
+→ Hook → จุดเด่น 3 ข้อ → ราคา → วิธีสั่ง + Deadline → ประโยค Urgency 3 แบบ
+
+[ช่วงปิด 3 นาที]
+- สรุปสินค้า + Deadline + ขอบคุณ + นัด Live หน้า`
+      },
+    ]
+  },
+  {
+    cat:"📄 เอกสาร & การแปลภาษา", accent:"#8b5cf6",
+    items:[
+      {
+        name:"TRANSLATE-TH-EN — แปลไทย→อังกฤษ",
+        use:"เอกสารธุรกิจ, สัญญา, จดหมาย",
+        tags:["เอกสาร","ธุรกิจ","ทางการ"],
+        warn:"⚠️ สำหรับเอกสารกฎหมายสำคัญ ควรให้ผู้เชี่ยวชาญตรวจสอบอีกครั้ง",
+        genFields:["ประเภทเอกสาร","ระดับความเป็นทางการ","ใช้สำหรับ","คำเฉพาะที่ต้องรักษา"],
+        prompt:`คุณคือนักแปลภาษาอาชีพ ชำนาญเอกสารธุรกิจและกฎหมายไทย-อังกฤษ
+
+ข้อมูล:
+- ประเภทเอกสาร: [สัญญา / จดหมายธุรกิจ / รายงาน / โบรชัวร์]
+- ระดับความเป็นทางการ: [ทางการสูง / ปานกลาง / กึ่งทางการ]
+- ใช้สำหรับ: [ส่งลูกค้าต่างชาติ / ยื่นหน่วยงาน]
+- มีคำเฉพาะทางที่ต้องรักษา: [ระบุ ถ้ามี]
+
+กฎ:
+✓ รักษาความหมายและโครงสร้างเดิม
+✓ ศัพท์กฎหมาย/ธุรกิจ ใช้คำมาตรฐานสากล
+✓ ชื่อบุคคล บริษัท สถานที่ ทับศัพท์ตามต้นฉบับ
+✓ ถ้าแปลได้หลายแบบ ระบุตัวเลือกในวงเล็บ
+
+[วางข้อความภาษาไทยที่นี่]`
+      },
+      {
+        name:"TRANSLATE-EN-TH — แปลอังกฤษ→ไทย",
+        use:"สัญญาต่างประเทศ, คู่มือ, Terms & Conditions",
+        tags:["เอกสาร","ต่างประเทศ","สัญญา"],
+        warn:"⚠️ สำหรับ Terms & Conditions หรือสัญญาสำคัญ ควรให้ทนายตรวจสอบก่อนลงนาม",
+        genFields:["ประเภทเอกสาร","ผู้อ่านเป้าหมาย","ระดับภาษาที่ต้องการ"],
+        prompt:`คุณคือนักแปลภาษาอาชีพ ชำนาญแปลเอกสารอังกฤษเป็นไทยให้เข้าใจง่าย
+
+ข้อมูล:
+- ประเภทเอกสาร: [ระบุ]
+- ผู้อ่านเป้าหมาย: [ผู้บริหาร / พนักงาน / บุคคลทั่วไป]
+- ระดับภาษา: [ทางการ / เข้าใจง่าย / ภาษาพูดปกติ]
+
+กฎ:
+✓ ใช้ภาษาไทยที่คนทั่วไปเข้าใจได้
+✓ คำศัพท์เทคนิค → ใส่คำอังกฤษในวงเล็บ
+✓ รักษาความหมายและเจตนาต้นฉบับ
+
+[วางข้อความภาษาอังกฤษที่นี่]`
+      },
+      {
+        name:"CONTRACT-SUMMARY — สรุปสัญญาภาษาง่าย",
+        use:"สรุปสัญญาให้ลูกค้าเข้าใจก่อนเซ็น",
+        tags:["สัญญา","กฎหมาย","ลูกค้า"],
+        warn:"⚠️ การสรุปนี้เพื่อความเข้าใจเบื้องต้นเท่านั้น ไม่ใช่คำปรึกษาทางกฎหมาย",
+        genFields:["สัญญาสำหรับใคร"],
+        prompt:`คุณคือผู้ช่วยวิเคราะห์สัญญาให้คนทั่วไปเข้าใจง่ายขึ้น
+
+สรุปด้วยโครงสร้าง 7 ส่วน:
+1. 👥 คู่สัญญา — ใครทำสัญญากับใคร
+2. 📋 สาระสำคัญ — ตกลงกันเรื่องอะไร (3-5 ข้อ)
+3. ⏰ ระยะเวลา — เริ่ม-สิ้นสุดเมื่อไหร่
+4. 💰 เงินและการชำระ — จำนวน วิธีจ่าย กำหนดการ
+5. ✅ หน้าที่แต่ละฝ่าย
+6. ⚠️ จุดเสี่ยง — ค่าปรับ เงื่อนไขยกเลิก เงินมัดจำ
+7. ❓ คำถามที่ควรถามก่อนเซ็น
+
+⚠️ หมายเหตุบังคับ: "การสรุปนี้เพื่อความเข้าใจเบื้องต้นเท่านั้น ควรให้ทนายความตรวจสอบก่อนลงนาม"
+
+[วางเนื้อหาสัญญาที่นี่]`
+      },
+      {
+        name:"EMAIL-EN — เขียนอีเมลธุรกิจภาษาอังกฤษ",
+        use:"ติดต่อลูกค้าต่างชาติ, เสนอราคา, ติดตามงาน",
+        tags:["อีเมล","ต่างชาติ","ธุรกิจ"],
+        warn:null,
+        genFields:["วัตถุประสงค์","ผู้รับ (ชื่อ+ตำแหน่ง)","ผู้ส่ง","ความสัมพันธ์","ประเด็นหลัก","CTA ที่ต้องการ"],
+        prompt:`คุณคือผู้เชี่ยวชาญเขียนอีเมลธุรกิจภาษาอังกฤษระดับมืออาชีพ
+
+ข้อมูล:
+- วัตถุประสงค์: [เสนอราคา / ติดตามงาน / ขอบคุณ / Cold Outreach]
+- ผู้รับ: [ชื่อ + ตำแหน่ง + บริษัท]
+- ผู้ส่ง: [Pound / ContentThai AI]
+- ความสัมพันธ์: [รู้จักกันแล้ว / ติดต่อครั้งแรก]
+- ประเด็นหลัก: [2-3 ข้อ]
+- CTA: [ขอนัดประชุม / รอการตอบรับ]
+- โทน: [Formal / Semi-formal / Friendly Professional]
+
+สร้างอีเมล 2 เวอร์ชัน:
+A: Formal — เหมาะผู้บริหารระดับสูง
+B: Friendly Professional — อบอุ่นกว่า แต่ยังเป็นมืออาชีพ
+
+ทุกเวอร์ชัน: Subject Line + เนื้อหา (ไม่เกิน 200 คำ) + CTA + Signature`
+      },
+    ]
+  },
+  {
+    cat:"❓ FAQ & ระบบตอบลูกค้า", accent:"#22c55e",
+    items:[
+      {
+        name:"FAQ-PAGE — สร้าง FAQ สำหรับ Facebook Page",
+        use:"โพสต์ตรึงบนเพจ ลดคำถามซ้ำๆ",
+        tags:["Facebook","ตรึงโพสต์","ลูกค้าใหม่"],
+        warn:null,
+        genFields:["ชื่อธุรกิจ","ประเภท","คำถามที่ลูกค้าถามบ่อย (5-10 ข้อ)","ข้อมูลสำคัญของร้าน"],
+        prompt:`คุณคือผู้เชี่ยวชาญสร้าง FAQ ตอบคำถามลูกค้าไทยได้ตรงใจ
+
+ข้อมูล:
+- ชื่อธุรกิจ: [ชื่อ]
+- ประเภท: [ระบุ]
+- คำถามบ่อย: [ระบุ 5-10 คำถามจริง]
+- ข้อมูลสำคัญ: [เวลาเปิด-ปิด, ราคา, พื้นที่บริการ, วิธีสั่ง]
+
+สร้าง FAQ สำหรับ Facebook:
+✓ ตั้งชื่อโพสต์น่าอ่าน (ไม่ใช่แค่ "คำถามที่พบบ่อย")
+✓ คำถามเหมือนที่ลูกค้าพิมพ์จริงๆ ภาษาพูด
+✓ คำตอบกระชับ ไม่เกิน 3 บรรทัด
+✓ ทุกข้อมี Emoji เหมาะสม + Mini-CTA
+✓ Copy-Paste ลง Facebook ได้เลย
+✓ ปิดท้าย: "ยังมีคำถาม? Inbox มาได้เลย 📩"`
+      },
+      {
+        name:"CHATBOT-INBOX — สคริปต์ตอบ Inbox อัตโนมัติ",
+        use:"ตั้ง Auto Reply ใน Facebook Messenger",
+        tags:["Messenger","Auto Reply","24ชม"],
+        warn:null,
+        genFields:["ธุรกิจ","สินค้า/บริการหลัก","คำถามที่ลูกค้า Inbox บ่อย","เวลาทำการ","โทน"],
+        prompt:`คุณคือผู้เชี่ยวชาญ Conversational Marketing สำหรับธุรกิจไทย
+
+ข้อมูล:
+- ธุรกิจ: [ชื่อและประเภท]
+- สินค้า/บริการหลัก: [ระบุ]
+- คำถามที่ Inbox บ่อย: [เช่น ราคา วิธีสั่ง เวลา]
+- เวลาทำการ: [เช่น จ-ศ 09:00-18:00]
+- โทน: [เป็นกันเอง / มืออาชีพ]
+
+สร้างสคริปต์ 5 ชุด + Quick Reply Button:
+1. 🙏 Welcome Message (Add/ส่งครั้งแรก)
+2. 💰 ตอบคำถามราคา
+3. 🛒 ตอบวิธีสั่ง/นัดหมาย
+4. 🌙 Away Message (นอกเวลา)
+5. ⭐ ขอ Review (หลังรับบริการ)`
+      },
+      {
+        name:"REVIEW-REPLY — ตอบรีวิวลูกค้า",
+        use:"Google Maps, Facebook, Wongnai ทั้งดีและไม่ดี",
+        tags:["Google","Wongnai","รีวิว"],
+        warn:null,
+        genFields:["ธุรกิจ","คะแนนรีวิว","ข้อความรีวิว","สิ่งที่เกิดขึ้นจริง (กรณีแย่)"],
+        prompt:`คุณคือผู้เชี่ยวชาญ Reputation Management สำหรับธุรกิจไทย
+
+ข้อมูล:
+- ธุรกิจ: [ชื่อและประเภท]
+- คะแนน: [5 ดาว / 4 / 3 / 2 / 1 ดาว]
+- ข้อความรีวิว: [วางข้อความ]
+- สิ่งที่เกิดขึ้นจริง: [ระบุ ถ้าทราบ]
+
+รีวิวดี (4-5 ดาว): ขอบคุณ + mention สิ่งที่ลูกค้าชม + ชวนกลับมา
+รีวิวกลาง (3 ดาว): ขอบคุณ + รับฟัง + เสนอปรับปรุง
+รีวิวแย่ (1-2 ดาว): ขอโทษ + รับฟัง + อธิบาย + ทางออก + ช่องทางติดต่อ
+
+ดูเป็นมนุษย์จริงๆ ห้าม Generic เกินไป ห้ามดูโกรธหรือเถียง`
+      },
+    ]
+  },
+  {
+    cat:"🎥 YouTube & Channel Strategy", accent:"#ef4444",
+    items:[
+      {
+        name:"YT-TITLE — ตั้งชื่อคลิปให้ Viral",
+        use:"ตั้งชื่อที่ CTR สูง ติด SEO YouTube",
+        tags:["YouTube","SEO","CTR"],
+        warn:null,
+        genFields:["หัวข้อที่คลิปพูดถึง","ประเภทเนื้อหา","กลุ่มเป้าหมาย","Keyword หลัก"],
+        prompt:`คุณคือผู้เชี่ยวชาญ YouTube SEO และ Click-Through Rate
+
+ข้อมูล:
+- หัวข้อคลิป: [ระบุสาระหลัก]
+- ประเภท: [เรื่องลึกลับ / สารคดี / ให้ความรู้ / บันเทิง]
+- กลุ่มเป้าหมาย: [อายุ + ความสนใจ]
+- Keyword หลัก: [ระบุ ถ้ามี]
+
+สร้างชื่อคลิป 10 แบบ:
+- 3 แบบ: ใช้ตัวเลข
+- 2 แบบ: ใช้คำถาม
+- 2 แบบ: ความลับ/ข้อมูลไม่เคยเปิดเผย
+- 2 แบบ: Emotional Hook
+- 1 แบบ: Listicle + Negative
+
+กฎ: ไม่เกิน 60 ตัวอักษร + Keyword ใน 3 คำแรก + บอกเหตุผลที่คนจะคลิก`
+      },
+      {
+        name:"YT-DESCRIPTION — เขียน Description + Tags",
+        use:"เพิ่ม SEO คลิป YouTube ให้ติดอันดับ",
+        tags:["YouTube","SEO","Description"],
+        warn:null,
+        genFields:["ชื่อคลิป","สาระหลัก (3-5 ข้อ)","Keyword หลัก","ลิงก์ที่ต้องใส่"],
+        prompt:`คุณคือผู้เชี่ยวชาญ YouTube SEO สำหรับช่องภาษาไทย
+
+ข้อมูล:
+- ชื่อช่อง: ContentThai AI
+- ชื่อคลิป: [ใส่ชื่อ]
+- สาระหลัก: [3-5 ข้อ]
+- Keyword หลัก: [3-5 คำ]
+- ลิงก์ที่ต้องใส่: [Facebook, Line OA, อื่นๆ]
+
+สร้าง Description แบบ SEO-Optimized:
+[100 คำแรก]: สรุปเนื้อหา + Keyword + Hook
+[Chapters/Timestamps]: 00:00 - บทนำ, [ต่อไปตามเนื้อหา]
+[Social Links]: Facebook / Line OA / Subscribe
+[Tags]: 20 อัน ผสม Keyword ไทย+อังกฤษ`
+      },
+      {
+        name:"THUMBNAIL-TEXT — ข้อความบน Thumbnail",
+        use:"คิดข้อความสั้น ดึงสายตา คนอยากคลิก",
+        tags:["Thumbnail","Canva","CTR"],
+        warn:null,
+        genFields:["ชื่อคลิป","เนื้อหาหลัก","อารมณ์ที่ต้องการสื่อ"],
+        prompt:`คุณคือผู้เชี่ยวชาญออกแบบ Thumbnail ที่มี CTR สูง
+
+ข้อมูล:
+- ชื่อคลิป: [ระบุ]
+- เนื้อหาหลัก: [สรุปสั้นๆ]
+- อารมณ์: [ตกใจ / อยากรู้ / กลัว / ตลก / ประทับใจ]
+- สีหลักช่อง: [Sky Blue + Amber Gold]
+
+สร้างข้อความ Thumbnail 8 แบบ:
+กฎ: ไม่เกิน 5 คำ / อ่านได้ใน 0.5 วินาที
+
+แบ่งเป็น:
+- 3 แบบ: คำถาม
+- 3 แบบ: คำสั้นน่าสะดุดใจ
+- 2 แบบ: ใช้ตัวเลข
+
+พร้อมแนะนำ: สีตัวอักษร + พื้นหลัง + ตำแหน่งข้อความ`
+      },
+    ]
+  },
+  {
+    cat:"💼 เครื่องมือธุรกิจ ContentThai AI", accent:"#0ea5e9",
+    items:[
+      {
+        name:"PROPOSAL — เสนองานให้ลูกค้าใหม่",
+        use:"ส่งข้อความแรกเสนอบริการ AI Content",
+        tags:["หาลูกค้า","Inbox","เสนองาน"],
+        warn:null,
+        genFields:["ประเภทธุรกิจลูกค้า","บริการที่เสนอ","ราคา","ทำไมธุรกิจนี้ต้องการบริการนี้"],
+        prompt:`คุณคือที่ปรึกษาธุรกิจที่ช่วยเขียน Outreach Message ให้ได้งานจริง
+
+ข้อมูล:
+- ผู้ส่ง: ปอนด์ (ContentThai AI)
+- ประเภทธุรกิจลูกค้า: [เช่น ร้านอาหาร คลินิก ร้านขายของ]
+- บริการที่เสนอ: [เช่น เขียน Caption 8 โพสต์/เดือน]
+- ราคา: [บาท/เดือน]
+- ทำไมธุรกิจนี้ต้องการบริการ: [ระบุปัญหาที่เห็น]
+
+เขียน 3 แบบ:
+แบบที่ 1 (Inbox สั้น): ไม่เกิน 4 บรรทัด เปิดด้วยคำชมจริงใจ
+แบบที่ 2 (มี Demo): ยาวกว่า ใส่ตัวอย่าง Caption 1 ชิ้นสำหรับธุรกิจเขาโดยเฉพาะ
+แบบที่ 3 (Follow-up): Gentle Reminder ถ้าไม่ตอบใน 3 วัน
+
+ทุกแบบดูเป็นมนุษย์จริงๆ ไม่ Copy-Paste ทั่วไป`
+      },
+      {
+        name:"LINE-OA — ข้อความต้อนรับ Line OA",
+        use:"ตั้งค่า Auto Reply สำหรับ Line OA ของลูกค้า",
+        tags:["Line OA","Auto Reply","ต้อนรับ"],
+        warn:null,
+        genFields:["ธุรกิจ","สิ่งที่ลูกค้าจะได้รับจาก Line","CTA หลัก"],
+        prompt:`คุณคือผู้เชี่ยวชาญ Line Official Account สำหรับธุรกิจไทย
+
+ข้อมูล:
+- ธุรกิจ: [ชื่อและประเภท]
+- สิ่งที่ลูกค้าจะได้: [โปรพิเศษ ข่าวสาร สั่งสินค้า นัดหมาย]
+- CTA หลัก: [สิ่งที่ต้องการให้ทำทันทีที่ Add]
+
+สร้าง 4 ชุดข้อความ:
+1. Welcome Message (Add เพื่อนครั้งแรก): อบอุ่น + ประโยชน์ + CTA + Rich Menu 3 ปุ่ม
+2. Greeting Message (ทุกครั้งที่เปิดแชท): สั้น กระชับ + Quick Reply
+3. Away Message (นอกเวลา): แจ้งเวลา + ให้ความหวัง
+4. Broadcast Template: Hook → ข้อเสนอ → Deadline → วิธีรับสิทธิ์`
+      },
+      {
+        name:"PRICE-LIST — โพสต์ราคาบริการ",
+        use:"โพสต์ราคาที่น่าซื้อ ไม่ใช่แค่ตารางแห้งๆ",
+        tags:["Facebook","ราคา","บริการ"],
+        warn:null,
+        genFields:["ธุรกิจ","รายการบริการและราคา","บริการ Best Seller","จุดเด่นที่ทำให้คุ้มค่า"],
+        prompt:`คุณคือผู้เชี่ยวชาญ Pricing Communication ที่ทำให้ราคาดูคุ้มค่า
+
+ข้อมูล:
+- ธุรกิจ: [ชื่อและประเภท]
+- รายการบริการ/สินค้าและราคา: [ระบุครบ]
+- Best Seller: [ระบุ]
+- จุดเด่น: [เช่น ฟรีปรึกษา, รับประกัน]
+
+สร้างโพสต์ 2 แบบ:
+แบบที่ 1: Simple & Clear — ตารางราคาอ่านง่าย
+แบบที่ 2: Value-First — เริ่มด้วยสิ่งที่ได้รับ แล้วค่อยบอกราคา
+
+ทุกแบบ: หัวข้อดึงดูด + จัดกลุ่มชัดเจน + เน้น Best Value + CTA + Emoji`
+      },
+    ]
+  },
+];
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let activeCat = 0;
+let activeItem = null;
+let searchQ = '';
+let favorites = JSON.parse(localStorage.getItem('ct_favs') || '[]');
+let showFav = false;
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function allItems() {
+  return DATA.flatMap((c, ci) => c.items.map((it, ii) => ({ ...it, ci, ii, cat: c.cat, accent: c.accent })));
+}
+function totalTemplates() { return DATA.reduce((s, c) => s + c.items.length, 0); }
+function isFav(ci, ii) { return favorites.some(f => f.ci === ci && f.ii === ii); }
+function toggleFav(ci, ii) {
+  if (isFav(ci, ii)) {
+    favorites = favorites.filter(f => !(f.ci === ci && f.ii === ii));
+  } else {
+    favorites.push({ ci, ii });
+  }
+  localStorage.setItem('ct_favs', JSON.stringify(favorites));
+  renderAll();
+}
+function sanitize(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function highlightBrackets(text) {
+  return sanitize(text).replace(/\[([^\]]+)\]/g, '<span class="bracket">[$1]</span>');
+}
+
+// ══════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════
+function renderAll() {
+  updateCount();
+  renderSidebar();
+  renderMobileNav();
+  renderList();
+  renderDetail();
+  renderFavBadge();
+}
+
+function updateCount() {
+  const el = document.getElementById('totalCount');
+  if (!el) return;
+  const q = searchQ.toLowerCase();
+  const visible = q ? allItems().filter(it => it.name.toLowerCase().includes(q) || it.use.toLowerCase().includes(q)).length : totalTemplates();
+  el.textContent = q ? `พบ ${visible} / ${totalTemplates()} templates` : `${totalTemplates()} templates`;
+}
+
+function renderFavBadge() {
+  const el = document.getElementById('fav-count-badge');
+  if (el) el.textContent = favorites.length > 0 ? `(${favorites.length})` : '';
+}
+
+function renderSidebar() {
+  const sb = document.getElementById('sidebar');
+  if (!sb) return;
+  sb.innerHTML = `<div class="sidebar-section">หมวดหมู่</div>` +
+    DATA.map((c, ci) => `
+      <button class="cat-btn ${!showFav && activeCat === ci && !searchQ ? 'active' : ''}"
+        onclick="setCat(${ci})" style="${!showFav && activeCat === ci && !searchQ ? `border-left:3px solid ${c.accent}` : ''}">
+        <span>${c.cat}</span>
+        <span class="cat-count">${c.items.length}</span>
+      </button>`).join('') +
+    `<div style="margin-top:8px;padding:4px 8px"><button class="cat-btn ${showFav ? 'active' : ''}" onclick="showFavorites()" style="${showFav ? 'border-left:3px solid #f59e0b' : ''}">
+      <span>⭐ Favorites</span>
+      <span class="cat-count">${favorites.length}</span>
+    </button></div>`;
+}
+
+function renderMobileNav() {
+  const mn = document.getElementById('mobileNav');
+  if (!mn) return;
+  mn.innerHTML = DATA.map((c, ci) =>
+    `<button class="mobile-cat-btn ${!showFav && activeCat === ci && !searchQ ? 'active' : ''}" onclick="setCat(${ci})">${c.cat}</button>`
+  ).join('') + `<button class="mobile-cat-btn ${showFav ? 'active' : ''}" onclick="showFavorites()">⭐ Fav</button>`;
+}
+
+function renderList() {
+  const lp = document.getElementById('listPane');
+  if (!lp) return;
+  let items;
+  if (showFav) {
+    items = favorites.map(f => ({ ...DATA[f.ci].items[f.ii], ci: f.ci, ii: f.ii, cat: DATA[f.ci].cat, accent: DATA[f.ci].accent }));
+  } else if (searchQ) {
+    const q = searchQ.toLowerCase();
+    items = allItems().filter(it => it.name.toLowerCase().includes(q) || it.use.toLowerCase().includes(q));
+  } else {
+    items = DATA[activeCat]?.items.map((it, ii) => ({ ...it, ci: activeCat, ii, cat: DATA[activeCat].cat, accent: DATA[activeCat].accent })) || [];
+  }
+  if (!items.length) {
+    lp.innerHTML = `<div style="padding:32px 16px;text-align:center;color:var(--muted);font-size:13px">${showFav ? '⭐ ยังไม่มี Favorites<br>กด ⭐ ที่ template ที่ชอบ' : 'ไม่พบ template'}</div>`;
+    return;
+  }
+  const acc = showFav ? '#f59e0b' : (searchQ ? 'var(--primary)' : DATA[activeCat]?.accent || 'var(--primary)');
+  lp.innerHTML = items.map(it => {
+    const fav = isFav(it.ci, it.ii);
+    const active = !showFav && !searchQ && activeItem === it.ii && activeCat === it.ci;
+    const tagHtml = (it.tags || []).map(t => `<span class="item-tag" style="background:${it.accent}18;color:${it.accent}">${t}</span>`).join('');
+    return `<button class="list-item ${active ? 'active' : ''}" onclick="setItem(${it.ci},${it.ii})" style="${active ? `border-left:3px solid ${it.accent}` : ''}">
+      <div class="item-name">${sanitize(it.name)}</div>
+      <div class="item-use">${sanitize(it.use)}</div>
+      <div class="item-tags">${tagHtml}</div>
+      <button class="fav-btn ${fav ? 'active' : ''}" onclick="event.stopPropagation();toggleFav(${it.ci},${it.ii})" title="${fav ? 'ลบจาก Favorites' : 'เพิ่ม Favorites'}">${fav ? '⭐' : '☆'}</button>
+    </button>`;
+  }).join('');
+}
+
+function renderDetail() {
+  const dv = document.getElementById('detail');
+  if (!dv) return;
+  const cat = DATA[activeCat];
+  const item = (!searchQ && !showFav && activeItem !== null) ? cat?.items[activeItem] : null;
+  const ci = activeCat, ii = activeItem;
+
+  if (!item) {
+    dv.innerHTML = `<div class="detail-empty">
+      <div class="empty-icon">✨</div>
+      <div style="font-size:17px;font-weight:700;color:var(--text)">${showFav && !favorites.length ? 'ยังไม่มี Favorites' : 'เลือก Template ที่ต้องการ'}</div>
+      <div style="font-size:14px;color:var(--muted)">${showFav && !favorites.length ? 'กด ☆ ที่ template เพื่อเพิ่ม' : `มีทั้งหมด ${totalTemplates()} templates`}</div>
+    </div>`;
+    return;
+  }
+
+  const fav = isFav(ci, ii);
+  const warnHtml = item.warn ? `<div class="warn-box">⚠️ <span>${sanitize(item.warn)}</span></div>` : '';
+  const highlighted = highlightBrackets(item.prompt);
+
+  // Generate fields
+  const genFieldsHtml = (item.genFields || []).map((f, i) => `
+    <div class="gen-field">
+      <label>${sanitize(f)}</label>
+      <input id="gf_${i}" placeholder="ใส่ข้อมูล..." oninput="updateGenPrompt()">
+    </div>`).join('');
+
+  dv.innerHTML = `
+    <div style="max-width:720px">
+      <div class="detail-cat">${sanitize(cat.cat)}</div>
+      <div class="detail-name">${sanitize(item.name)}</div>
+      <div class="detail-use">✓ ${sanitize(item.use)}</div>
+      <div class="detail-actions">
+        <button class="btn-action btn-copy" id="copyBtn" onclick="copyPrompt()">📋 Copy Prompt</button>
+        <button class="btn-action btn-fav ${fav ? 'active' : ''}" onclick="toggleFav(${ci},${ii})">
+          ${fav ? '⭐ Saved' : '☆ Favorite'}
+        </button>
+        <a class="btn-open-claude" href="https://claude.ai" target="_blank">🤖 เปิด Claude AI</a>
+      </div>
+
+      ${warnHtml}
+
+      <!-- GENERATE FORM -->
+      <div class="generate-card" style="margin-top:20px">
+        <div class="generate-title">⚡ Generate Prompt — ใส่ข้อมูลแล้วสร้าง Prompt ได้เลย</div>
+        <div class="gen-fields">${genFieldsHtml}</div>
+        <button class="btn-generate" onclick="generatePrompt(${ci},${ii})">✨ สร้าง Prompt พร้อมข้อมูลของคุณ</button>
+        <div class="gen-result" id="genResult">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <strong style="font-size:13px;color:var(--primary)">✅ Prompt พร้อมใช้งาน</strong>
+            <button class="btn-action btn-copy" style="padding:6px 12px;font-size:12px" onclick="copyGenResult()">📋 Copy</button>
+          </div>
+          <div id="genResultText"></div>
+        </div>
+      </div>
+
+      <!-- PROMPT BOX -->
+      <div class="prompt-card" style="margin-top:16px">
+        <div class="prompt-card-header">
+          <div class="prompt-dots">
+            <span style="background:#ff5f56"></span>
+            <span style="background:#ffbd2e"></span>
+            <span style="background:#27c93f"></span>
+          </div>
+          <span class="prompt-label">template prompt (ต้นฉบับ)</span>
+          <button class="btn-action btn-copy" id="copyBtn2" style="padding:5px 12px;font-size:12px" onclick="copyPrompt()">📋 Copy</button>
+        </div>
+        <div class="prompt-body">${highlighted}</div>
+      </div>
+
+      <!-- HOW TO -->
+      <div class="how-card">
+        <div class="how-title">วิธีใช้ Template นี้</div>
+        <ol class="how-steps">
+          <li>กด <strong>Copy Prompt</strong> หรือใช้ Generate ด้านบน</li>
+          <li>เปิด <strong>Claude AI</strong> (ปุ่มสีส้มด้านบน) แล้ว Paste</li>
+          <li>แทนที่ข้อความ <strong style="color:var(--primary)">[วงเล็บสีน้ำเงิน]</strong> ด้วยข้อมูลจริง</li>
+          <li>กด Enter รอผลลัพธ์ประมาณ 10-30 วินาที</li>
+          <li>อ่านทบทวน ปรับแก้เล็กน้อย แล้วส่งให้ลูกค้าได้เลย</li>
+        </ol>
+      </div>
+
+      <div class="tip-card">
+        💡 <strong>เคล็ดลับ:</strong> ยิ่งใส่ข้อมูลใน Generate ละเอียดมากเท่าไหร่ Prompt ที่ได้จะยิ่งตรงกับธุรกิจของลูกค้ามากขึ้น ลองใส่ชื่อร้านจริง ราคาจริง และกลุ่มลูกค้าจริง
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════
+function setCat(ci) {
+  activeCat = ci; activeItem = null; searchQ = ''; showFav = false;
+  const si = document.getElementById('searchInput');
+  if (si) si.value = '';
+  renderAll();
+}
+
+function setItem(ci, ii) {
+  activeCat = ci; activeItem = ii; searchQ = ''; showFav = false;
+  const si = document.getElementById('searchInput');
+  if (si) si.value = '';
+  renderAll();
+  // Scroll to top on mobile
+  if (window.innerWidth <= 768) {
+    document.getElementById('detail')?.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function doSearch(v) {
+  searchQ = v; activeItem = null; showFav = false;
+  renderAll();
+}
+
+function showFavorites() {
+  showFav = true; activeItem = null; searchQ = '';
+  const si = document.getElementById('searchInput');
+  if (si) si.value = '';
+  renderAll();
+}
+
+function copyPrompt() {
+  const cat = DATA[activeCat];
+  const item = cat?.items[activeItem];
+  if (!item) return;
+  doCopy(item.prompt, ['copyBtn', 'copyBtn2']);
+}
+
+function copyGenResult() {
+  const el = document.getElementById('genResultText');
+  if (el) doCopy(el.textContent, ['copyGenBtn']);
+}
+
+function doCopy(text, btnIds) {
+  const copy = () => {
+    btnIds.forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) { btn.textContent = '✓ Copied!'; btn.classList.add('copied'); setTimeout(() => { if (btn) { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); } }, 2000); }
+    });
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(copy).catch(() => fallbackCopy(text, copy));
+  } else {
+    fallbackCopy(text, copy);
+  }
+}
+
+function fallbackCopy(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta); if (cb) cb();
+}
+
+// ══════════════════════════════════════
+// GENERATE PROMPT
+// ══════════════════════════════════════
+function updateGenPrompt() { /* live update placeholder */ }
+
+function generatePrompt(ci, ii) {
+  const item = DATA[ci]?.items[ii];
+  if (!item) return;
+  const fields = item.genFields || [];
+  let prompt = item.prompt;
+
+  // Replace each [bracket] with user input
+  const fieldPatterns = prompt.match(/\[([^\]]+)\]/g) || [];
+  fieldPatterns.forEach((bracket, i) => {
+    const inputEl = document.getElementById(`gf_${i}`);
+    const val = inputEl?.value?.trim();
+    if (val) {
+      prompt = prompt.replace(bracket, val);
+    }
+  });
+
+  const resultEl = document.getElementById('genResult');
+  const resultText = document.getElementById('genResultText');
+  if (resultEl && resultText) {
+    resultText.textContent = prompt;
+    resultEl.classList.add('show');
+    resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ══════════════════════════════════════
+// KEYBOARD
+// ══════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !e.target.matches('input,textarea')) {
+    e.preventDefault();
+    document.getElementById('searchInput')?.focus();
+  }
+  if (e.key === 'Escape') {
+    doSearch('');
+    document.getElementById('searchInput').value = '';
+  }
+});
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+renderAll();
+</script>
+</body>
+</html>
