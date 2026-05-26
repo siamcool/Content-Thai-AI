@@ -378,14 +378,40 @@ async function doLogin() {
     return;
   }
 
-  // ตรวจสอบสถานะการอนุมัติ
-  const { data: profile } = await sb
-    .from('profiles')
-    .select('status, package, full_name')
-    .eq('id', data.user.id)
-    .single();
+  // ตรวจสอบสถานะการอนุมัติ — query ด้วย id ก่อน fallback เป็น email
+  let profile = null;
 
-  if (!profile || profile.status === 'pending') {
+  // Query by id ก่อน
+  const { data: p1, error: e1 } = await sb
+    .from('profiles')
+    .select('status, package, full_name, role')
+    .eq('id', data.user.id)
+    .maybeSingle();
+
+  if (p1) {
+    profile = p1;
+  } else {
+    // Fallback: query by email (กรณี id ไม่ตรง หรือ RLS block)
+    const { data: p2 } = await sb
+      .from('profiles')
+      .select('status, package, full_name, role')
+      .eq('email', email)
+      .maybeSingle();
+    profile = p2;
+  }
+
+  // Debug — ลบออกได้หลัง fix สำเร็จ
+  console.log('Profile found:', profile, '| Auth user id:', data.user.id, '| Error:', e1);
+
+  if (!profile) {
+    // ไม่เจอ profile เลย — อาจเป็น account ใหม่ที่ยังไม่มี row ใน profiles
+    await sb.auth.signOut();
+    setLoading('btn-login', false);
+    showAlert('⚠️ ไม่พบข้อมูลบัญชีในระบบ กรุณาติดต่อ Admin หรือสมัครใหม่', 'error');
+    return;
+  }
+
+  if (profile.status === 'pending') {
     await sb.auth.signOut();
     setLoading('btn-login', false);
     showAlert('⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', 'info');
@@ -399,14 +425,8 @@ async function doLogin() {
     return;
   }
 
-  // Admin redirect
-  const { data: adminCheck } = await sb
-    .from('profiles')
-    .select('role')
-    .eq('id', data.user.id)
-    .single();
-
-  if (adminCheck?.role === 'admin') {
+  // Redirect ตาม role
+  if (profile.role === 'admin') {
     window.location.href = 'admin_dashboard.html';
   } else {
     window.location.href = 'dashboard.html';
@@ -514,3 +534,4 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
+
