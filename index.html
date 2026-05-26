@@ -33,12 +33,14 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 20px 16px;
 }
 
 /* ══ BACKGROUND ══ */
 .bg-grid {
-  position: fixed; inset: 0; z-index: 0;
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background-image:
     linear-gradient(rgba(14,165,233,.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(14,165,233,.04) 1px, transparent 1px);
@@ -46,13 +48,13 @@ body {
 }
 .bg-glow-1 {
   position: fixed; top: -200px; left: -200px;
-  width: 600px; height: 600px; border-radius: 50%;
+  width: 600px; height: 600px; border-radius: 50%; pointer-events: none;
   background: radial-gradient(circle, rgba(14,165,233,.12) 0%, transparent 70%);
   z-index: 0;
 }
 .bg-glow-2 {
   position: fixed; bottom: -150px; right: -150px;
-  width: 500px; height: 500px; border-radius: 50%;
+  width: 500px; height: 500px; border-radius: 50%; pointer-events: none;
   background: radial-gradient(circle, rgba(245,158,11,.08) 0%, transparent 70%);
   z-index: 0;
 }
@@ -63,11 +65,23 @@ body {
   background: var(--s1);
   border: 1px solid var(--border);
   border-radius: 24px;
-  padding: 48px 44px;
+  padding: 32px 32px;
   width: 100%;
   max-width: 440px;
   box-shadow: 0 32px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(14,165,233,.08);
   animation: cardIn .5s ease both;
+  margin: auto;
+}
+@media (max-height: 750px) {
+  .card { padding: 24px 28px; }
+  .logo { margin-bottom: 20px; }
+  .tabs { margin-bottom: 18px; }
+  .form-group { margin-bottom: 10px; }
+  .form-input { padding: 9px 14px; }
+  .btn-submit { padding: 11px; margin-top: 4px; }
+}
+@media (max-width: 480px) {
+  .card { padding: 24px 18px; border-radius: 18px; }
 }
 @keyframes cardIn {
   from { opacity:0; transform:translateY(24px); }
@@ -168,19 +182,19 @@ body {
 }
 
 /* ══ PACKAGE SELECTOR ══ */
-.packages { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.packages { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
 .pkg {
   background: var(--s2); border: 2px solid rgba(255,255,255,.07);
-  border-radius: 12px; padding: 14px; cursor: pointer; transition: .2s;
+  border-radius: 10px; padding: 10px 8px; cursor: pointer; transition: .2s;
   text-align: center;
 }
 .pkg:hover { border-color: rgba(14,165,233,.3); }
 .pkg.selected { border-color: var(--primary); background: rgba(14,165,233,.08); }
-.pkg-name { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
-.pkg-price { font-size: 12px; color: var(--muted); }
+.pkg-name { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+.pkg-price { font-size: 11px; color: var(--muted); }
 .pkg-badge {
-  display: inline-block; font-size: 10px; padding: 2px 7px;
-  border-radius: 6px; margin-top: 5px; font-family: monospace;
+  display: inline-block; font-size: 10px; padding: 2px 6px;
+  border-radius: 5px; margin-top: 4px; font-family: monospace;
 }
 
 /* ══ FOOTER NOTE ══ */
@@ -378,40 +392,14 @@ async function doLogin() {
     return;
   }
 
-  // ตรวจสอบสถานะการอนุมัติ — query ด้วย id ก่อน fallback เป็น email
-  let profile = null;
-
-  // Query by id ก่อน
-  const { data: p1, error: e1 } = await sb
+  // ตรวจสอบสถานะการอนุมัติ
+  const { data: profile } = await sb
     .from('profiles')
-    .select('status, package, full_name, role')
+    .select('status, package, full_name')
     .eq('id', data.user.id)
-    .maybeSingle();
+    .single();
 
-  if (p1) {
-    profile = p1;
-  } else {
-    // Fallback: query by email (กรณี id ไม่ตรง หรือ RLS block)
-    const { data: p2 } = await sb
-      .from('profiles')
-      .select('status, package, full_name, role')
-      .eq('email', email)
-      .maybeSingle();
-    profile = p2;
-  }
-
-  // Debug — ลบออกได้หลัง fix สำเร็จ
-  console.log('Profile found:', profile, '| Auth user id:', data.user.id, '| Error:', e1);
-
-  if (!profile) {
-    // ไม่เจอ profile เลย — อาจเป็น account ใหม่ที่ยังไม่มี row ใน profiles
-    await sb.auth.signOut();
-    setLoading('btn-login', false);
-    showAlert('⚠️ ไม่พบข้อมูลบัญชีในระบบ กรุณาติดต่อ Admin หรือสมัครใหม่', 'error');
-    return;
-  }
-
-  if (profile.status === 'pending') {
+  if (!profile || profile.status === 'pending') {
     await sb.auth.signOut();
     setLoading('btn-login', false);
     showAlert('⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', 'info');
@@ -425,8 +413,14 @@ async function doLogin() {
     return;
   }
 
-  // Redirect ตาม role
-  if (profile.role === 'admin') {
+  // Admin redirect
+  const { data: adminCheck } = await sb
+    .from('profiles')
+    .select('role')
+    .eq('id', data.user.id)
+    .single();
+
+  if (adminCheck?.role === 'admin') {
     window.location.href = 'admin_dashboard.html';
   } else {
     window.location.href = 'dashboard.html';
