@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContentThai AI — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#060910;--s1:#0d1220;--s2:#131a2e;--s3:#1c2540;
+  --border:rgba(14,165,233,.15);--border2:rgba(14,165,233,.25);
+  --primary:#0ea5e9;--accent:#f59e0b;--green:#22c55e;--red:#ef4444;--purple:#a855f7;
+  --text:#e8f0fe;--muted:#6b7fa3;--font:'Sarabun',sans-serif;--head:'Outfit',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+
+/* ── BACKGROUND ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 0%,rgba(14,165,233,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 100%,rgba(245,158,11,.05) 0%,transparent 60%),
+    linear-gradient(rgba(14,165,233,.025) 1px,transparent 1px) 0 0/48px 48px,
+    linear-gradient(90deg,rgba(14,165,233,.025) 1px,transparent 1px) 0 0/48px 48px;
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(6,9,16,.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 28px;display:flex;align-items:center;gap:16px;height:62px;
+}
+.nav-brand{font-family:var(--head);font-weight:800;font-size:17px;letter-spacing:-.3px}
+.nav-brand span{color:var(--accent)}
+.pkg-badge{
+  padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:monospace;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.pkg-free{background:rgba(107,127,163,.15);border:1px solid rgba(107,127,163,.3);color:var(--muted)}
+.pkg-monthly{background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.3);color:var(--primary)}
+.pkg-yearly{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:var(--accent)}
+.pkg-lifetime{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.nav-user{font-size:13px;color:var(--muted)}
+.nav-user strong{color:var(--text)}
+.btn-logout{
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
+  color:var(--red);padding:7px 16px;border-radius:8px;cursor:pointer;
+  font-family:var(--font);font-size:13px;font-weight:600;transition:.15s;
+}
+.btn-logout:hover{background:var(--red);color:#fff}
+
+/* ── WRAP ── */
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:36px 24px 60px}
+
+/* ── WELCOME BANNER ── */
+.welcome{
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  border:1px solid var(--border2);border-radius:20px;
+  padding:28px 32px;margin-bottom:28px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  position:relative;overflow:hidden;
+}
+.welcome::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(14,165,233,.12),transparent 70%);
+}
+.welcome-text h2{font-family:var(--head);font-size:22px;font-weight:800;margin-bottom:6px}
+.welcome-text h2 span{color:var(--primary)}
+.welcome-text p{font-size:14px;color:var(--muted);line-height:1.7}
+.upgrade-box{
+  background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.04));
+  border:1px solid rgba(245,158,11,.25);border-radius:14px;
+  padding:16px 20px;text-align:center;min-width:200px;flex-shrink:0;
+}
+.upgrade-box.hidden{display:none}
+.upgrade-title{font-family:var(--head);font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.upgrade-desc{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+.btn-upgrade{
+  background:linear-gradient(135deg,var(--accent),#d97706);
+  color:#000;border:none;border-radius:8px;padding:8px 18px;
+  font-family:var(--head);font-size:13px;font-weight:700;cursor:pointer;transition:.2s;
+  display:inline-block;
+}
+.btn-upgrade:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,.3)}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.stat-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:14px;
+  padding:18px 20px;display:flex;align-items:center;gap:14px;
+}
+.stat-icon{
+  width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:18px;flex-shrink:0;
+}
+.stat-icon.blue{background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.2)}
+.stat-icon.amber{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2)}
+.stat-icon.green{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2)}
+.stat-val{font-family:var(--head);font-size:22px;font-weight:800}
+.stat-label{font-size:12px;color:var(--muted);margin-top:1px}
+
+/* ── SECTION ── */
+.sec-label{
+  font-size:10px;font-family:monospace;letter-spacing:3px;text-transform:uppercase;
+  color:var(--primary);margin-bottom:8px;display:flex;align-items:center;gap:10px;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec-title{font-family:var(--head);font-size:18px;font-weight:700;margin-bottom:4px}
+.sec-desc{color:var(--muted);font-size:13px;margin-bottom:20px}
+
+/* ── FILTER TABS ── */
+.cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.cat-tab{
+  background:var(--s2);border:1px solid var(--border);border-radius:8px;
+  padding:6px 16px;color:var(--muted);cursor:pointer;font-size:13px;
+  font-family:var(--font);font-weight:600;transition:.15s;
+}
+.cat-tab:hover{color:var(--text);border-color:var(--border2)}
+.cat-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ── TEMPLATE GRID ── */
+.template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.tpl-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:16px;
+  padding:20px;cursor:pointer;transition:.2s;position:relative;overflow:hidden;
+}
+.tpl-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  opacity:0;transition:.2s;
+}
+.tpl-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(14,165,233,.1)}
+.tpl-card:hover::before{opacity:1}
+.tpl-card.locked{cursor:default;opacity:.6}
+.tpl-card.locked:hover{transform:none;box-shadow:none;border-color:var(--border)}
+.tpl-card.locked::before{display:none}
+.tpl-emoji{font-size:28px;margin-bottom:12px}
+.tpl-name{font-family:var(--head);font-size:15px;font-weight:700;margin-bottom:6px}
+.tpl-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.tpl-footer{display:flex;align-items:center;justify-content:space-between}
+.tpl-cat{
+  font-size:10px;font-weight:700;font-family:monospace;letter-spacing:.5px;
+  background:var(--s2);border:1px solid var(--border);color:var(--muted);
+  padding:3px 10px;border-radius:6px;
+}
+.lock-badge{
+  font-size:10px;font-weight:700;
+  background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);
+  color:var(--purple);padding:3px 10px;border-radius:6px;
+  display:flex;align-items:center;gap:4px;
+}
+.use-btn{
+  background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);
+  color:var(--primary);padding:5px 14px;border-radius:7px;
+  font-size:12px;font-weight:700;cursor:pointer;transition:.15s;font-family:var(--font);
+}
+.use-btn:hover{background:var(--primary);color:#fff}
+
+/* ── MODAL ── */
+.modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:200;align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.show{display:flex}
+.modal{
+  background:var(--s1);border:1px solid var(--border2);border-radius:20px;
+  padding:32px;width:100%;max-width:580px;max-height:85vh;overflow-y:auto;
+  animation:modalIn .25s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}
+.modal-title{font-family:var(--head);font-size:20px;font-weight:800}
+.modal-close{
+  background:var(--s2);border:1px solid var(--border);color:var(--muted);
+  width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s;
+}
+.modal-close:hover{color:var(--text);border-color:var(--border2)}
+.prompt-box{
+  background:#020509;border:1px solid var(--border);border-radius:12px;
+  padding:20px;font-size:13px;line-height:1.9;color:#94a3b8;
+  white-space:pre-wrap;margin-bottom:16px;max-height:300px;overflow-y:auto;
+}
+.btn-copy-prompt{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--primary),#0284c7);
+  color:#fff;border:none;border-radius:10px;
+  font-family:var(--head);font-size:14px;font-weight:700;cursor:pointer;transition:.2s;
+}
+.btn-copy-prompt:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(14,165,233,.3)}
+.btn-copy-prompt.copied{background:linear-gradient(135deg,var(--green),#16a34a)}
+
+/* ── UPGRADE MODAL ── */
+.upgrade-modal{
+  background:var(--s1);border:1px solid rgba(245,158,11,.3);border-radius:20px;
+  padding:36px;width:100%;max-width:460px;text-align:center;
+  animation:modalIn .25s ease;
+}
+.upgrade-modal-icon{font-size:48px;margin-bottom:16px}
+.upgrade-modal-title{font-family:var(--head);font-size:22px;font-weight:800;margin-bottom:8px}
+.upgrade-modal-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:24px}
+.pkg-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.pkg-opt{
+  background:var(--s2);border:2px solid var(--border);border-radius:12px;
+  padding:16px;cursor:pointer;transition:.2s;text-align:center;
+}
+.pkg-opt:hover{border-color:rgba(245,158,11,.4)}
+.pkg-opt-name{font-family:var(--head);font-size:14px;font-weight:700;margin-bottom:4px}
+.pkg-opt-price{font-size:13px;color:var(--accent);font-weight:700}
+.pkg-opt-desc{font-size:11px;color:var(--muted);margin-top:3px}
+.btn-close-upgrade{
+  background:var(--s2);border:1px solid var(--border);color:var(--muted);
+  padding:10px 24px;border-radius:8px;cursor:pointer;font-family:var(--font);font-size:13px;
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:28px;right:28px;z-index:300;
+  background:var(--s1);border:1px solid var(--border2);border-radius:12px;
+  padding:14px 20px;font-size:13px;display:none;
+  animation:toastIn .3s ease;
+}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── EXPIRY BAR ── */
+.expiry-bar{
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
+  border-radius:10px;padding:10px 16px;margin-bottom:20px;
+  font-size:13px;color:#fca5a5;display:none;
+}
+.expiry-bar.show{display:block}
+
+@media(max-width:700px){
+  .stats-row{grid-template-columns:1fr}
+  .welcome{flex-direction:column}
+  .upgrade-box{width:100%}
+  .wrap{padding:20px 14px 40px}
+  .pkg-options{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">ContentThai <span>AI</span></div>
+  <div class="pkg-badge pkg-free" id="nav-pkg">FREE</div>
+  <div class="nav-right">
+    <div class="nav-user">สวัสดี, <strong id="nav-name">—</strong></div>
+    <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- TEMPLATE MODAL -->
+<div class="modal-bg" id="modal-tpl">
+  <div class="modal">
+    <div class="modal-top">
+      <div>
+        <div id="modal-emoji" style="font-size:28px;margin-bottom:8px"></div>
+        <div class="modal-title" id="modal-title"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-tpl')">✕</button>
+    </div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px" id="modal-desc"></div>
+    <div style="font-size:11px;font-family:monospace;letter-spacing:1px;color:var(--primary);text-transform:uppercase;margin-bottom:8px">📋 Prompt Template</div>
+    <div class="prompt-box" id="modal-prompt"></div>
+    <button class="btn-copy-prompt" id="copy-btn" onclick="copyPrompt()">📋 Copy Prompt ไปใช้งาน</button>
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="modal-bg" id="modal-upgrade">
+  <div class="upgrade-modal">
+    <div class="upgrade-modal-icon">🔒</div>
+    <div class="upgrade-modal-title">Prompt นี้สำหรับสมาชิก Paid</div>
+    <div class="upgrade-modal-desc">อัปเกรดแพ็กเกจเพื่อปลดล็อก Prompt Templates ทั้งหมด 27 ชุด และฟีเจอร์พรีเมียมอื่นๆ</div>
+    <div class="pkg-options">
+      <div class="pkg-opt">
+        <div class="pkg-opt-name">รายเดือน</div>
+        <div class="pkg-opt-price">฿299/เดือน</div>
+        <div class="pkg-opt-desc">ทุก Templates ไม่จำกัด</div>
+      </div>
+      <div class="pkg-opt">
+        <div class="pkg-opt-name">รายปี</div>
+        <div class="pkg-opt-price">฿2,490/ปี</div>
+        <div class="pkg-opt-desc">ประหยัด 30% + Priority</div>
+      </div>
+      <div class="pkg-opt" style="grid-column:1/-1;border-color:rgba(34,197,94,.3)">
+        <div class="pkg-opt-name" style="color:var(--green)">ตลอดชีพ 🏆</div>
+        <div class="pkg-opt-price" style="color:var(--green)">฿4,990 ครั้งเดียว</div>
+        <div class="pkg-opt-desc">ทุกอย่างไม่จำกัด ตลอดกาล</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">ติดต่อ Admin เพื่ออัปเกรดแพ็กเกจของคุณ</div>
+    <button class="btn-close-upgrade" onclick="closeModal('modal-upgrade')">ปิด</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- EXPIRY WARNING -->
+  <div class="expiry-bar" id="expiry-bar">⚠️ แพ็กเกจของคุณใกล้หมดอายุแล้ว — กรุณาต่ออายุก่อนหมดเขต</div>
+
+  <!-- WELCOME -->
+  <div class="welcome">
+    <div class="welcome-text">
+      <h2>สวัสดีครับ, <span id="welcome-name">—</span> 👋</h2>
+      <p>ยินดีต้อนรับสู่ ContentThai AI — เลือก Prompt Template ด้านล่างแล้วนำไปใช้ใน Claude ได้เลยครับ</p>
+    </div>
+    <div class="upgrade-box" id="upgrade-box">
+      <div class="upgrade-title">🚀 อัปเกรดเป็น Paid</div>
+      <div class="upgrade-desc">ปลดล็อก 27 Templates + ฟีเจอร์ทั้งหมด</div>
+      <button class="btn-upgrade" onclick="document.getElementById('modal-upgrade').classList.add('show')">ดูแพ็กเกจ</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon blue">📋</div>
+      <div><div class="stat-val" id="stat-unlocked">—</div><div class="stat-label">Templates ที่ใช้ได้</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">⭐</div>
+      <div><div class="stat-val" id="stat-pkg-name">—</div><div class="stat-label">แพ็กเกจปัจจุบัน</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">📅</div>
+      <div><div class="stat-val" id="stat-expiry">—</div><div class="stat-label">วันหมดอายุ</div></div>
+    </div>
+  </div>
+
+  <!-- PROFILE CARD -->
+  <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:22px;font-weight:800;color:#000;flex-shrink:0" id="profile-avatar">—</div>
+    <div style="flex:1;min-width:160px">
+      <div style="font-family:var(--head);font-size:16px;font-weight:700;margin-bottom:3px" id="profile-name">—</div>
+      <div style="font-size:12px;color:var(--muted)" id="profile-email">—</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
+        <div style="font-family:var(--head);font-size:15px;font-weight:700" id="profile-pkg-label">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">แพ็กเกจ</div>
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
+        <div style="font-family:var(--head);font-size:15px;font-weight:700;color:var(--green)" id="profile-status">อนุมัติแล้ว</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">สถานะ</div>
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
+        <div style="font-family:var(--head);font-size:15px;font-weight:700" id="profile-tpl-count">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Templates</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATES -->
+  <div class="sec-label">Prompt Templates</div>
+  <div class="sec-title">เลือก Template ที่ต้องการใช้</div>
+  <div class="sec-desc">คลิก Template แล้ว Copy Prompt ไปวางใน Claude ได้เลยครับ 🤖</div>
+
+  <div class="cat-tabs" id="cat-tabs">
+    <button class="cat-tab active" onclick="filterCat('all',this)">🗂 ทั้งหมด</button>
+    <button class="cat-tab" onclick="filterCat('content',this)">✍️ คอนเทนต์</button>
+    <button class="cat-tab" onclick="filterCat('marketing',this)">📣 การตลาด</button>
+    <button class="cat-tab" onclick="filterCat('business',this)">💼 ธุรกิจ</button>
+    <button class="cat-tab" onclick="filterCat('ai',this)">🤖 AI Tools</button>
+  </div>
+
+  <div class="template-grid" id="template-grid"></div>
+</div>
+
+<script>
+// ════════════════════════════════
+// CONFIG
+// ════════════════════════════════
+const SUPABASE_URL = 'https://gpvhnrbhjymgeiujzbjt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ════════════════════════════════
+// TEMPLATES DATA
+// ════════════════════════════════
+const ALL_TEMPLATES = [
+  // ── FREE (5 ชุด) ──
+  {
+    id:1, free:true, cat:'content', emoji:'📅',
+    name:'วางแผนคอนเทนต์ 7 วัน',
+    desc:'วางแผนคอนเทนต์รายสัปดาห์ พร้อมหัวข้อ รูปแบบ และกลุ่มเป้าหมาย',
+    prompt:`คุณคือที่ปรึกษากลยุทธ์คอนเทนต์สำหรับช่อง ContentThai AI
+
+ช่วยวางแผนคอนเทนต์ 7 วัน:
+• หัวข้อใหญ่ของสัปดาห์: [ใส่หัวข้อ]
+• กลุ่มเป้าหมาย: [ระบุกลุ่ม]
+• แพลตฟอร์ม: [YouTube / Facebook / TikTok]
+
+รูปแบบ (ทำครบ 7 วัน):
+วันที่ X — [ชื่อวัน]
+• หัวข้อ: [หัวข้อ]
+• รูปแบบ: [คลิป / Short / โพสต์]
+• กลุ่มเป้าหมาย: [ระบุ]
+• จุดขาย: [ทำไมต้องดู]
+• CTA: [อยากให้ทำอะไร]
+
+📊 สรุปท้าย: KPI 3 ข้อ + ความเสี่ยง + Tip`
+  },
+  {
+    id:2, free:true, cat:'content', emoji:'🎬',
+    name:'สร้างสคริปต์วิดีโอ',
+    desc:'เขียนสคริปต์คลิป YouTube พร้อม Hook, เนื้อหา และ CTA ครบโครงสร้าง',
+    prompt:`คุณคือผู้เชี่ยวชาญเขียนสคริปต์ YouTube สำหรับช่อง ContentThai AI
+
+📌 ข้อมูลคลิป:
+• หัวข้อ: [ใส่หัวข้อ]
+• ความยาว: [3 / 5 / 8 / 10 นาที]
+• กลุ่มเป้าหมาย: [ระบุ]
+• โทน: [เป็นกันเอง / จริงจัง / สนุก]
+
+โครงสร้างที่ต้องการ:
+🎬 HOOK (0:00–0:30) — 3 ตัวเลือก
+📖 INTRO (0:30–1:00)
+📚 เนื้อหาหลัก 3–4 หัวข้อย่อย
+🔚 OUTRO & CTA
+🎬 หมายเหตุผู้กำกับ (B-Roll)`
+  },
+  {
+    id:3, free:true, cat:'marketing', emoji:'📣',
+    name:'เขียน Caption โซเชียล',
+    desc:'เขียน Caption สำหรับ Facebook / Instagram พร้อม Hashtag และ CTA',
+    prompt:`ช่วยเขียน Caption สำหรับโพสต์โซเชียลมีเดีย
+
+📌 ข้อมูล:
+• หัวข้อโพสต์: [ใส่หัวข้อ]
+• แพลตฟอร์ม: [Facebook / Instagram / TikTok]
+• กลุ่มเป้าหมาย: [ระบุ]
+• โทน: [เป็นกันเอง / มืออาชีพ / สนุก]
+• สินค้า/บริการ: [ระบุ]
+
+ขอให้:
+1. เขียน Caption 3 เวอร์ชัน (สั้น / กลาง / ยาว)
+2. แต่ละเวอร์ชันมี Hook แรงในประโยคแรก
+3. มี CTA ชัดเจน
+4. แนะนำ Hashtag 10–15 อัน
+
+ใช้ภาษาไทยเป็นกันเอง อ่านง่าย`
+  },
+  {
+    id:4, free:false, cat:'business', emoji:'💡',
+    name:'วิเคราะห์ไอเดียธุรกิจ',
+    desc:'วิเคราะห์ไอเดียธุรกิจ ประเมินโอกาส ความเสี่ยง และแผนเริ่มต้น'
+  },
+  {
+    id:5, free:false, cat:'ai', emoji:'🤖',
+    name:'Prompt Engineering พื้นฐาน',
+    desc:'เรียนรู้วิธีเขียน Prompt ให้ได้ผลลัพธ์ดีที่สุดจาก Claude AI'
+  },
+
+  // ── PAID (ล็อกสำหรับ Free) ──
+  {
+    id:6, free:false, cat:'content', emoji:'🎯',
+    name:'วิเคราะห์ Competitor YouTube',
+    desc:'วิเคราะห์คู่แข่งช่อง YouTube เชิงลึก หาจุดอ่อนและโอกาสที่ควรโจมตี'
+  },
+  {
+    id:7, free:false, cat:'marketing', emoji:'📧',
+    name:'เขียน Email Marketing',
+    desc:'เขียน Email Sequence สำหรับ Nurture Lead และปิดการขาย'
+  },
+  {
+    id:8, free:false, cat:'content', emoji:'🎥',
+    name:'สคริปต์ TikTok Viral',
+    desc:'สร้างสคริปต์ TikTok ที่มีโอกาส Viral พร้อม Hook และ Pattern Interrupt'
+  },
+  {
+    id:9, free:false, cat:'business', emoji:'📊',
+    name:'สร้าง Business Plan 1 หน้า',
+    desc:'สรุปแผนธุรกิจแบบกระชับ พร้อม Revenue Model และ Go-to-Market'
+  },
+  {
+    id:10, free:false, cat:'marketing', emoji:'🛒',
+    name:'เขียน Product Description',
+    desc:'เขียนคำอธิบายสินค้าที่ขายได้จริง เน้น Benefit และ Pain Point'
+  },
+  {
+    id:11, free:false, cat:'ai', emoji:'⚙️',
+    name:'สร้าง System Prompt สำหรับ AI Bot',
+    desc:'ออกแบบ System Prompt สำหรับ AI Chatbot ที่ตอบตรงกับธุรกิจคุณ'
+  },
+  {
+    id:12, free:false, cat:'content', emoji:'📰',
+    name:'เขียนบทความ SEO',
+    desc:'เขียนบทความ 1,500+ คำที่ติดอันดับ Google พร้อมโครงสร้าง SEO'
+  },
+];
+
+let userPackage = 'free';
+let currentCat = 'all';
+let currentPrompt = '';
+
+// ════════════════════════════════
+// INIT
+// ════════════════════════════════
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'index.html'; return; }
+
+  const { data: profile } = await sb.from('profiles')
+    .select('full_name, package, status, expiry_date, role')
+    .eq('id', session.user.id)
+    .maybeSingle();
+
+  if (!profile || profile.status !== 'approved') {
+    await sb.auth.signOut();
+    window.location.href = 'index.html';
+    return;
+  }
+
+  if (profile.role === 'admin') {
+    window.location.href = 'admin_dashboard.html';
+    return;
+  }
+
+  userPackage = profile.package || 'free';
+  const name = profile.full_name || 'คุณ';
+
+  // Update UI
+  document.getElementById('nav-name').textContent = name;
+  document.getElementById('welcome-name').textContent = name;
+
+  // Package badge
+  const badge = document.getElementById('nav-pkg');
+  const pkgLabel = {free:'FREE',monthly:'รายเดือน',yearly:'รายปี',lifetime:'ตลอดชีพ'};
+  badge.textContent = pkgLabel[userPackage] || userPackage.toUpperCase();
+  badge.className = `pkg-badge pkg-${userPackage}`;
+
+  // Stats
+  const isPaid = userPackage !== 'free';
+  document.getElementById('stat-unlocked').textContent = isPaid ? '27' : '3';
+  document.getElementById('stat-pkg-name').textContent = pkgLabel[userPackage] || userPackage;
+
+  if (profile.expiry_date) {
+    const exp = new Date(profile.expiry_date);
+    document.getElementById('stat-expiry').textContent = exp.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'});
+    // Check expiry within 7 days
+    const daysLeft = Math.ceil((exp - new Date()) / 86400000);
+    if (daysLeft <= 7 && daysLeft > 0) {
+      const bar = document.getElementById('expiry-bar');
+      bar.textContent = `⚠️ แพ็กเกจของคุณจะหมดอายุใน ${daysLeft} วัน — กรุณาต่ออายุก่อนหมดเขต`;
+      bar.classList.add('show');
+    }
+  } else {
+    document.getElementById('stat-expiry').textContent = userPackage === 'lifetime' ? 'ตลอดชีพ' : '—';
+  }
+
+  // Hide upgrade box if paid
+  if (isPaid) document.getElementById('upgrade-box').classList.add('hidden');
+
+  // Profile Card
+  const initial = name.charAt(0).toUpperCase();
+  document.getElementById('profile-avatar').textContent = initial;
+  document.getElementById('profile-name').textContent = name;
+  document.getElementById('profile-email').textContent = session.user.email || '';
+  document.getElementById('profile-pkg-label').textContent = pkgLabel[userPackage] || userPackage;
+  document.getElementById('profile-tpl-count').textContent = isPaid ? '27' : '3';
+
+  renderTemplates();
+})();
+
+// ════════════════════════════════
+// RENDER
+// ════════════════════════════════
+function renderTemplates() {
+  const isPaid = userPackage !== 'free';
+  const grid = document.getElementById('template-grid');
+  const list = currentCat === 'all'
+    ? ALL_TEMPLATES
+    : ALL_TEMPLATES.filter(t => t.cat === currentCat);
+
+  grid.innerHTML = list.map(t => {
+    const canUse = t.free || isPaid;
+    return `<div class="tpl-card ${canUse ? '' : 'locked'}" onclick="${canUse ? `openTemplate(${t.id})` : `showNoAccess()`}">
+      <div class="tpl-emoji">${t.emoji}</div>
+      <div class="tpl-name">${t.name}</div>
+      <div class="tpl-desc">${t.desc}</div>
+      <div class="tpl-footer">
+        <div class="tpl-cat">${catLabel(t.cat)}</div>
+        ${canUse
+          ? `<button class="use-btn" onclick="event.stopPropagation();openTemplate(${t.id})">ใช้งาน →</button>`
+          : `<div class="lock-badge">🔒 Paid</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function catLabel(c) {
+  return {content:'คอนเทนต์',marketing:'การตลาด',business:'ธุรกิจ',ai:'AI Tools'}[c] || c;
+}
+
+function filterCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTemplates();
+}
+
+// ════════════════════════════════
+// TEMPLATE MODAL
+// ════════════════════════════════
+function openTemplate(id) {
+  const t = ALL_TEMPLATES.find(x => x.id === id);
+  if (!t) return;
+  currentPrompt = t.prompt || '';
+  document.getElementById('modal-emoji').textContent = t.emoji;
+  document.getElementById('modal-title').textContent = t.name;
+  document.getElementById('modal-desc').textContent = t.desc;
+  document.getElementById('modal-prompt').textContent = t.prompt || '';
+  document.getElementById('copy-btn').textContent = '📋 Copy Prompt ไปใช้งาน';
+  document.getElementById('copy-btn').classList.remove('copied');
+  document.getElementById('modal-tpl').classList.add('show');
+}
+
+function openUpgrade() {
+  document.getElementById('modal-upgrade').classList.add('show');
+}
+
+function showNoAccess() {
+  const toast = document.getElementById('toast');
+  toast.innerHTML = '🔒 <strong>สิทธิ์ไม่เพียงพอ</strong> — Template นี้สำหรับสมาชิก Paid เท่านั้น';
+  toast.style.borderColor = 'rgba(168,85,247,.35)';
+  toast.style.color = '#c4b5fd';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function copyPrompt() {
+  navigator.clipboard?.writeText(currentPrompt).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✅ Copy แล้ว! วางใน Claude ได้เลย';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copy Prompt ไปใช้งาน';
+      btn.classList.remove('copied');
+    }, 3000);
+  });
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+});
+
+// ════════════════════════════════
+// LOGOUT
+// ════════════════════════════════
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>
