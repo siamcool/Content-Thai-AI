@@ -452,19 +452,28 @@ async function doRegister() {
     return;
   }
 
-  // สร้าง Profile record
-  await sb.from('profiles').upsert({
-    id: data.user.id,
-    full_name: name,
-    email: email,
-    package: selectedPkg,
-    status: 'pending',
-    role: 'member',
-    created_at: new Date().toISOString()
-  });
+  // สร้าง Profile record (รองรับทั้งกรณี email confirm และไม่ confirm)
+  const userId = data.user?.id || data.session?.user?.id;
+
+  if (userId) {
+    const { error: profileError } = await sb.from('profiles').upsert({
+      id: userId,
+      full_name: name,
+      email: email,
+      package: selectedPkg,
+      status: 'pending',
+      role: 'member',
+      created_at: new Date().toISOString()
+    });
+    if (profileError) console.error('Profile insert error:', profileError);
+  } else {
+    // กรณี Supabase ต้องการ Email Confirmation ก่อน — บันทึกข้อมูลไว้ใน pending_profiles
+    // โดยใช้ service role หรือแจ้ง Admin ให้ตรวจสอบ auth.users แทน
+    console.warn('User ID not available — email confirmation may be required.');
+  }
 
   setLoading('btn-register', false);
-  showAlert(`✅ สมัครสำเร็จ! ระบบจะส่งอีเมลยืนยัน และ Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง`, 'success');
+  showAlert(`✅ สมัครสำเร็จ! Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง`, 'success');
 }
 
 // ── FORGOT PASSWORD ──
@@ -528,4 +537,3 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
-
