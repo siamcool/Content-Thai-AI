@@ -196,6 +196,16 @@ nav{
 .btn-copy-prompt:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(14,165,233,.3)}
 .btn-copy-prompt.copied{background:linear-gradient(135deg,var(--green),#16a34a)}
 
+.btn-open-claude{
+  width:100%;padding:13px;margin-top:10px;
+  background:linear-gradient(135deg,#7c3aed,#6d28d9);
+  color:#fff;border:none;border-radius:10px;
+  font-family:var(--head);font-size:14px;font-weight:700;cursor:pointer;transition:.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  text-decoration:none;
+}
+.btn-open-claude:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,.4)}
+
 /* ── UPGRADE MODAL ── */
 .upgrade-modal{
   background:var(--s1);border:1px solid rgba(245,158,11,.3);border-radius:20px;
@@ -275,6 +285,12 @@ nav{
     <div style="font-size:11px;font-family:monospace;letter-spacing:1px;color:var(--primary);text-transform:uppercase;margin-bottom:8px">📋 Prompt Template</div>
     <div class="prompt-box" id="modal-prompt"></div>
     <button class="btn-copy-prompt" id="copy-btn" onclick="copyPrompt()">📋 Copy Prompt ไปใช้งาน</button>
+    <a class="btn-open-claude" href="https://claude.ai" target="_blank" id="claude-link" onclick="openClaude()">
+      🤖 เปิด Claude.ai แล้ววาง Prompt ได้เลย ↗
+    </a>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">
+      Copy Prompt ก่อน → กดปุ่มม่วง → วางใน Claude แล้วแก้รายละเอียดได้เลยครับ
+    </div>
   </div>
 </div>
 
@@ -654,6 +670,18 @@ function copyPrompt() {
   });
 }
 
+function openClaude() {
+  navigator.clipboard?.writeText(currentPrompt).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✅ Copy แล้ว! กำลังเปิด Claude...';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copy Prompt ไปใช้งาน';
+      btn.classList.remove('copied');
+    }, 3000);
+  });
+}
+
 function closeModal(id) {
   document.getElementById(id).classList.remove('show');
 }
@@ -672,3 +700,4 @@ async function doLogout() {
 </script>
 </body>
 </html>
+
