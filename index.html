@@ -65,24 +65,15 @@ body {
   background: var(--s1);
   border: 1px solid var(--border);
   border-radius: 24px;
-  padding: 32px 32px;
+  padding: 32px 28px;
   width: 100%;
   max-width: 440px;
   box-shadow: 0 32px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(14,165,233,.08);
   animation: cardIn .5s ease both;
   margin: auto;
 }
-@media (max-height: 750px) {
-  .card { padding: 24px 28px; }
-  .logo { margin-bottom: 20px; }
-  .tabs { margin-bottom: 18px; }
-  .form-group { margin-bottom: 10px; }
-  .form-input { padding: 9px 14px; }
-  .btn-submit { padding: 11px; margin-top: 4px; }
-}
-@media (max-width: 480px) {
-  .card { padding: 24px 18px; border-radius: 18px; }
-}
+@media(max-height:750px){ .card{ padding:22px 22px; } }
+@media(max-width:480px){ .card{ padding:24px 18px; border-radius:18px; } }
 @keyframes cardIn {
   from { opacity:0; transform:translateY(24px); }
   to   { opacity:1; transform:translateY(0); }
@@ -182,22 +173,49 @@ body {
 }
 
 /* ══ PACKAGE SELECTOR ══ */
-.packages { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.packages { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .pkg {
   background: var(--s2); border: 2px solid rgba(255,255,255,.07);
-  border-radius: 10px; padding: 10px 8px; cursor: pointer; transition: .2s;
+  border-radius: 12px; padding: 14px; cursor: pointer; transition: .2s;
   text-align: center;
 }
 .pkg:hover { border-color: rgba(14,165,233,.3); }
 .pkg.selected { border-color: var(--primary); background: rgba(14,165,233,.08); }
-.pkg-name { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
-.pkg-price { font-size: 11px; color: var(--muted); }
+.pkg-name { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
+.pkg-price { font-size: 12px; color: var(--muted); }
 .pkg-badge {
-  display: inline-block; font-size: 10px; padding: 2px 6px;
-  border-radius: 5px; margin-top: 4px; font-family: monospace;
+  display: inline-block; font-size: 10px; padding: 2px 7px;
+  border-radius: 6px; margin-top: 5px; font-family: monospace;
 }
 
-/* ══ FOOTER NOTE ══ */
+/* ══ PASSWORD TOGGLE ══ */
+.pw-wrap { position: relative; }
+.pw-wrap .form-input { padding-right: 70px; }
+.btn-pw-toggle {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: var(--s3); border: 1px solid rgba(14,165,233,.25);
+  color: var(--primary); border-radius: 6px;
+  padding: 4px 10px; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: var(--font); transition: .15s;
+  white-space: nowrap;
+}
+.btn-pw-toggle:hover { background: var(--primary); color: #fff; }
+
+/* ══ PKG HOT BADGE ══ */
+.pkg-hot {
+  position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color: #000;
+  font-size: 9px; font-weight: 700; padding: 2px 8px;
+  border-radius: 10px; white-space: nowrap; font-family: var(--font);
+}
+.pkg { position: relative; }
+
+/* ══ SUBTITLE ══ */
+.logo-sub {
+  text-align: center; font-size: 12px; color: var(--muted);
+  margin-top: -20px; margin-bottom: 24px; line-height: 1.6;
+}
+.logo-sub span { color: var(--primary); }
 .foot-note {
   text-align: center; font-size: 12px; color: var(--muted);
   margin-top: 24px; line-height: 1.8;
@@ -223,6 +241,7 @@ body {
     <div class="logo-icon">🤖</div>
     <div class="logo-text">ContentThai <span>AI</span></div>
   </div>
+  <div class="logo-sub">ใช้ AI ให้ชีวิตและงานดีขึ้น — <span>ไม่ต้องเขียนโค้ด</span></div>
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('login')">เข้าสู่ระบบ</button>
@@ -240,7 +259,10 @@ body {
     </div>
     <div class="form-group">
       <label class="form-label">รหัสผ่าน</label>
-      <input class="form-input" id="login-password" type="password" placeholder="••••••••">
+      <div class="pw-wrap">
+        <input class="form-input" id="login-password" type="password" placeholder="••••••••">
+        <button class="btn-pw-toggle" type="button" onclick="togglePw('login-password',this)">แสดง</button>
+      </div>
     </div>
     <button class="btn-submit" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
     <div class="divider">หรือ</div>
@@ -261,15 +283,19 @@ body {
     </div>
     <div class="form-group">
       <label class="form-label">รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)</label>
-      <input class="form-input" id="reg-password" type="password" placeholder="••••••••">
+      <div class="pw-wrap">
+        <input class="form-input" id="reg-password" type="password" placeholder="••••••••">
+        <button class="btn-pw-toggle" type="button" onclick="togglePw('reg-password',this)">แสดง</button>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">เลือกแพ็กเกจที่สนใจ</label>
       <div class="packages">
         <div class="pkg selected" onclick="selectPkg(this,'free')" data-pkg="free">
-          <div class="pkg-name">Free</div>
-          <div class="pkg-price">ฟรีตลอดกาล</div>
-          <span class="pkg-badge" style="background:rgba(107,127,163,.2);color:var(--muted)">จำกัดสิทธิ์</span>
+          <span class="pkg-hot">⭐ เริ่มต้นที่นี่</span>
+          <div class="pkg-name">ทดลองฟรี</div>
+          <div class="pkg-price">7 วัน ไม่มีค่าใช้จ่าย</div>
+          <span class="pkg-badge" style="background:rgba(107,127,163,.2);color:var(--muted)">3 Templates</span>
         </div>
         <div class="pkg" onclick="selectPkg(this,'monthly')" data-pkg="monthly">
           <div class="pkg-name">รายเดือน</div>
@@ -288,10 +314,10 @@ body {
         </div>
       </div>
     </div>
-    <button class="btn-submit" id="btn-register" onclick="doRegister()">สมัครสมาชิก</button>
+    <button class="btn-submit" id="btn-register" onclick="doRegister()">สมัครสมาชิกฟรี →</button>
     <div class="foot-note">
-      เมื่อสมัครแล้ว Admin จะทำการอนุมัติสิทธิ์ภายใน 24 ชั่วโมง<br>
-      คุณจะได้รับอีเมลแจ้งเมื่อได้รับการอนุมัติ
+      Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง<br>
+      <span style="color:var(--primary)">ไม่ต้องใช้บัตรเครดิต</span> สำหรับแพ็กเกจทดลอง
     </div>
   </div>
 
@@ -336,6 +362,17 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let selectedPkg = 'free';
 
 // ── Tab Switching ──
+function togglePw(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = 'ซ่อน';
+  } else {
+    input.type = 'password';
+    btn.textContent = 'แสดง';
+  }
+}
+
 function switchTab(tab) {
   document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -452,28 +489,19 @@ async function doRegister() {
     return;
   }
 
-  // สร้าง Profile record (รองรับทั้งกรณี email confirm และไม่ confirm)
-  const userId = data.user?.id || data.session?.user?.id;
-
-  if (userId) {
-    const { error: profileError } = await sb.from('profiles').upsert({
-      id: userId,
-      full_name: name,
-      email: email,
-      package: selectedPkg,
-      status: 'pending',
-      role: 'member',
-      created_at: new Date().toISOString()
-    });
-    if (profileError) console.error('Profile insert error:', profileError);
-  } else {
-    // กรณี Supabase ต้องการ Email Confirmation ก่อน — บันทึกข้อมูลไว้ใน pending_profiles
-    // โดยใช้ service role หรือแจ้ง Admin ให้ตรวจสอบ auth.users แทน
-    console.warn('User ID not available — email confirmation may be required.');
-  }
+  // สร้าง Profile record
+  await sb.from('profiles').upsert({
+    id: data.user.id,
+    full_name: name,
+    email: email,
+    package: selectedPkg,
+    status: 'pending',
+    role: 'member',
+    created_at: new Date().toISOString()
+  });
 
   setLoading('btn-register', false);
-  showAlert(`✅ สมัครสำเร็จ! Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง`, 'success');
+  showAlert(`✅ สมัครสำเร็จ! ระบบจะส่งอีเมลยืนยัน และ Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง`, 'success');
 }
 
 // ── FORGOT PASSWORD ──
