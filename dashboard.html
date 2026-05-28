@@ -407,115 +407,426 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ════════════════════════════════
 // TEMPLATES DATA
 // ════════════════════════════════
+const F = {
+  req: s => `<span style="color:#f87171;font-weight:700">${s}</span>`,
+  tip: s => `<span style="color:#fbbf24;font-weight:600">${s}</span>`,
+  head: s => `<span style="color:#38bdf8;font-weight:700">${s}</span>`,
+  hook: s => `<span style="color:#a78bfa;font-weight:700">${s}</span>`,
+  ok: s => `<span style="color:#34d399;font-weight:600">${s}</span>`,
+  em: s => `<span style="color:#f9a8d4;font-weight:600">${s}</span>`,
+  num: s => `<span style="color:#fb923c;font-weight:700">${s}</span>`,
+};
+
 const ALL_TEMPLATES = [
-  // ── FREE (5 ชุด) ──
+  // ── FREE (3 ชุด) ──
   {
     id:1, free:true, cat:'content', emoji:'📅',
     name:'วางแผนคอนเทนต์ 7 วัน',
     desc:'วางแผนคอนเทนต์รายสัปดาห์ พร้อมหัวข้อ รูปแบบ และกลุ่มเป้าหมาย',
-    prompt:`คุณคือที่ปรึกษากลยุทธ์คอนเทนต์สำหรับช่อง ContentThai AI
+    promptPlain:`คุณคือที่ปรึกษากลยุทธ์คอนเทนต์ระดับสูงสำหรับช่อง ContentThai AI ที่มีความเชี่ยวชาญด้านการตลาดดิจิทัลและ YouTube Algorithm
 
-ช่วยวางแผนคอนเทนต์ 7 วัน:
-• หัวข้อใหญ่ของสัปดาห์: [ใส่หัวข้อ]
-• กลุ่มเป้าหมาย: [ระบุกลุ่ม]
-• แพลตฟอร์ม: [YouTube / Facebook / TikTok]
+กรุณาวางแผนคอนเทนต์ 7 วันโดยใช้ข้อมูลต่อไปนี้:
+• หัวข้อใหญ่ของสัปดาห์: [ใส่หัวข้อ เช่น การใช้ AI หาอาชีพเสริม]
+• กลุ่มเป้าหมาย: [ระบุ เช่น มนุษย์เงินเดือน อายุ 25-40 ปี]
+• แพลตฟอร์ม: [YouTube / Facebook / TikTok / ทั้งหมด]
+• เป้าหมายสัปดาห์นี้: [เช่น เพิ่ม Subscriber / เพิ่ม Engagement]
+• งบโปรโมต (ถ้ามี): [ระบุหรือพิมพ์ "ไม่มี"]
 
-รูปแบบ (ทำครบ 7 วัน):
+รูปแบบผลลัพธ์ (ทำครบ 7 วัน):
 วันที่ X — [ชื่อวัน]
-• หัวข้อ: [หัวข้อ]
-• รูปแบบ: [คลิป / Short / โพสต์]
+• หัวข้อ: [หัวข้อที่ดึงดูด มี Keyword]
+• รูปแบบ: [คลิป / Short / โพสต์รูป / Live]
+• Hook เปิดคลิป: [ประโยคแรกที่หยุดนิ้วได้]
 • กลุ่มเป้าหมาย: [ระบุ]
-• จุดขาย: [ทำไมต้องดู]
-• CTA: [อยากให้ทำอะไร]
+• จุดขาย: [ทำไมคนถึงจะดู/แชร์]
+• CTA: [อยากให้ผู้ชมทำอะไร]
+• Thumbnail Concept: [แนวคิดภาพ]
 
-📊 สรุปท้าย: KPI 3 ข้อ + ความเสี่ยง + Tip`
+สรุปท้าย:
+- KPI 3 ข้อที่ควรติดตาม
+- ความเสี่ยงที่อาจเกิด + วิธีรับมือ
+- Tip พิเศษที่ช่วยให้อัลกอริทึมปล่อยคอนเทนต์`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือที่ปรึกษากลยุทธ์คอนเทนต์ระดับสูง')} สำหรับช่อง ContentThai AI ที่มีความเชี่ยวชาญด้านการตลาดดิจิทัลและ YouTube Algorithm<br><br>${F.head('📋 กรุณาวางแผนคอนเทนต์ 7 วัน:')}
+• หัวข้อใหญ่ของสัปดาห์: ${F.req('[ใส่หัวข้อ เช่น การใช้ AI หาอาชีพเสริม]')}
+• กลุ่มเป้าหมาย: ${F.req('[ระบุ เช่น มนุษย์เงินเดือน อายุ 25-40 ปี]')}
+• แพลตฟอร์ม: ${F.req('[YouTube / Facebook / TikTok / ทั้งหมด]')}
+• เป้าหมายสัปดาห์นี้: ${F.req('[เช่น เพิ่ม Subscriber / เพิ่ม Engagement]')}
+• งบโปรโมต (ถ้ามี): ${F.req('[ระบุหรือพิมพ์ "ไม่มี"]')}<br><br>${F.head('📅 รูปแบบผลลัพธ์')} ${F.tip('(ทำครบ 7 วัน):')}
+• หัวข้อ / รูปแบบ / ${F.em('Hook เปิดคลิป')} / กลุ่มเป้าหมาย / จุดขาย / CTA / Thumbnail<br><br>${F.head('📊 สรุปท้าย:')} ${F.ok('KPI 3 ข้อ')} + ความเสี่ยง + ${F.tip('Tip อัลกอริทึม')}</div>`
   },
   {
     id:2, free:true, cat:'content', emoji:'🎬',
     name:'สร้างสคริปต์วิดีโอ',
     desc:'เขียนสคริปต์คลิป YouTube พร้อม Hook, เนื้อหา และ CTA ครบโครงสร้าง',
-    prompt:`คุณคือผู้เชี่ยวชาญเขียนสคริปต์ YouTube สำหรับช่อง ContentThai AI
+    promptPlain:`คุณคือผู้เชี่ยวชาญเขียนสคริปต์ YouTube ที่เข้าใจจิตวิทยาผู้ชมและ Retention Algorithm อย่างลึกซึ้ง
 
-📌 ข้อมูลคลิป:
+ข้อมูลคลิป:
 • หัวข้อ: [ใส่หัวข้อ]
 • ความยาว: [3 / 5 / 8 / 10 นาที]
-• กลุ่มเป้าหมาย: [ระบุ]
-• โทน: [เป็นกันเอง / จริงจัง / สนุก]
+• กลุ่มเป้าหมาย: [ระบุ อายุ อาชีพ ปัญหาหลัก]
+• โทน: [เป็นกันเอง / จริงจัง / สนุก / สร้างแรงบันดาลใจ]
+• Key Message: [สิ่งที่ต้องการให้ผู้ชมจำ]
+• Call-to-Action: [ต้องการให้ทำอะไร]
 
 โครงสร้างที่ต้องการ:
-🎬 HOOK (0:00–0:30) — 3 ตัวเลือก
-📖 INTRO (0:30–1:00)
-📚 เนื้อหาหลัก 3–4 หัวข้อย่อย
-🔚 OUTRO & CTA
-🎬 หมายเหตุผู้กำกับ (B-Roll)`
+HOOK (0:00-0:30) — 3 ตัวเลือก (คำถาม / ตัวเลขน่าตกใจ / Statement กล้าหาญ)
+INTRO (0:30-1:00) — แนะนำและ Preview สิ่งที่จะได้
+เนื้อหาหลัก 3-4 หัวข้อย่อย พร้อมตัวอย่างจริง
+Pattern Interrupt ทุก 60-90 วินาที
+OUTRO & CTA — สรุป + สั่งการชัดเจน
+หมายเหตุผู้กำกับ — B-Roll แต่ละช่วง`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือผู้เชี่ยวชาญเขียนสคริปต์ YouTube')} ที่เข้าใจจิตวิทยาผู้ชมและ Retention Algorithm อย่างลึกซึ้ง<br><br>${F.head('📌 ข้อมูลคลิป:')}
+• หัวข้อ: ${F.req('[ใส่หัวข้อ]')}
+• ความยาว: ${F.req('[3 / 5 / 8 / 10 นาที]')}
+• กลุ่มเป้าหมาย: ${F.req('[ระบุ อายุ อาชีพ ปัญหาหลัก]')}
+• โทน: ${F.req('[เป็นกันเอง / จริงจัง / สนุก / สร้างแรงบันดาลใจ]')}
+• Key Message: ${F.req('[สิ่งที่ต้องการให้ผู้ชมจำ]')}
+• Call-to-Action: ${F.req('[ต้องการให้ทำอะไร]')}<br><br>${F.head('🎬 โครงสร้าง:')}
+${F.em('HOOK (0:00-0:30)')} — ${F.tip('3 ตัวเลือก')} (คำถาม / ตัวเลขน่าตกใจ / Statement กล้าหาญ)
+${F.em('INTRO (0:30-1:00)')} — แนะนำและ Preview
+${F.ok('เนื้อหาหลัก 3-4 หัวข้อ')} + ตัวอย่างจริง
+${F.tip('Pattern Interrupt')} ทุก 60-90 วินาที
+${F.em('OUTRO & CTA')} + ${F.num('หมายเหตุผู้กำกับ B-Roll')}</div>`
   },
   {
     id:3, free:true, cat:'marketing', emoji:'📣',
     name:'เขียน Caption โซเชียล',
     desc:'เขียน Caption สำหรับ Facebook / Instagram พร้อม Hashtag และ CTA',
-    prompt:`ช่วยเขียน Caption สำหรับโพสต์โซเชียลมีเดีย
+    promptPlain:`คุณคือ Copywriter ผู้เชี่ยวชาญจิตวิทยาการตลาดโซเชียลมีเดีย ที่รู้ว่าอะไรทำให้คนหยุดเลื่อน อ่าน และแชร์
 
-📌 ข้อมูล:
+ข้อมูล:
 • หัวข้อโพสต์: [ใส่หัวข้อ]
-• แพลตฟอร์ม: [Facebook / Instagram / TikTok]
-• กลุ่มเป้าหมาย: [ระบุ]
-• โทน: [เป็นกันเอง / มืออาชีพ / สนุก]
-• สินค้า/บริการ: [ระบุ]
+• แพลตฟอร์ม: [Facebook / Instagram / TikTok / LinkedIn]
+• กลุ่มเป้าหมาย: [ระบุ อายุ ความสนใจ ปัญหา]
+• โทน: [เป็นกันเอง / มืออาชีพ / สนุก / สร้างแรงบันดาลใจ]
+• สินค้า/บริการ/เรื่องที่โพสต์: [อธิบาย]
+• เป้าหมายโพสต์: [เพิ่ม Engagement / ขายของ / สร้าง Brand]
 
-ขอให้:
-1. เขียน Caption 3 เวอร์ชัน (สั้น / กลาง / ยาว)
-2. แต่ละเวอร์ชันมี Hook แรงในประโยคแรก
-3. มี CTA ชัดเจน
-4. แนะนำ Hashtag 10–15 อัน
-
-ใช้ภาษาไทยเป็นกันเอง อ่านง่าย`
+ผลลัพธ์:
+1. Caption สั้น (50 คำ) — Hook 1 ประโยค + CTA
+2. Caption กลาง (100 คำ) — Hook + เนื้อหา + CTA
+3. Caption ยาว (200 คำ) — Hook + เรื่องราว + Social Proof + CTA
+ทุก Caption ต้องมีประโยคแรกที่หยุดการเลื่อนได้
+Hashtag 15 อัน แบ่งเป็น Popular / Niche / Brand
+เวลาที่ดีที่สุดในการโพสต์`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือ Copywriter ผู้เชี่ยวชาญจิตวิทยาการตลาดโซเชียลมีเดีย')} ที่รู้ว่าอะไรทำให้คนหยุดเลื่อน อ่าน และแชร์<br><br>${F.head('📌 ข้อมูล:')}
+• หัวข้อโพสต์: ${F.req('[ใส่หัวข้อ]')}
+• แพลตฟอร์ม: ${F.req('[Facebook / Instagram / TikTok / LinkedIn]')}
+• กลุ่มเป้าหมาย: ${F.req('[ระบุ อายุ ความสนใจ ปัญหา]')}
+• โทน: ${F.req('[เป็นกันเอง / มืออาชีพ / สนุก / สร้างแรงบันดาลใจ]')}
+• สินค้า/บริการ: ${F.req('[อธิบาย]')}
+• เป้าหมายโพสต์: ${F.req('[เพิ่ม Engagement / ขายของ / สร้าง Brand]')}<br><br>${F.head('✍️ ผลลัพธ์:')}
+${F.num('1.')} Caption สั้น ${F.tip('(50 คำ)')} — Hook + CTA
+${F.num('2.')} Caption กลาง ${F.tip('(100 คำ)')} — Hook + เนื้อหา + CTA
+${F.num('3.')} Caption ยาว ${F.tip('(200 คำ)')} — Hook + Story + Social Proof + CTA
+${F.em('⚡ ทุก Caption ต้องมีประโยคแรกที่หยุดการเลื่อนได้')}
+${F.ok('Hashtag 15 อัน')} (Popular / Niche / Brand) + ${F.tip('เวลาโพสต์ที่ดีที่สุด')}</div>`
   },
   {
     id:4, free:false, cat:'business', emoji:'💡',
     name:'วิเคราะห์ไอเดียธุรกิจ',
-    desc:'วิเคราะห์ไอเดียธุรกิจ ประเมินโอกาส ความเสี่ยง และแผนเริ่มต้น'
+    desc:'วิเคราะห์ไอเดียธุรกิจ ประเมินโอกาส ความเสี่ยง และแผนเริ่มต้น',
+    promptPlain:`คุณคือที่ปรึกษาธุรกิจระดับสูงที่ผ่านการวิเคราะห์ Startup มากกว่า 500 บริษัท ใช้กรอบคิด Lean Canvas + Blue Ocean Strategy
+
+ไอเดีย: [อธิบายธุรกิจอย่างละเอียด]
+กลุ่มเป้าหมาย: [ระบุ เพศ อายุ รายได้ พฤติกรรม]
+งบประมาณเริ่มต้น: [ระบุจำนวนเงิน]
+เวลาที่มี: [ทำหลังเลิกงาน / Part-time / Full-time]
+ประสบการณ์ที่มี: [ระบุ]
+ตลาดที่สนใจ: [เช่น ไทย / อาเซียน / Online]
+
+วิเคราะห์ให้ครบ 6 มิติ:
+1. Market Opportunity — ขนาดตลาด TAM/SAM/SOM และแนวโน้ม
+2. Competitive Advantage — จุดต่างที่แท้จริงและ Moat
+3. Risk Matrix — ความเสี่ยง 5 ระดับ พร้อม Mitigation Plan
+4. Revenue Model — ช่องทางรายได้และ Unit Economics
+5. 90-Day Action Plan — สิ่งที่ต้องทำใน 30/60/90 วันแรก
+6. Go/No-Go Verdict — คำแนะนำสุดท้ายพร้อมเหตุผล`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือที่ปรึกษาธุรกิจระดับสูง')} ที่ผ่านการวิเคราะห์ Startup มากกว่า 500 บริษัท ใช้กรอบคิด ${F.tip('Lean Canvas + Blue Ocean Strategy')}<br><br>${F.head('📌 กรอกข้อมูลให้ครบ:')}
+• ไอเดีย: ${F.req('[อธิบายธุรกิจอย่างละเอียด]')}
+• กลุ่มเป้าหมาย: ${F.req('[ระบุ เพศ อายุ รายได้ พฤติกรรม]')}
+• งบประมาณเริ่มต้น: ${F.req('[ระบุจำนวนเงิน]')}
+• เวลาที่มี: ${F.req('[ทำหลังเลิกงาน / Part-time / Full-time]')}
+• ประสบการณ์ที่มี: ${F.req('[ระบุ]')}
+• ตลาดที่สนใจ: ${F.req('[เช่น ไทย / อาเซียน / Online]')}<br><br>${F.head('🔍 วิเคราะห์ 6 มิติ:')}
+${F.num('1.')} ${F.em('Market Opportunity')} — TAM/SAM/SOM + แนวโน้ม
+${F.num('2.')} ${F.em('Competitive Advantage')} — จุดต่างและ Moat
+${F.num('3.')} ${F.tip('Risk Matrix')} — ความเสี่ยง 5 ระดับ + Mitigation
+${F.num('4.')} ${F.em('Revenue Model')} — รายได้ + Unit Economics
+${F.num('5.')} ${F.em('90-Day Action Plan')} — 30/60/90 วันแรก
+${F.num('6.')} ${F.ok('Go/No-Go Verdict')} — คำแนะนำสุดท้าย</div>`
   },
   {
     id:5, free:false, cat:'ai', emoji:'🤖',
     name:'Prompt Engineering พื้นฐาน',
-    desc:'เรียนรู้วิธีเขียน Prompt ให้ได้ผลลัพธ์ดีที่สุดจาก Claude AI'
-  },
+    desc:'เรียนรู้วิธีเขียน Prompt ให้ได้ผลลัพธ์ดีที่สุดจาก Claude AI',
+    promptPlain:`คุณคือผู้เชี่ยวชาญ Prompt Engineering ระดับ Advanced ที่สามารถอธิบายให้มือใหม่เข้าใจได้ภายใน 5 นาที
 
-  // ── PAID (ล็อกสำหรับ Free) ──
+งานที่ต้องการ: [อธิบายงานที่ต้องการให้ AI ช่วย]
+เครื่องมือ AI: [Claude / ChatGPT / Gemini / อื่นๆ]
+ระดับประสบการณ์: [มือใหม่ / พอใช้ / เชี่ยวชาญ]
+ปัญหาที่เจอ: [เช่น AI ตอบไม่ตรง / ผลลัพธ์ไม่ดีพอ]
+
+ขอให้สอนครบ 5 หัวข้อ:
+1. หลักการ Prompt Engineering 5 ข้อที่สำคัญที่สุด
+2. Prompt ที่ดี vs ไม่ดี (เปรียบเทียบ 3 ตัวอย่าง)
+3. Template Prompt สำเร็จรูปสำหรับงานนี้โดยเฉพาะ
+4. เทคนิค Advanced: Role + Context + Format + Constraint
+5. ข้อผิดพลาด 5 อันดับแรกที่คนไทยมักทำกับ AI
+
+ให้ตัวอย่างที่ใช้ได้จริง ไม่ใช่ทฤษฎีอย่างเดียว`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือผู้เชี่ยวชาญ Prompt Engineering ระดับ Advanced')} ที่อธิบายให้มือใหม่เข้าใจได้ภายใน 5 นาที<br><br>${F.head('📌 บอกข้อมูลให้ AI รู้:')}
+• งานที่ต้องการ: ${F.req('[อธิบายงานที่ต้องการให้ AI ช่วย]')}
+• เครื่องมือ AI: ${F.req('[Claude / ChatGPT / Gemini / อื่นๆ]')}
+• ระดับประสบการณ์: ${F.req('[มือใหม่ / พอใช้ / เชี่ยวชาญ]')}
+• ปัญหาที่เจอ: ${F.req('[เช่น AI ตอบไม่ตรง / ผลลัพธ์ไม่ดีพอ]')}<br><br>${F.head('🤖 สอนครบ 5 หัวข้อ:')}
+${F.num('1.')} หลักการ Prompt Engineering ${F.tip('5 ข้อสำคัญ')}
+${F.num('2.')} Prompt ดี vs ไม่ดี ${F.em('(เปรียบเทียบ 3 ตัวอย่าง)')}
+${F.num('3.')} ${F.ok('Template สำเร็จรูป')} สำหรับงานนี้โดยเฉพาะ
+${F.num('4.')} เทคนิค Advanced: ${F.tip('Role + Context + Format + Constraint')}
+${F.num('5.')} ข้อผิดพลาด ${F.em('5 อันดับแรก')} ที่คนไทยมักทำกับ AI</div>`
+  },
   {
     id:6, free:false, cat:'content', emoji:'🎯',
     name:'วิเคราะห์ Competitor YouTube',
-    desc:'วิเคราะห์คู่แข่งช่อง YouTube เชิงลึก หาจุดอ่อนและโอกาสที่ควรโจมตี'
+    desc:'วิเคราะห์คู่แข่งช่อง YouTube เชิงลึก หาจุดอ่อนและโอกาสที่ควรโจมตี',
+    promptPlain:`คุณคือนักวิเคราะห์กลยุทธ์ YouTube ระดับสูงที่เข้าใจ Algorithm, Content Gap และ Audience Psychology
+
+ช่องที่ต้องการวิเคราะห์: [ชื่อช่อง หรือ URL]
+ช่องของฉัน: [อธิบายช่อง หัวข้อหลัก จำนวน Subscriber]
+เป้าหมาย: [เพิ่มยอดวิว / หาจุดต่าง / ขโมย Audience]
+Genre/หมวดหมู่: [เช่น Tech / Finance / Lifestyle / Education]
+
+วิเคราะห์ให้ครบ 6 มิติ:
+1. Content DNA — Pattern หัวข้อ Format ที่ใช้บ่อย
+2. Thumbnail & Title Formula — สูตรที่ทำให้ CTR สูง
+3. Audience Pain Points — สิ่งที่ผู้ชมชอบ/ไม่ชอบจาก Comment
+4. Content Gap — หัวข้อที่เขาไม่ได้ทำแต่ Audience ต้องการ
+5. SEO Keywords — Keyword ที่เขาใช้และที่เราควรแย่ง
+6. Counter Strategy — แผน 30 วันในการแข่งขัน`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือนักวิเคราะห์กลยุทธ์ YouTube ระดับสูง')} ที่เข้าใจ Algorithm, Content Gap และ Audience Psychology<br><br>${F.head('📌 ข้อมูลที่ต้องกรอก:')}
+• ช่องที่ต้องการวิเคราะห์: ${F.req('[ชื่อช่อง หรือ URL]')}
+• ช่องของฉัน: ${F.req('[อธิบายช่อง หัวข้อหลัก จำนวน Subscriber]')}
+• เป้าหมาย: ${F.req('[เพิ่มยอดวิว / หาจุดต่าง / ขโมย Audience]')}
+• Genre: ${F.req('[เช่น Tech / Finance / Lifestyle / Education]')}<br><br>${F.head('🔍 วิเคราะห์ 6 มิติ:')}
+${F.num('1.')} ${F.em('Content DNA')} — Pattern หัวข้อ Format ที่ใช้บ่อย
+${F.num('2.')} ${F.tip('Thumbnail & Title Formula')} — สูตร CTR สูง
+${F.num('3.')} Audience Pain Points — จาก Comment จริง
+${F.num('4.')} ${F.ok('Content Gap')} — หัวข้อที่เขาไม่ได้ทำ
+${F.num('5.')} ${F.tip('SEO Keywords')} — ที่เขาใช้และที่เราควรแย่ง
+${F.num('6.')} ${F.hook('Counter Strategy')} — แผน 30 วัน</div>`
   },
   {
     id:7, free:false, cat:'marketing', emoji:'📧',
     name:'เขียน Email Marketing',
-    desc:'เขียน Email Sequence สำหรับ Nurture Lead และปิดการขาย'
+    desc:'เขียน Email Sequence สำหรับ Nurture Lead และปิดการขาย',
+    promptPlain:`คุณคือ Email Marketing Strategist ที่เชี่ยวชาญจิตวิทยา Buyer's Journey และ Conversion Optimization
+
+สินค้า/บริการ: [ระบุอย่างละเอียด]
+ราคา: [ระบุ]
+กลุ่มเป้าหมาย: [ระบุ อายุ อาชีพ ปัญหาหลัก]
+เป้าหมาย Sequence: [Nurture / Flash Sale / Onboarding / Re-engagement]
+จำนวน Email: [5 / 7 / 10 ฉบับ]
+Brand Voice: [เป็นกันเอง / มืออาชีพ / สร้างแรงบันดาลใจ]
+
+แต่ละ Email ต้องมี:
+- Subject Line 3 ตัวเลือก (A/B/C Test)
+- Preview Text เสริม Subject
+- เนื้อหาพร้อม Storytelling
+- CTA ที่ชัดเจน 1 อัน
+- จิตวิทยาที่ใช้ (Scarcity / Social Proof / Reciprocity)
+- เวลาส่งที่เหมาะสม`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือ Email Marketing Strategist')} ที่เชี่ยวชาญจิตวิทยา ${F.tip("Buyer's Journey")} และ Conversion Optimization<br><br>${F.head('📌 ข้อมูลที่ต้องกรอก:')}
+• สินค้า/บริการ: ${F.req('[ระบุอย่างละเอียด]')}
+• ราคา: ${F.req('[ระบุ]')}
+• กลุ่มเป้าหมาย: ${F.req('[ระบุ อายุ อาชีพ ปัญหาหลัก]')}
+• เป้าหมาย Sequence: ${F.req('[Nurture / Flash Sale / Onboarding / Re-engagement]')}
+• จำนวน Email: ${F.req('[5 / 7 / 10 ฉบับ]')}
+• Brand Voice: ${F.req('[เป็นกันเอง / มืออาชีพ / สร้างแรงบันดาลใจ]')}<br><br>${F.head('📧 แต่ละ Email ต้องมี:')}
+• ${F.em('Subject Line 3 ตัว')} ${F.tip('(A/B/C Test)')} + Preview Text
+• เนื้อหาพร้อม ${F.ok('Storytelling')} + CTA ชัดเจน
+• ${F.tip('จิตวิทยา:')} Scarcity / Social Proof / Reciprocity
+• เวลาส่งที่เหมาะสม (วัน + เวลา)</div>`
   },
   {
     id:8, free:false, cat:'content', emoji:'🎥',
     name:'สคริปต์ TikTok Viral',
-    desc:'สร้างสคริปต์ TikTok ที่มีโอกาส Viral พร้อม Hook และ Pattern Interrupt'
+    desc:'สร้างสคริปต์ TikTok ที่มีโอกาส Viral พร้อม Hook และ Pattern Interrupt',
+    promptPlain:`คุณคือ TikTok Content Strategist ที่สร้างคลิปเกิน 1 ล้านวิวมาแล้วมากกว่า 50 ครั้ง เข้าใจ For You Page Algorithm อย่างลึกซึ้ง
+
+หัวข้อ: [ใส่หัวข้อ]
+ความยาว: [15 วิ / 30 วิ / 60 วิ / 3 นาที]
+กลุ่มเป้าหมาย: [ระบุ Gen Z / Millennial / อายุ อาชีพ]
+โทน: [ฮา / ให้ความรู้ / สร้างแรงบันดาลใจ / Controversy]
+เป้าหมาย: [Viral / Follower / ขายของ / Brand Awareness]
+Niche: [เช่น Finance / Food / Tech / Lifestyle]
+
+สคริปต์ที่ต้องการ:
+HOOK (0-3 วิ): 3 ตัวเลือกหยุดนิ้วได้ใน 1 วินาที
+เนื้อหา: Pattern Interrupt ทุก 5-7 วิ
+CTA ปิด: คำถาม / Challenge / Call-to-Comment
+Sound/เพลง: เทรนด์ที่เหมาะกับคอนเทนต์
+Caption + Hashtag: 5 Broad + 5 Niche + 3 Brand
+เวลาโพสต์ที่ดีที่สุด`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือ TikTok Content Strategist')} ที่สร้างคลิปเกิน 1 ล้านวิวมาแล้ว 50+ ครั้ง เข้าใจ ${F.tip('For You Page Algorithm')}<br><br>${F.head('📌 ข้อมูลที่ต้องกรอก:')}
+• หัวข้อ: ${F.req('[ใส่หัวข้อ]')}
+• ความยาว: ${F.req('[15 วิ / 30 วิ / 60 วิ / 3 นาที]')}
+• กลุ่มเป้าหมาย: ${F.req('[Gen Z / Millennial / อายุ อาชีพ]')}
+• โทน: ${F.req('[ฮา / ให้ความรู้ / Controversy]')}
+• เป้าหมาย: ${F.req('[Viral / Follower / ขายของ / Brand Awareness]')}
+• Niche: ${F.req('[Finance / Food / Tech / Lifestyle]')}<br><br>${F.head('🎬 สคริปต์ที่ต้องการ:')}
+${F.em('HOOK (0-3 วิ):')} ${F.tip('3 ตัวเลือก')} หยุดนิ้วใน 1 วินาที
+เนื้อหา: ${F.ok('Pattern Interrupt')} ทุก 5-7 วิ
+${F.em('CTA:')} คำถาม / Challenge / Call-to-Comment
+${F.tip('Sound/เพลงเทรนด์')} + Hashtag ${F.num('5+5+3')} + ${F.ok('เวลาโพสต์')}</div>`
   },
   {
     id:9, free:false, cat:'business', emoji:'📊',
     name:'สร้าง Business Plan 1 หน้า',
-    desc:'สรุปแผนธุรกิจแบบกระชับ พร้อม Revenue Model และ Go-to-Market'
+    desc:'สรุปแผนธุรกิจแบบกระชับ พร้อม Revenue Model และ Go-to-Market',
+    promptPlain:`คุณคือ Business Strategist และ Venture Advisor ที่ช่วย Startup ระดมทุนมาแล้วมากกว่า 100 ล้านบาท
+
+ชื่อธุรกิจ: [ระบุ]
+สินค้า/บริการ: [อธิบายให้ชัดเจน]
+กลุ่มเป้าหมาย: [ระบุ Persona ที่ชัดเจน]
+จุดต่าง (USP): [ทำไมลูกค้าต้องเลือกเรา]
+งบประมาณ: [ระบุ]
+เป้าหมาย 1 ปี: [รายได้ / จำนวนลูกค้า / Market Share]
+
+สร้าง Business Plan 1 หน้า:
+1. Problem & Solution — ปัญหาจริงและวิธีแก้
+2. Market Size — TAM/SAM/SOM พร้อมตัวเลขอ้างอิง
+3. Revenue Model — ช่องทางรายได้ + Pricing
+4. Competitive Moat — สิ่งที่คู่แข่งลอกไม่ได้
+5. Go-to-Market (90 วัน) — 3 ช่องทางหลัก + KPI
+6. Financial Projection — รายได้ 12 เดือน
+7. One-Line Pitch — ประโยคเดียวที่ขายธุรกิจนี้`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือ Business Strategist และ Venture Advisor')} ที่ช่วย Startup ระดมทุนมาแล้วมากกว่า 100 ล้านบาท<br><br>${F.head('📌 ข้อมูลที่ต้องกรอก:')}
+• ชื่อธุรกิจ: ${F.req('[ระบุ]')}
+• สินค้า/บริการ: ${F.req('[อธิบายให้ชัดเจน]')}
+• กลุ่มเป้าหมาย: ${F.req('[ระบุ Persona ที่ชัดเจน]')}
+• จุดต่าง (USP): ${F.req('[ทำไมลูกค้าต้องเลือกเรา]')}
+• งบประมาณ: ${F.req('[ระบุ]')}
+• เป้าหมาย 1 ปี: ${F.req('[รายได้ / จำนวนลูกค้า / Market Share]')}<br><br>${F.head('📊 Business Plan 1 หน้า:')}
+${F.num('1.')} ${F.em('Problem & Solution')}
+${F.num('2.')} ${F.em('Market Size')} — TAM/SAM/SOM
+${F.num('3.')} ${F.tip('Revenue Model')} + Pricing
+${F.num('4.')} ${F.ok('Competitive Moat')} — สิ่งที่คู่แข่งลอกไม่ได้
+${F.num('5.')} ${F.em('Go-to-Market 90 วัน')} + KPI
+${F.num('6.')} Financial Projection 12 เดือน
+${F.num('7.')} ${F.hook('One-Line Pitch')}</div>`
   },
   {
     id:10, free:false, cat:'marketing', emoji:'🛒',
     name:'เขียน Product Description',
-    desc:'เขียนคำอธิบายสินค้าที่ขายได้จริง เน้น Benefit และ Pain Point'
+    desc:'เขียนคำอธิบายสินค้าที่ขายได้จริง เน้น Benefit และ Pain Point',
+    promptPlain:`คุณคือ Conversion Copywriter ระดับ World-Class ที่ใช้หลัก AIDA + PAS + Neuro-Marketing
+
+ชื่อสินค้า: [ระบุ]
+ประเภทสินค้า: [Physical / Digital / Service]
+คุณสมบัติหลัก: [ระบุ 5-7 ข้อ]
+กลุ่มเป้าหมาย: [ระบุ อายุ เพศ ปัญหาที่แก้ได้]
+ราคา: [ระบุ]
+ช่องทางขาย: [Shopee / Lazada / Website / Facebook / LINE]
+คู่แข่งหลัก: [ระบุ ถ้ามี]
+
+เขียน Copy ครบ 5 ชุด:
+1. Hero Headline 3 ตัว — ดึงดูด Emotion + Logic
+2. Short Description (50 คำ) — สำหรับ Ad/Thumbnail
+3. Full Description (300 คำ) — AIDA Framework
+4. Bullet Benefits 7 ข้อ — Benefit ไม่ใช่ Feature
+5. Objection Handling FAQ 5 คำถาม
+ระบุ Psychological Trigger ที่ใช้ในแต่ละส่วน`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือ Conversion Copywriter ระดับ World-Class')} ที่ใช้หลัก ${F.tip('AIDA + PAS + Neuro-Marketing')}<br><br>${F.head('📌 ข้อมูลที่ต้องกรอก:')}
+• ชื่อสินค้า: ${F.req('[ระบุ]')}
+• ประเภทสินค้า: ${F.req('[Physical / Digital / Service]')}
+• คุณสมบัติหลัก: ${F.req('[ระบุ 5-7 ข้อ]')}
+• กลุ่มเป้าหมาย: ${F.req('[ระบุ อายุ เพศ ปัญหาที่แก้ได้]')}
+• ราคา: ${F.req('[ระบุ]')}
+• ช่องทางขาย: ${F.req('[Shopee / Lazada / Website / Facebook / LINE]')}
+• คู่แข่งหลัก: ${F.req('[ระบุ ถ้ามี]')}<br><br>${F.head('✍️ Copy ครบ 5 ชุด:')}
+${F.num('1.')} ${F.em('Hero Headline 3 ตัว')} — Emotion + Logic
+${F.num('2.')} Short Description ${F.tip('(50 คำ)')} — Ad/Thumbnail
+${F.num('3.')} Full Description ${F.tip('(300 คำ)')} — AIDA Framework
+${F.num('4.')} ${F.ok('Bullet Benefits 7 ข้อ')} — Benefit ไม่ใช่ Feature
+${F.num('5.')} ${F.em('Objection Handling FAQ 5 คำถาม')}
+${F.tip('ระบุ Psychological Trigger')} ในแต่ละส่วน</div>`
   },
   {
     id:11, free:false, cat:'ai', emoji:'⚙️',
     name:'สร้าง System Prompt สำหรับ AI Bot',
-    desc:'ออกแบบ System Prompt สำหรับ AI Chatbot ที่ตอบตรงกับธุรกิจคุณ'
+    desc:'ออกแบบ System Prompt สำหรับ AI Chatbot ที่ตอบตรงกับธุรกิจคุณ',
+    promptPlain:`คุณคือ AI Systems Architect ผู้เชี่ยวชาญการออกแบบ Conversational AI ที่ช่วยธุรกิจปิดการขายและบริการลูกค้าได้อัตโนมัติ
+
+วัตถุประสงค์หลัก: [เช่น ตอบคำถามลูกค้า / ขายของ / Booking]
+ธุรกิจ/แบรนด์: [ชื่อ + อธิบายธุรกิจ]
+กลุ่มลูกค้า: [ระบุ]
+โทนการสื่อสาร: [เป็นกันเอง / มืออาชีพ / สนุก]
+สิ่งที่ Bot ห้ามพูด/ทำ: [ระบุ]
+ภาษา: [ไทย / อังกฤษ / ทั้งคู่]
+Platform: [LINE OA / Facebook Messenger / Web Chat / Claude]
+
+ออกแบบครบ 5 ส่วน:
+1. System Prompt สมบูรณ์ — Copy ไปใช้ได้เลย
+2. Persona Definition — บุคลิก ชื่อ น้ำเสียง
+3. Knowledge Base Structure — หัวข้อที่ Bot ควรรู้
+4. Edge Cases Handling — รับมือคำถามยาก
+5. ตัวอย่างบทสนทนา 5 สถานการณ์จริง`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือ AI Systems Architect')} ผู้เชี่ยวชาญการออกแบบ Conversational AI ที่ช่วยธุรกิจปิดการขายและบริการลูกค้าอัตโนมัติ<br><br>${F.head('📌 ข้อมูลที่ต้องกรอก:')}
+• วัตถุประสงค์หลัก: ${F.req('[เช่น ตอบคำถาม / ขายของ / Booking]')}
+• ธุรกิจ/แบรนด์: ${F.req('[ชื่อ + อธิบายธุรกิจ]')}
+• กลุ่มลูกค้า: ${F.req('[ระบุ]')}
+• โทนการสื่อสาร: ${F.req('[เป็นกันเอง / มืออาชีพ / สนุก]')}
+• สิ่งที่ Bot ห้ามพูด/ทำ: ${F.req('[ระบุ]')}
+• ภาษา: ${F.req('[ไทย / อังกฤษ / ทั้งคู่]')}
+• Platform: ${F.req('[LINE OA / Facebook Messenger / Web Chat / Claude]')}<br><br>${F.head('⚙️ ออกแบบครบ 5 ส่วน:')}
+${F.num('1.')} ${F.ok('System Prompt สมบูรณ์')} — Copy ไปใช้ได้เลย
+${F.num('2.')} ${F.em('Persona Definition')} — บุคลิก ชื่อ น้ำเสียง
+${F.num('3.')} Knowledge Base Structure
+${F.num('4.')} ${F.tip('Edge Cases Handling')} — รับมือคำถามยาก
+${F.num('5.')} ตัวอย่างบทสนทนา ${F.em('5 สถานการณ์จริง')}</div>`
   },
   {
     id:12, free:false, cat:'content', emoji:'📰',
     name:'เขียนบทความ SEO',
-    desc:'เขียนบทความ 1,500+ คำที่ติดอันดับ Google พร้อมโครงสร้าง SEO'
+    desc:'เขียนบทความ 1,500+ คำที่ติดอันดับ Google พร้อมโครงสร้าง SEO',
+    promptPlain:`คุณคือ SEO Content Strategist ระดับ Expert ที่เข้าใจ Google's E-E-A-T, Semantic SEO และ Search Intent
+
+หัวข้อบทความ: [ระบุ]
+Keyword หลัก: [ระบุ — สำคัญมาก]
+Keyword รอง: [ระบุ 3-5 คำ]
+Search Intent: [Informational / Commercial / Transactional]
+กลุ่มเป้าหมาย: [ระบุ]
+Website/Blog: [ระบุ niche และ URL]
+ความยาว: [1,500 / 2,000 / 3,000 คำ]
+คู่แข่งใน SERP: [URL ที่ติดอันดับ 1-3 ถ้ามี]
+
+SEO Blueprint ครบ 8 องค์ประกอบ:
+1. Title Tag 3 แบบ (ไม่เกิน 60 ตัวอักษร) + CTR Score
+2. Meta Description (155 ตัวอักษร) + Emotional Hook
+3. H1-H4 Structure พร้อม Keyword Placement
+4. บทนำ 150 คำ ดึงดูดและตอบ Search Intent
+5. เนื้อหาครบทุก Heading + Internal Link
+6. FAQ 5 คำถาม (Schema Markup Ready)
+7. บทสรุป + CTA ชัดเจน
+8. SEO Checklist ก่อน Publish 10 ข้อ`,
+    promptHTML:`<div style="font-size:13px;line-height:2;color:#94a3b8">${F.hook('คุณคือ SEO Content Strategist ระดับ Expert')} ที่เข้าใจ ${F.tip("Google's E-E-A-T, Semantic SEO")} และ Search Intent<br><br>${F.head('📌 ข้อมูลที่ต้องกรอก:')}
+• หัวข้อบทความ: ${F.req('[ระบุ]')}
+• Keyword หลัก: ${F.req('[ระบุ — สำคัญมาก]')}
+• Keyword รอง: ${F.req('[ระบุ 3-5 คำ]')}
+• Search Intent: ${F.req('[Informational / Commercial / Transactional]')}
+• กลุ่มเป้าหมาย: ${F.req('[ระบุ]')}
+• Website/Blog: ${F.req('[ระบุ niche และ URL]')}
+• ความยาว: ${F.req('[1,500 / 2,000 / 3,000 คำ]')}
+• คู่แข่งใน SERP: ${F.req('[URL อันดับ 1-3 ถ้ามี]')}<br><br>${F.head('📰 SEO Blueprint 8 องค์ประกอบ:')}
+${F.num('1.')} Title Tag 3 แบบ ${F.tip('(≤60 ตัว)')} + CTR Score
+${F.num('2.')} Meta Description ${F.tip('(≤155 ตัว)')} + Emotional Hook
+${F.num('3.')} ${F.em('H1-H4 Structure')} + Keyword Placement
+${F.num('4.')} บทนำ 150 คำ ตอบ Search Intent
+${F.num('5.')} เนื้อหาครบ + Internal Link
+${F.num('6.')} ${F.ok('FAQ 5 คำถาม')} (Schema Markup Ready)
+${F.num('7.')} บทสรุป + CTA
+${F.num('8.')} ${F.tip('SEO Checklist 10 ข้อ')} ก่อน Publish</div>`
   },
 ];
 
@@ -644,11 +955,11 @@ function filterCat(cat, btn) {
 function openTemplate(id) {
   const t = ALL_TEMPLATES.find(x => x.id === id);
   if (!t) return;
-  currentPrompt = t.prompt || '';
+  currentPrompt = t.promptPlain || t.prompt || '';
   document.getElementById('modal-emoji').textContent = t.emoji;
   document.getElementById('modal-title').textContent = t.name;
   document.getElementById('modal-desc').textContent = t.desc;
-  document.getElementById('modal-prompt').textContent = t.prompt || '';
+  document.getElementById('modal-prompt').innerHTML = t.promptHTML || `<span style="color:#94a3b8;white-space:pre-wrap">${t.prompt || ''}</span>`;
   document.getElementById('copy-btn').textContent = '📋 Copy Prompt ไปใช้งาน';
   document.getElementById('copy-btn').classList.remove('copied');
   document.getElementById('modal-tpl').classList.add('show');
