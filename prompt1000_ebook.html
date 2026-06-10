@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContentThai AI — 1,000 Prompt สำหรับชีวิตประจำวัน</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --s1: #161b22;
+  --s2: #21262d;
+  --s3: #30363d;
+  --b1: #30363d;
+  --primary: #0ea5e9;
+  --accent: #f59e0b;
+  --green: #22c55e;
+  --purple: #a855f7;
+  --pink: #ec4899;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --font: 'Sarabun', sans-serif;
+  --head: 'Outfit', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* NOISE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* HERO GLOW */
+.hero-glow {
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 400px;
+  background: radial-gradient(ellipse at center, rgba(14,165,233,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* TOPBAR */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13,17,23,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--b1);
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-family: var(--head);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-icon {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.brand span { color: var(--accent); }
+.badge-lifetime {
+  background: linear-gradient(90deg, rgba(245,158,11,0.2), rgba(168,85,247,0.2));
+  border: 1px solid rgba(245,158,11,0.4);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.prompt-total {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: monospace;
+}
+.prompt-total span { color: var(--primary); font-weight: 700; }
+
+/* HERO */
+.hero {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 64px 32px 48px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14,165,233,0.08);
+  border: 1px solid rgba(14,165,233,0.2);
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 11px;
+  color: var(--primary);
+  font-family: monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--head);
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+.hero h1 .highlight {
+  background: linear-gradient(90deg, var(--primary), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 32px;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.stat {
+  text-align: center;
+}
+.stat-num {
+  font-family: var(--head);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+}
+.stat-num span { color: var(--primary); }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* GRID */
+.grid-section {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px 80px;
+}
+.section-label {
+  font-size: 10px;
+  color: var(--primary);
+  font-family: monospace;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--b1);
+}
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* CARD */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--card-color, var(--primary));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.card:hover {
+  border-color: var(--card-color, var(--primary));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.card:hover::before { opacity: 1; }
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  background: var(--card-bg, rgba(14,165,233,0.1));
+  border: 1px solid var(--card-border, rgba(14,165,233,0.2));
+  flex-shrink: 0;
+}
+.card-num {
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+.card-num span { color: var(--card-color, var(--primary)); font-weight: 700; }
+
+.card-title {
+  font-family: var(--head);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.card-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.tag {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: monospace;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  color: var(--muted);
+}
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--b1);
+}
+.card-action {
+  font-size: 12px;
+  color: var(--card-color, var(--primary));
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.progress-bar {
+  width: 80px;
+  height: 4px;
+  background: var(--s2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--card-color, var(--primary));
+  border-radius: 2px;
+  width: var(--fill, 0%);
+}
+
+/* MODAL */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--b1);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.modal-header-left { flex: 1; }
+.modal-eyebrow {
+  font-size: 10px;
+  color: var(--primary);
+  font-family: monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.modal-title {
+  font-family: var(--head);
+  font-size: 20px;
+  font-weight: 700;
+}
+.modal-close {
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 8px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.modal-close:hover { background: var(--s3); color: var(--text); }
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* PROMPT LIST IN MODAL */
+.prompt-list { display: flex; flex-direction: column; gap: 12px; }
+.prompt-item {
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.prompt-item-header {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--s2);
+}
+.prompt-num {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: monospace;
+}
+.copy-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.copy-btn:hover { background: var(--accent); }
+.copy-btn.copied { background: var(--green); }
+.prompt-text {
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-top: 1px solid var(--b1);
+}
+.prompt-text .bracket { color: var(--accent); font-weight: 600; }
+
+/* COMING SOON CHIP */
+.coming-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(168,85,247,0.1);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--purple);
+  font-family: monospace;
+  margin-top: 16px;
+}
+
+/* BATCH LINK BUTTON */
+.batch-link-wrap {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--b1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.batch-info {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: monospace;
+}
+.batch-info span { color: var(--accent); font-weight: 700; }
+.btn-batch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, var(--batch-color, var(--primary)), rgba(168,85,247,0.8));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-family: var(--font);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+.btn-batch:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-batch .arrow { font-size: 14px; transition: transform 0.2s; }
+.btn-batch:hover .arrow { transform: translateX(3px); }
+
+/* FOOTER */
+.footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 32px;
+  border-top: 1px solid var(--b1);
+  color: var(--muted);
+  font-size: 12px;
+}
+.footer span { color: var(--accent); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 3px; }
+
+@media (max-width: 600px) {
+  .topbar { padding: 12px 16px; }
+  .hero { padding: 40px 16px 32px; }
+  .grid-section { padding: 0 16px 60px; }
+  .hero-stats { gap: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero-glow"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🤖</div>
+    Content<span>Thai</span> AI
+  </div>
+  <div class="topbar-right">
+    <div class="prompt-total">Prompt ทั้งหมด <span>1,000</span> ข้อ</div>
+    <div class="badge-lifetime">⭐ Lifetime Member</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">🎁 Exclusive — สิทธิพิเศษสมาชิกตลอดชีพ</div>
+  <h1>1,000 Prompt<br><span class="highlight">สำหรับชีวิตประจำวัน</span></h1>
+  <p class="hero-sub">
+    คำสั่ง AI พร้อมใช้งานจริง ครบทุกสถานการณ์ในชีวิต
+    ไม่ต้องคิดเอง — แค่เลือก แก้ไขนิดหน่อย แล้วก็อปวาง AI ได้เลย
+  </p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">10<span> หมวด</span></div>
+      <div class="stat-label">Categories</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">1,000<span> ข้อ</span></div>
+      <div class="stat-label">Ready-to-Use Prompts</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">0<span> โค้ด</span></div>
+      <div class="stat-label">ไม่ต้องเขียนโปรแกรม</div>
+    </div>
+  </div>
+</div>
+
+<!-- GRID -->
+<div class="grid-section">
+  <div class="section-label">เลือกหมวดที่ต้องการ</div>
+  <div class="cards-grid" id="cardsGrid"></div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  ContentThai AI &copy; 2026 · <span>Lifetime Member Exclusive</span> · ห้ามเผยแพร่โดยไม่ได้รับอนุญาต
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-eyebrow" id="modalEyebrow"></div>
+        <div class="modal-title" id="modalTitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="prompt-list" id="modalPrompts"></div>
+      <div class="batch-link-wrap" id="batchLinkWrap" style="display:none">
+        <div class="batch-info">แสดงตัวอย่าง <span>5</span> จาก <span>100</span> prompt ในหมวดนี้</div>
+        <a class="btn-batch" id="batchLinkBtn" href="#" target="_blank">
+          ดู Prompt ครบ 100 ข้อ <span class="arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = [
+  {
+    id: 1,
+    icon: '📅',
+    title: 'การวางแผน & จัดการเวลา',
+    desc: 'Prompt สำหรับวางแผนวัน สัปดาห์ และเป้าหมายระยะยาว ให้ AI ช่วยจัดตารางและ priority งานแทนคุณ',
+    color: '#0ea5e9',
+    bg: 'rgba(14,165,233,0.1)',
+    border: 'rgba(14,165,233,0.2)',
+    tags: ['Daily Plan', 'Goal Setting', 'Priority'],
+    fill: '100%',
+    prompts: [
+      { num: '001', text: 'คุณคือผู้ช่วยวางแผนส่วนตัว ช่วยสร้างตารางประจำวันสำหรับ [วันจันทร์-ศุกร์] โดยมีงานที่ต้องทำคือ [รายการงาน] เวลาตื่นนอน [เวลา] และต้องการเวลาพัก [จำนวน] ครั้ง ตอบเป็นตารางเวลาที่ชัดเจน พร้อมบอก priority ของแต่ละงาน' },
+      { num: '002', text: 'คุณคือโค้ชด้านการจัดการเวลา ช่วยวิเคราะห์รายการงานต่อไปนี้แล้วจัดเรียงตามความสำคัญและความเร่งด่วน โดยใช้หลัก Eisenhower Matrix: [รายการงานทั้งหมด] ตอบเป็นตาราง 4 ช่องพร้อมคำแนะนำว่าควรทำอะไรก่อน' },
+      { num: '003', text: 'คุณคือผู้ช่วยตั้งเป้าหมาย ช่วยแปลงความฝันของผมที่ว่า "[เป้าหมาย]" ให้กลายเป็นแผน 90 วันที่ทำได้จริง โดยแบ่งเป็นสัปดาห์ละ 1 milestone และบอก action แรกที่ควรทำทันทีวันนี้' },
+      { num: '004', text: 'คุณคือผู้ช่วยรีวิวสัปดาห์ ช่วยสร้างคำถาม Weekly Review 10 ข้อ ที่ครอบคลุมทั้งงาน สุขภาพ และความสัมพันธ์ เพื่อให้ผมสรุปบทเรียนและวางแผนสัปดาห์ถัดไปได้ดีขึ้น' },
+      { num: '005', text: 'คุณคือผู้ช่วยส่วนตัว ผมมีเวลาว่าง [จำนวน] นาที ช่วยแนะนำว่าควรทำอะไรให้ได้ประโยชน์มากที่สุด โดยคำนึงว่าผมต้องการพัฒนาด้าน [ด้านที่ต้องการพัฒนา] และปัจจุบันพลังงานระดับ [สูง/กลาง/ต่ำ]' },
+    ]
+  },
+  {
+    id: 2,
+    icon: '💼',
+    title: 'การทำงาน & อีเมล',
+    desc: 'เขียนอีเมล รายงาน ประชุม และสื่อสารในที่ทำงานได้เป็นมืออาชีพทันที ไม่ต้องนั่งคิดคำนาน',
+    color: '#f59e0b',
+    bg: 'rgba(245,158,11,0.1)',
+    border: 'rgba(245,158,11,0.2)',
+    tags: ['Email', 'Meeting', 'Report'],
+    fill: '100%',
+    prompts: [
+      { num: '101', text: 'คุณคือผู้เชี่ยวชาญด้านการสื่อสารในองค์กร ช่วยเขียนอีเมลถึง [ชื่อผู้รับ/ตำแหน่ง] เพื่อ [จุดประสงค์] โดยโทนต้องเป็น [ทางการ/กึ่งทางการ] ความยาวไม่เกิน 5 ประโยค และต้องมี call-to-action ชัดเจนตอนท้าย' },
+      { num: '102', text: 'คุณคือผู้ช่วยประชุม ช่วยสร้าง Agenda การประชุม [ชื่อการประชุม] ระยะเวลา [X] นาที โดยมีเรื่องที่ต้องคุยคือ [หัวข้อ] จัดเวลาให้เหมาะสมแต่ละหัวข้อ และระบุว่าใครควรเป็นคนพูดในแต่ละช่วง' },
+      { num: '103', text: 'คุณคือผู้เชี่ยวชาญด้านการเจรจา ช่วยร่างอีเมลขอเลื่อนกำหนดส่งงาน [ชื่องาน] จากวันที่ [วันเดิม] ไปเป็น [วันใหม่] โดยอธิบายเหตุผลว่า [เหตุผล] และแสดงให้เห็นว่าคุณรับผิดชอบ ไม่ฟังดูแก้ตัว' },
+      { num: '104', text: 'คุณคือผู้ช่วยสรุปผล ช่วยแปลง bullet point ต่อไปนี้ให้กลายเป็นรายงานสรุปผลการทำงานประจำ [รายสัปดาห์/เดือน] ที่อ่านง่าย มีโครงสร้างชัดเจน และเน้น impact ที่เกิดขึ้น: [bullet points]' },
+      { num: '105', text: 'คุณคือโค้ชด้าน feedback ช่วยเขียน feedback ให้ [ชื่อเพื่อนร่วมงาน/ลูกน้อง] เกี่ยวกับ [พฤติกรรม/ผลงาน] โดยใช้หลัก SBI (Situation-Behavior-Impact) โทนสร้างสรรค์ ไม่ตำหนิ และจบด้วยคำแนะนำเชิงบวก' },
+    ]
+  },
+  {
+    id: 3,
+    icon: '📚',
+    title: 'การเรียน & สรุปเนื้อหา',
+    desc: 'สรุปบทความ หนังสือ คลิป หรือเนื้อหาใดก็ได้ให้กระชับ เข้าใจง่าย พร้อมนำไปใช้ต่อได้ทันที',
+    color: '#22c55e',
+    bg: 'rgba(34,197,94,0.1)',
+    border: 'rgba(34,197,94,0.2)',
+    tags: ['Summary', 'Learning', 'Notes'],
+    fill: '100%',
+    prompts: [
+      { num: '201', text: 'คุณคือผู้เชี่ยวชาญด้านการสรุปเนื้อหา ช่วยสรุปบทความ/หนังสือ/คลิปต่อไปนี้ให้เหลือเพียง 3 insight สำคัญที่สุด พร้อม 1 action ที่นำไปทำได้เลย: [เนื้อหาที่ต้องการสรุป]' },
+      { num: '202', text: 'คุณคือครูสอนพิเศษ ช่วยอธิบายเรื่อง [หัวข้อ] ให้ผมเข้าใจง่ายๆ เหมือนอธิบายให้เด็ก 12 ปีฟัง โดยใช้ตัวอย่างในชีวิตประจำวัน และตอนท้ายช่วยตั้งคำถาม 3 ข้อเพื่อทดสอบความเข้าใจของผมด้วย' },
+      { num: '203', text: 'คุณคือผู้ช่วยทำ flashcard ช่วยแปลงเนื้อหาต่อไปนี้ให้กลายเป็น Q&A 10 คู่ ที่เหมาะสำหรับทบทวนก่อนสอบหรือก่อนนำเสนองาน: [เนื้อหา]' },
+      { num: '204', text: 'คุณคือนักเชื่อมโยงความรู้ ช่วยอธิบายว่าแนวคิด [แนวคิดที่เพิ่งเรียน] เชื่อมโยงกับสิ่งที่ผมทำงานอยู่จริงอย่างไร โดยใช้ตัวอย่างจากธุรกิจ/ชีวิตประจำวัน และบอกว่าจะนำไปใช้ได้เมื่อไหร่' },
+      { num: '205', text: 'คุณคือผู้ช่วยออกแบบการเรียน ช่วยสร้างแผนเรียน [หัวข้อ] สำหรับมือใหม่สมบูรณ์ ภายใน [จำนวน] วัน โดยวันละไม่เกิน [จำนวน] นาที บอก resource ฟรีที่แนะนำและ milestone ที่วัดผลได้' },
+    ]
+  },
+  {
+    id: 4,
+    icon: '💰',
+    title: 'การเงินส่วนตัว',
+    desc: 'วางแผนเงิน ติดตามรายจ่าย ตั้งเป้าออม และทำความเข้าใจเรื่องการลงทุนแบบไม่ต้องเป็นผู้เชี่ยวชาญ',
+    color: '#a855f7',
+    bg: 'rgba(168,85,247,0.1)',
+    border: 'rgba(168,85,247,0.2)',
+    tags: ['Budget', 'Saving', 'Investment'],
+    fill: '100%',
+    prompts: [
+      { num: '301', text: 'คุณคือที่ปรึกษาการเงินส่วนตัว ช่วยวางแผนงบประมาณรายเดือนให้ผม โดยรายได้ [จำนวน] บาท ค่าใช้จ่ายคงที่ [รายการ] และเป้าหมายอยากออม [จำนวน]% ใช้หลัก 50/30/20 หรือปรับตามความเหมาะสม พร้อมบอก tip ลดรายจ่าย' },
+      { num: '302', text: 'คุณคือผู้เชี่ยวชาญการออม ช่วยออกแบบ Saving Challenge สำหรับผมที่อยากเก็บเงิน [จำนวน] บาท ภายใน [ระยะเวลา] โดยเริ่มจากจำนวนเล็กๆ ก่อนแล้วค่อยๆ เพิ่ม ให้ดูสนุกและทำได้จริง' },
+      { num: '303', text: 'คุณคือที่ปรึกษาการเงิน ช่วยอธิบายความแตกต่างระหว่าง [ตัวเลือกการลงทุน A] และ [ตัวเลือก B] ในภาษาที่คนไม่มีพื้นฐานการเงินเข้าใจได้ บอกข้อดี ข้อเสีย ความเสี่ยง และเหมาะกับคนแบบไหน' },
+      { num: '304', text: 'คุณคือผู้ช่วยวิเคราะห์รายจ่าย ช่วยดูรายการใช้จ่ายเดือนที่ผ่านมาและวิเคราะห์ว่าอะไรคือ "รายจ่ายที่ตัดได้โดยไม่กระทบชีวิต" พร้อมประมาณว่าถ้าตัดได้ จะประหยัดได้เดือนละเท่าไหร่: [รายการใช้จ่าย]' },
+      { num: '305', text: 'คุณคือโค้ชการเงิน ช่วยสร้างแผน "หนี้หมดใน [X] ปี" สำหรับหนี้ต่อไปนี้ โดยแนะนำว่าควรจ่ายหนี้ไหนก่อนตามหลัก Avalanche หรือ Snowball และคำนวณดอกเบี้ยที่ประหยัดได้: [รายการหนี้ + ดอกเบี้ย]' },
+    ]
+  },
+  {
+    id: 5,
+    icon: '🏃',
+    title: 'สุขภาพ & ดูแลตัวเอง',
+    desc: 'วางแผนออกกำลังกาย โภชนาการ การนอน และ routine ดูแลสุขภาพแบบที่ทำได้จริงในชีวิตประจำวัน',
+    color: '#ec4899',
+    bg: 'rgba(236,72,153,0.1)',
+    border: 'rgba(236,72,153,0.2)',
+    tags: ['Exercise', 'Nutrition', 'Sleep'],
+    fill: '100%',
+    prompts: [
+      { num: '401', text: 'คุณคือ Personal Trainer ช่วยออกแบบโปรแกรมออกกำลังกายสำหรับผม [ชาย/หญิง อายุ น้ำหนัก] ที่บ้านโดยไม่ใช้อุปกรณ์ สัปดาห์ละ [X] วัน วันละไม่เกิน [X] นาที เป้าหมายคือ [ลดน้ำหนัก/เพิ่มกล้ามเนื้อ/สุขภาพดีขึ้น]' },
+      { num: '402', text: 'คุณคือนักโภชนาการ ช่วยออกแบบเมนูอาหารสำหรับ 1 สัปดาห์ที่ [สุขภาพดี/ลดน้ำหนัก] โดยใช้วัตถุดิบหาง่ายในไทย งบประมาณไม่เกิน [จำนวน] บาทต่อวัน และใช้เวลาปรุงไม่เกิน [X] นาที' },
+      { num: '403', text: 'คุณคือผู้เชี่ยวชาญด้านการนอน ผมนอนหลับยาก/ตื่นกลางดึก/ตื่นมาไม่สดชื่น ช่วยวิเคราะห์ว่าปัญหาน่าจะมาจากอะไร และให้ Sleep Routine 7 วันที่ลองทำได้เลย โดยไม่ต้องใช้ยา' },
+      { num: '404', text: 'คุณคือโค้ชด้าน Mental Health ช่วยออกแบบ Morning Routine 30 นาที ที่ช่วยให้ผมเริ่มต้นวันได้ดี ลดความเครียด และมีพลังงานตลอดวัน โดยคำนึงว่าผมตื่น [เวลา] และต้องออกจากบ้าน [เวลา]' },
+      { num: '405', text: 'คุณคือผู้เชี่ยวชาญด้านสุขภาพ ช่วยสร้าง Health Habit Tracker สำหรับผม โดยเลือก 5 นิสัยที่อยากสร้าง ให้คำแนะนำวิธี track ง่ายๆ และบอกว่าควรทำนิสัยไหนก่อนเพื่อให้นิสัยถัดไปตามมาง่ายที่สุด' },
+    ]
+  },
+  {
+    id: 6,
+    icon: '❤️',
+    title: 'ครอบครัว & ความสัมพันธ์',
+    desc: 'สื่อสารกับคนในครอบครัว คู่รัก เพื่อน และแก้ปัญหาความขัดแย้งอย่างสร้างสรรค์ด้วย AI',
+    color: '#f43f5e',
+    bg: 'rgba(244,63,94,0.1)',
+    border: 'rgba(244,63,94,0.2)',
+    tags: ['Communication', 'Conflict', 'Family'],
+    fill: '100%',
+    prompts: [
+      { num: '501', text: 'คุณคือผู้เชี่ยวชาญด้านการสื่อสาร ช่วยเขียนข้อความให้ผมส่งถึง [คู่รัก/เพื่อน/ครอบครัว] เพื่อบอกว่าผม [รู้สึกอะไร] เกี่ยวกับ [เหตุการณ์] โดยใช้ภาษา I-statement ไม่ตำหนิ และเปิดโอกาสให้อีกฝ่ายได้พูด' },
+      { num: '502', text: 'คุณคือโค้ชความสัมพันธ์ ผมกำลังมีปัญหากับ [คนในครอบครัว/เพื่อน] เรื่อง [ปัญหา] ช่วยแนะนำว่าควรคุยอย่างไร บอกสิ่งที่ควรพูดและไม่ควรพูด พร้อมวิธีเริ่มบทสนทนาที่ไม่ก่อให้เกิดการป้องกันตัว' },
+      { num: '503', text: 'คุณคือผู้ช่วยวางแผนครอบครัว ช่วยออกแบบกิจกรรม Family Time สำหรับ [จำนวน] คน อายุตั้งแต่ [ช่วงอายุ] ที่ทำได้ใน [บ้าน/สวน/ในเมือง] งบประมาณไม่เกิน [จำนวน] บาท และทุกคนจะสนุกด้วยกัน' },
+      { num: '504', text: 'คุณคือผู้เชี่ยวชาญด้าน Love Language ช่วยอธิบาย Love Language ทั้ง 5 แบบ และช่วยผมวิเคราะห์ว่า [คนที่สำคัญ] น่าจะเป็น Love Language แบบไหนจากพฤติกรรมเหล่านี้: [พฤติกรรมที่สังเกตเห็น]' },
+      { num: '505', text: 'คุณคือที่ปรึกษาครอบครัว ช่วยร่างข้อตกลงในบ้านสำหรับ [จำนวน] คน ครอบคลุมเรื่อง [งานบ้าน/ค่าใช้จ่าย/เวลาส่วนตัว] ให้ยุติธรรม ทุกคนยอมรับได้ และเขียนในโทนที่อบอุ่น ไม่แข็งทื่อ' },
+    ]
+  },
+  {
+    id: 7,
+    icon: '🛒',
+    title: 'การซื้อของ & ตัดสินใจ',
+    desc: 'เปรียบเทียบสินค้า ตัดสินใจซื้อ และหลีกเลี่ยงการโดนหลอกด้วย AI ที่ช่วยคิดแทนคุณ',
+    color: '#f97316',
+    bg: 'rgba(249,115,22,0.1)',
+    border: 'rgba(249,115,22,0.2)',
+    tags: ['Compare', 'Review', 'Decision'],
+    fill: '100%',
+    prompts: [
+      { num: '601', text: 'คุณคือผู้เชี่ยวชาญด้านผู้บริโภค ช่วยเปรียบเทียบ [สินค้า A] vs [สินค้า B] สำหรับผมที่ต้องการ [ความต้องการหลัก] งบประมาณ [จำนวน] บาท และใช้งานแบบ [การใช้งาน] บอกข้อดีข้อเสียและแนะนำว่าควรเลือกอันไหน' },
+      { num: '602', text: 'คุณคือที่ปรึกษาการตัดสินใจ ช่วยทำ Decision Matrix ให้ผมสำหรับการตัดสินใจ [เรื่อง] โดยมีตัวเลือกคือ [A, B, C] และสิ่งที่สำคัญที่สุดสำหรับผมคือ [ปัจจัย 1, 2, 3] ตอบเป็นตารางคะแนนพร้อมคำแนะนำ' },
+      { num: '603', text: 'คุณคือผู้เชี่ยวชาญด้าน Review ช่วยสรุป review ของ [สินค้า/บริการ] จากที่ผมค้นมาดังนี้ โดยบอกว่าคนที่ชอบชอบอะไร คนที่ไม่ชอบบ่นเรื่องอะไร และโดยรวมเหมาะกับผมที่ [context การใช้งาน] ไหม: [review]' },
+      { num: '604', text: 'คุณคือผู้ช่วยป้องกันการซื้อของแบบ Impulse ช่วยถามผม 5 คำถามที่ทำให้คิดก่อนซื้อ [สินค้าที่กำลังจะซื้อ] ราคา [จำนวน] บาท เพื่อให้มั่นใจว่าการซื้อครั้งนี้คุ้มค่าจริงๆ' },
+      { num: '605', text: 'คุณคือนักเจรจาราคา ช่วยเขียนข้อความที่ผมจะส่งให้ร้านค้าออนไลน์เพื่อขอส่วนลดสำหรับ [สินค้า] ราคาปกติ [จำนวน] บาท โดยโทนต้องสุภาพ ไม่เกร็ง และมีเหตุผลที่ทำให้ร้านอยากลดให้' },
+    ]
+  },
+  {
+    id: 8,
+    icon: '✈️',
+    title: 'การเดินทาง & ท่องเที่ยว',
+    desc: 'วางแผนทริป จัดตาราง หาร้านอาหาร และเตรียมตัวเดินทางอย่างมืออาชีพโดยใช้ AI',
+    color: '#06b6d4',
+    bg: 'rgba(6,182,212,0.1)',
+    border: 'rgba(6,182,212,0.2)',
+    tags: ['Trip Plan', 'Restaurant', 'Packing'],
+    fill: '100%',
+    prompts: [
+      { num: '701', text: 'คุณคือ Travel Planner มืออาชีพ ช่วยวางแผนทริป [ปลายทาง] [จำนวน] วัน [จำนวน] คืน สำหรับ [จำนวน] คน งบประมาณรวม [จำนวน] บาท ต้องการ [ผ่อนคลาย/ผจญภัย/วัฒนธรรม] โดยจัดตารางวันต่อวันที่ทำได้จริง ไม่แน่นเกิน' },
+      { num: '702', text: 'คุณคือผู้เชี่ยวชาญท้องถิ่น ช่วยแนะนำร้านอาหารใน [เมือง/ย่าน] ที่คนท้องถิ่นไปจริงๆ ไม่ใช่แค่ร้านสำหรับนักท่องเที่ยว ประเภทอาหาร [ประเภท] งบต่อคน [จำนวน] บาท พร้อมบอกว่าต้องสั่งอะไรเป็นอันดับแรก' },
+      { num: '703', text: 'คุณคือผู้ช่วยเตรียมกระเป๋า ช่วยสร้าง Packing List สำหรับทริป [ปลายทาง] [จำนวน] วัน ช่วง [ฤดู/เดือน] กิจกรรมหลักคือ [กิจกรรม] โดยแยกเป็นหมวด และบอก "ของที่คนมักลืม" ด้วย' },
+      { num: '704', text: 'คุณคือนักเดินทางมากประสบการณ์ ช่วยแนะนำวิธีประหยัดค่าใช้จ่ายสำหรับทริป [ปลายทาง] โดยไม่ลดคุณภาพการเดินทาง บอก tip เรื่องที่พัก ตั๋ว อาหาร และของที่ระลึกที่คุ้มค่าที่สุด' },
+      { num: '705', text: 'คุณคือผู้ช่วยฉุกเฉินการเดินทาง ผมกำลัง [สถานการณ์ฉุกเฉิน เช่น ตกเครื่อง/กระเป๋าหาย/ป่วย] ที่ [ประเทศ/เมือง] ช่วยบอกขั้นตอนที่ต้องทำทันที ใครต้องโทรหา และจะหาความช่วยเหลือได้จากที่ไหน' },
+    ]
+  },
+  {
+    id: 9,
+    icon: '✍️',
+    title: 'การสื่อสาร & การเขียน',
+    desc: 'เขียน caption โพสต์ บทความ ข้อความสำคัญ และทุกอย่างที่ต้องใช้คำพูดให้ได้ผลมากขึ้น',
+    color: '#8b5cf6',
+    bg: 'rgba(139,92,246,0.1)',
+    border: 'rgba(139,92,246,0.2)',
+    tags: ['Caption', 'Content', 'Writing'],
+    fill: '100%',
+    prompts: [
+      { num: '801', text: 'คุณคือ Copywriter มืออาชีพ ช่วยเขียน caption สำหรับโพสต์ [Facebook/Instagram/TikTok] เกี่ยวกับ [หัวข้อ] ให้มี hook แรงในประโยคแรก กระตุ้นให้คนคอมเมนต์หรือแชร์ โทนเป็น [สนุก/ให้ความรู้/สร้างแรงบันดาลใจ] ความยาวประมาณ [X] คำ' },
+      { num: '802', text: 'คุณคือบรรณาธิการมืออาชีพ ช่วยปรับปรุงข้อความต่อไปนี้ให้อ่านง่าย ชัดเจน และน่าสนใจขึ้น โดยรักษาความหมายเดิมไว้แต่เปลี่ยนโครงสร้างประโยคหากจำเป็น: [ข้อความต้นฉบับ]' },
+      { num: '803', text: 'คุณคือผู้เชี่ยวชาญ Storytelling ช่วยเปลี่ยนข้อมูลแห้งๆ ต่อไปนี้ให้กลายเป็นเรื่องเล่าที่คนอยากอ่านจนจบ โดยใช้โครงสร้าง Problem-Journey-Transformation: [ข้อมูล/เหตุการณ์]' },
+      { num: '804', text: 'คุณคือผู้ช่วยเขียนคำพูดสำคัญ ช่วยเขียนสุนทรพจน์/คำกล่าว [ในงาน] ความยาว [X] นาที สำหรับ [โอกาส] โดยเปิดด้วยประโยคที่ทำให้คนฟังตั้งใจ มีส่วนที่สร้าง emotion และจบด้วย call-to-action หรือประโยคที่จำได้' },
+      { num: '805', text: 'คุณคือผู้เชี่ยวชาญ Prompt Engineering ช่วยปรับปรุง prompt ต่อไปนี้ให้ได้คำตอบที่ดีขึ้นจาก AI โดยเพิ่ม context บทบาท รูปแบบคำตอบ และเงื่อนไขที่จำเป็น: [prompt เดิม]' },
+    ]
+  },
+  {
+    id: 10,
+    icon: '🚀',
+    title: 'การพัฒนาตัวเอง',
+    desc: 'วางแผนเป้าหมายชีวิต พัฒนาทักษะ สร้างนิสัยใหม่ และค้นหาทิศทางที่ใช่สำหรับตัวเอง',
+    color: '#14b8a6',
+    bg: 'rgba(20,184,166,0.1)',
+    border: 'rgba(20,184,166,0.2)',
+    tags: ['Goals', 'Habits', 'Mindset'],
+    fill: '100%',
+    prompts: [
+      { num: '901', text: 'คุณคือโค้ชชีวิต ช่วยผมวิเคราะห์ว่าทักษะ [ทักษะที่มีอยู่] ของผมสามารถต่อยอดไปเป็น [เป้าหมาย] ได้อย่างไร บอก gap ที่ยังขาดอยู่ วิธีพัฒนา และ timeline ที่สมเหตุสมผล' },
+      { num: '902', text: 'คุณคือผู้เชี่ยวชาญด้าน Habit Formation ช่วยออกแบบ Habit Stack สำหรับผมที่อยากสร้างนิสัย [นิสัยที่ต้องการ] โดยเชื่อมต่อกับสิ่งที่ผมทำอยู่แล้วทุกวันคือ [นิสัยเดิม] และบอกวิธีรับมือเมื่อทำไม่ได้' },
+      { num: '903', text: 'คุณคือผู้ช่วย Self-Reflection ช่วยสร้างคำถาม Journal 10 ข้อที่จะช่วยให้ผมเข้าใจตัวเองมากขึ้นในด้าน [ด้านที่ต้องการสำรวจ เช่น ค่านิยม/จุดแข็ง/ความกลัว] และนำไปสู่การตัดสินใจที่ดีขึ้น' },
+      { num: '904', text: 'คุณคือโค้ชด้านการเรียนรู้ ผมมีเวลา [จำนวน] ชั่วโมงต่อสัปดาห์สำหรับพัฒนาตัวเอง ช่วยออกแบบ Learning Plan สำหรับ [ทักษะ/สาขา] ที่จะทำให้ผมเก่งพอที่จะ [เป้าหมาย] ภายใน [ระยะเวลา]' },
+      { num: '905', text: 'คุณคือผู้เชี่ยวชาญด้านการค้นหาตัวเอง ช่วยผมวิเคราะห์จาก [ประสบการณ์/ทักษะ/สิ่งที่ชอบ] ว่าผมมี "Ikigai" คืออะไร และบอกว่ามีอาชีพหรือทิศทางใดบ้างที่ตรงกับสิ่งที่ค้นพบ: [ข้อมูลเกี่ยวกับตัวเอง]' },
+    ]
+  }
+];
+
+function renderCards() {
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = CATEGORIES.map(cat => `
+    <div class="card" style="--card-color:${cat.color};--card-bg:${cat.bg};--card-border:${cat.border};--fill:${cat.fill}"
+         onclick="openModal(${cat.id})">
+      <div class="card-top">
+        <div class="card-icon">${cat.icon}</div>
+        <div class="card-num">หมวด <span>${String(cat.id).padStart(2,'0')}</span></div>
+      </div>
+      <div class="card-title">${cat.title}</div>
+      <div class="card-desc">${cat.desc}</div>
+      <div class="card-tags">${cat.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      <div class="card-footer">
+        <div class="card-action">ดู Prompt ตัวอย่าง →</div>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// mapping: category id → batch file + section anchor
+const BATCH_MAP = {
+  1: { file: 'prompts_batch1_หมวด1-2.html', anchor: 'grid1', label: 'Batch 1 — วางแผน & การทำงาน', color: '#0ea5e9' },
+  2: { file: 'prompts_batch1_หมวด1-2.html', anchor: 'grid2', label: 'Batch 1 — วางแผน & การทำงาน', color: '#f59e0b' },
+  3: { file: 'prompts_batch2_หมวด3-4.html', anchor: 'grid3', label: 'Batch 2 — เรียน & การเงิน', color: '#22c55e' },
+  4: { file: 'prompts_batch2_หมวด3-4.html', anchor: 'grid4', label: 'Batch 2 — เรียน & การเงิน', color: '#a855f7' },
+  5: { file: 'prompts_batch3_หมวด5-6.html', anchor: 'grid5', label: 'Batch 3 — สุขภาพ & ความสัมพันธ์', color: '#ec4899' },
+  6: { file: 'prompts_batch3_หมวด5-6.html', anchor: 'grid6', label: 'Batch 3 — สุขภาพ & ความสัมพันธ์', color: '#f43f5e' },
+  7: { file: 'prompts_batch4_หมวด7-8.html', anchor: 'grid7', label: 'Batch 4 — ซื้อของ & เดินทาง', color: '#f97316' },
+  8: { file: 'prompts_batch4_หมวด7-8.html', anchor: 'grid8', label: 'Batch 4 — ซื้อของ & เดินทาง', color: '#06b6d4' },
+  9: { file: 'prompts_batch5_หมวด9-10.html', anchor: 'grid9', label: 'Batch 5 — การสื่อสาร & พัฒนาตน', color: '#8b5cf6' },
+  10:{ file: 'prompts_batch5_หมวด9-10.html', anchor: 'grid10', label: 'Batch 5 — การสื่อสาร & พัฒนาตน', color: '#14b8a6' },
+};
+
+function openModal(id) {
+  const cat = CATEGORIES.find(c => c.id === id);
+  if (!cat) return;
+  document.getElementById('modalEyebrow').textContent = `หมวด ${String(id).padStart(2,'0')} · ${cat.tags.join(' · ')}`;
+  document.getElementById('modalTitle').textContent = `${cat.icon} ${cat.title}`;
+  document.getElementById('modalTitle').style.color = cat.color;
+
+  const list = document.getElementById('modalPrompts');
+  list.innerHTML = cat.prompts.map(p => `
+    <div class="prompt-item">
+      <div class="prompt-item-header">
+        <span class="prompt-num">PROMPT #${p.num}</span>
+        <button class="copy-btn" onclick="copyPrompt(this, \`${p.text.replace(/`/g,'\\`')}\`)">ก็อปปี้</button>
+      </div>
+      <div class="prompt-text">${highlightBrackets(p.text)}</div>
+    </div>
+  `).join('');
+
+  // set batch link
+  const bm = BATCH_MAP[id];
+  const wrap = document.getElementById('batchLinkWrap');
+  const btn  = document.getElementById('batchLinkBtn');
+  if (bm) {
+    btn.href = `${bm.file}#${bm.anchor}`;
+    btn.style.setProperty('--batch-color', bm.color);
+    wrap.style.display = 'flex';
+  } else {
+    wrap.style.display = 'none';
+  }
+
+  document.getElementById('modalBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function highlightBrackets(text) {
+  return text.replace(/\[([^\]]+)\]/g, '<span class="bracket">[$1]</span>');
+}
+
+function copyPrompt(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ คัดลอกแล้ว';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'ก็อปปี้';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+document.getElementById('modalBackdrop').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+renderCards();
+</script>
+</body>
+</html>
