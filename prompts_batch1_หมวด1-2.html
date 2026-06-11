@@ -2,7 +2,35 @@
 <html lang="th">
 <head>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="auth-guard.js"></script>
+<script>
+(async function(){
+  const SURL='https://gpvhnrbhjymgeiujzbjt.supabase.co';
+  const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s';
+  const ALLOWED=['monthly','yearly','lifetime'];
+  document.body.style.display='none';
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:99999;background:#0d1117;color:#e6edf3;font-family:Sarabun,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-size:15px';
+  ov.innerHTML='<div style="font-size:32px">🔐</div><div>กำลังตรวจสอบสิทธิ์...</div><div style="width:40px;height:40px;border:3px solid rgba(14,165,233,.3);border-top-color:#0ea5e9;border-radius:50%;animation:spin .7s linear infinite"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+  document.documentElement.appendChild(ov);
+  function go(reason){sessionStorage.setItem('guard_reason',reason);window.location.replace('index.html');}
+  let t=0;
+  while(typeof supabase==='undefined'&&t<30){await new Promise(r=>setTimeout(r,100));t++;}
+  if(typeof supabase==='undefined'){go('error');return;}
+  const sb=supabase.createClient(SURL,SKEY);
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    if(!session){go('no_session');return;}
+    const{data:p,error}=await sb.from('profiles').select('status,package,full_name').eq('id',session.user.id).single();
+    if(error||!p){go('no_profile');return;}
+    if(p.status!=='approved'){go('not_approved');return;}
+    if(!ALLOWED.includes(p.package)){go('upgrade_required');return;}
+    document.body.style.display='';
+    ov.remove();
+    const m=document.querySelector('.topbar-meta');
+    if(m&&p.full_name){const s=document.createElement('span');s.innerHTML='👤 <b>'+p.full_name+'</b>';m.appendChild(s);}
+  }catch(e){go('error');}
+})();
+</script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -396,4 +424,3 @@ renderGrid(CAT2,'grid2','#f59e0b');
 </script>
 </body>
 </html>
-
