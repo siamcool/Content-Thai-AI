@@ -887,9 +887,16 @@ let currentPrompt = '';
   if (profile.expiry_date) {
     const exp = new Date(profile.expiry_date);
     document.getElementById('stat-expiry').textContent = exp.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'});
-    // Check expiry within 7 days
     const daysLeft = Math.ceil((exp - new Date()) / 86400000);
-    if (daysLeft <= 7 && daysLeft > 0) {
+    // ❌ หมดอายุแล้ว → sign out และ redirect
+    if (daysLeft <= 0) {
+      await sb.auth.signOut();
+      sessionStorage.setItem('guard_reason','expired');
+      window.location.replace('index.html');
+      return;
+    }
+    // ⚠️ ใกล้หมดอายุ (7 วัน)
+    if (daysLeft <= 7) {
       const bar = document.getElementById('expiry-bar');
       bar.textContent = `⚠️ แพ็กเกจของคุณจะหมดอายุใน ${daysLeft} วัน — กรุณาต่ออายุก่อนหมดเขต`;
       bar.classList.add('show');
@@ -1020,4 +1027,3 @@ async function doLogout() {
 </script>
 </body>
 </html>
-
