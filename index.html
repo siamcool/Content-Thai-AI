@@ -313,6 +313,28 @@ body {
   height: 32px;
   background: rgba(255,255,255,.1);
 }
+.btn-free {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #0ea5e9, #6366f1);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font);
+  margin-bottom: 28px;
+  transition: all .2s;
+  box-shadow: 0 8px 24px rgba(14,165,233,.35);
+  letter-spacing: .2px;
+}
+.btn-free:hover {
+  opacity: .9;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(14,165,233,.45);
+}
 </style>
 </head>
 <body>
@@ -326,6 +348,9 @@ body {
     <div class="video-badge">🤖 AI สำหรับคนไทย — ไม่ต้องเขียนโค้ด</div>
     <h1 class="video-headline">สร้างคอนเทนต์ง่าย<br><span>ขายดีขึ้นจริง</span></h1>
     <p class="video-sub">Prompt AI พร้อมใช้ 1,000 ข้อ ครบทุกธุรกิจ<br>แค่ก็อปไปวาง — ได้ผลลัพธ์ทันที</p>
+  <a href="#form-register" class="btn-free" onclick="document.querySelector('.tab:last-child').click()">
+    🎁 ทดลองฟรี 7 วัน — ไม่ต้องใช้บัตรเครดิต →
+  </a>
   </div>
   <div class="video-wrap">
     <iframe
@@ -408,15 +433,15 @@ body {
           <div class="pkg-price">7 วัน ไม่มีค่าใช้จ่าย</div>
           <span class="pkg-badge" style="background:rgba(107,127,163,.2);color:var(--muted)">3 Templates</span>
         </div>
-        <div class="pkg" onclick="selectPkg(this,'monthly')" data-pkg="monthly">
+        <div class="pkg" onclick="selectPkg(this,'monthly')\" data-pkg="monthly">
           <div class="pkg-name">รายเดือน</div>
-          <div class="pkg-price">฿299/เดือน</div>
-          <span class="pkg-badge" style="background:rgba(14,165,233,.15);color:var(--primary)">FullAccess</span>
+          <div class="pkg-price">฿199/เดือน</div>
+          <span class="pkg-badge" style="background:rgba(14,165,233,.15);color:var(--primary)">ลดแรกเข้า</span>
         </div>
         <div class="pkg" onclick="selectPkg(this,'yearly')" data-pkg="yearly">
           <div class="pkg-name">รายปี</div>
-          <div class="pkg-price">฿2,490/ปี</div>
-          <span class="pkg-badge" style="background:rgba(245,158,11,.15);color:var(--accent)">ประหยัด 30%</span>
+          <div class="pkg-price">฿1,490/ปี</div>
+          <span class="pkg-badge" style="background:rgba(245,158,11,.15);color:var(--accent)">Best Deal</span>
         </div>
         <div class="pkg" onclick="selectPkg(this,'lifetime')" data-pkg="lifetime">
           <div class="pkg-name">ตลอดชีพ</div>
