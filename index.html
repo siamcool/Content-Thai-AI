@@ -335,6 +335,29 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(14,165,233,.45);
 }
+.btn-ikigai {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  padding: 11px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  margin-bottom: 28px;
+  margin-top: -16px;
+  transition: all .2s;
+}
+.btn-ikigai:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(245,158,11,.06);
+}
+.btn-ikigai .ik-emoji { font-size: 15px; }
 </style>
 </head>
 <body>
@@ -351,6 +374,11 @@ body {
   <a href="#form-register" class="btn-free" onclick="document.querySelector('.tab:last-child').click()">
     🎁 ทดลองฟรี 7 วัน — ไม่ต้องใช้บัตรเครดิต →
   </a>
+  <div>
+    <a href="ikigai_starter.html" class="btn-ikigai">
+      <span class="ik-emoji">🧭</span> ยังไม่รู้จะเริ่มยังไง? หา Niche ของคุณก่อน (ฟรี)
+    </a>
+  </div>
   </div>
   <div class="video-wrap">
     <iframe
