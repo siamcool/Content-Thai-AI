@@ -1,17 +1,39 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<style>body{display:none!important}</style>
+<meta charset="UTF-8">
+<style>
+  body{display:none!important}
+  #ctai-loader{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    position:fixed;inset:0;background:#0d1117;color:#8b949e;
+    font-family:'Sarabun',sans-serif;font-size:14px;z-index:9999;
+  }
+  #ctai-loader .spin{
+    width:20px;height:20px;border:2px solid #30363d;border-top-color:#0ea5e9;
+    border-radius:50%;animation:ctai-spin .7s linear infinite;
+  }
+  @keyframes ctai-spin{to{transform:rotate(360deg)}}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async function(){
   const SURL='https://gpvhnrbhjymgeiujzbjt.supabase.co';
   const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s';
   const ALLOWED=['monthly','yearly','lifetime'];
-  function go(r){sessionStorage.setItem('guard_reason',r);window.location.replace('index.html');}
+  function go(r){
+    console.warn('[ContentThai Auth-Guard] redirect reason:',r);
+    sessionStorage.setItem('guard_reason',r);
+    window.location.replace('index.html');
+  }
+  function fail(msg){
+    console.error('[ContentThai Auth-Guard]',msg);
+    const l=document.getElementById('ctai-loader');
+    if(l) l.innerHTML='<span style="color:#f87171">⚠️ '+msg+' — <a href="index.html" style="color:#0ea5e9">กลับหน้าแรก</a></span>';
+  }
   let t=0;
-  while(typeof supabase==='undefined'&&t<40){await new Promise(r=>setTimeout(r,100));t++;}
-  if(typeof supabase==='undefined'){go('error');return;}
+  while(typeof supabase==='undefined'&&t<50){await new Promise(r=>setTimeout(r,100));t++;}
+  if(typeof supabase==='undefined'){fail('โหลดระบบยืนยันตัวตนไม่สำเร็จ (เครือข่าย/CDN)');return;}
   const sb=supabase.createClient(SURL,SKEY);
   try{
     const{data:{session}}=await sb.auth.getSession();
@@ -20,13 +42,14 @@
     if(error||!p){go('no_profile');return;}
     if(p.status!=='approved'){go('not_approved');return;}
     if(!ALLOWED.includes(p.package)){go('upgrade_required');return;}
+    const l=document.getElementById('ctai-loader');
+    if(l) l.style.display='none';
     document.body.style.display='';
     const m=document.querySelector('.topbar-meta');
     if(m&&p.full_name){const s=document.createElement('span');s.innerHTML='👤 <b>'+p.full_name+'</b>';m.appendChild(s);}
-  }catch(e){go('error');}
+  }catch(e){fail('เกิดข้อผิดพลาด: '+e.message);}
 })();
 </script>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>1,000 Prompt — หมวด 9-10 | ContentThai AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -96,6 +119,7 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;fon
 </style>
 </head>
 <body>
+<div id="ctai-loader"><div class="spin"></div><span>กำลังตรวจสอบสิทธิ์การเข้าถึง...</span></div>
 <div class="topbar">
   <div class="brand"><div class="brand-dot"></div>Content<span>Thai</span> AI</div>
   <div class="topbar-meta">
