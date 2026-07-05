@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <style>
-  body{display:none!important}
+  body{display:none}
   #ctai-loader{
     display:flex;align-items:center;justify-content:center;gap:12px;
     position:fixed;inset:0;background:#0d1117;color:#8b949e;
@@ -44,7 +44,7 @@
     if(!ALLOWED.includes(p.package)){go('upgrade_required');return;}
     const l=document.getElementById('ctai-loader');
     if(l) l.style.display='none';
-    document.body.style.display='';
+    document.body.style.setProperty('display','block','important');
     const m=document.querySelector('.topbar-meta');
     if(m&&p.full_name){const s=document.createElement('span');s.innerHTML='👤 <b>'+p.full_name+'</b>';m.appendChild(s);}
   }catch(e){fail('เกิดข้อผิดพลาด: '+e.message);}
