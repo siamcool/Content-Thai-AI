@@ -663,6 +663,10 @@ const I18N = {
   err_emailexists:{ th: 'อีเมลนี้มีบัญชีอยู่แล้ว', en: 'This email is already registered' },
   success_register:{ th: '✅ สมัครสำเร็จ! ระบบจะส่งอีเมลยืนยัน และ Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง', en: '✅ Registration successful! Check your email to confirm — admin will approve your account within 24 hours.' },
   success_forgot:{ th: '✅ ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบ Inbox', en: '✅ Reset link sent to your email. Please check your inbox.' },
+  guard_no_session:{ th: 'กรุณาเข้าสู่ระบบก่อนเข้าใช้งานเนื้อหานี้', en: 'Please log in to access this content' },
+  guard_not_approved:{ th: '⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', en: '⏳ Your account is awaiting admin approval. Please check your email.' },
+  guard_upgrade:{ th: '🔒 เนื้อหานี้สำหรับแพ็กเกจรายเดือน/รายปี/ตลอดชีพเท่านั้น — อัปเกรดเพื่อปลดล็อกทันที', en: '🔒 This content is for Monthly/Yearly/Lifetime members only — upgrade to unlock instantly' },
+  guard_error:{ th: '⚠️ เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์ กรุณาเข้าสู่ระบบอีกครั้ง', en: '⚠️ There was a problem verifying your access. Please log in again.' },
   pagetitle:  { th: 'ContentThai AI — เข้าสู่ระบบ', en: 'ContentThai AI — Log in' }
 };
 
@@ -867,9 +871,34 @@ async function doForgot() {
   showAlert(I18N.success_forgot[currentLang], 'success');
 }
 
+// ── ตรวจสอบเหตุผลที่ถูกเด้งกลับจากหน้า Batch/Ebook (auth-guard.js) ──
+function handleGuardReason() {
+  const reason = sessionStorage.getItem('guard_reason');
+  if (!reason) return false;
+  sessionStorage.removeItem('guard_reason');
+
+  const map = {
+    no_session:       { key: 'guard_no_session',   type: 'info'  },
+    not_approved:     { key: 'guard_not_approved',  type: 'info'  },
+    upgrade_required: { key: 'guard_upgrade',       type: 'info'  },
+    no_profile:       { key: 'guard_error',         type: 'error' },
+    error:            { key: 'guard_error',         type: 'error' }
+  };
+  const m = map[reason] || map.error;
+
+  // เนื้อหาต้องอัปเกรดแพ็กเกจ → เปิดแท็บสมัครสมาชิกก่อน (switchTab จะล้าง alert เดิม)
+  if (reason === 'upgrade_required') switchTab('register');
+
+  showAlert(I18N[m.key][currentLang], m.type);
+  return true;
+}
+
 // ── Auto-redirect if already logged in ──
 (async () => {
   try {
+    // ตรวจสอบเหตุผล guard ก่อน ถ้ามี ให้แสดงข้อความและ "ไม่" เด้งไป Dashboard ทับข้อความนั้น
+    const guardHandled = handleGuardReason();
+
     // ตรวจสอบ URL parameter ก่อน
     const params = new URLSearchParams(window.location.search);
     
@@ -888,7 +917,9 @@ async function doForgot() {
       // แสดง logout bar
       const bar = document.getElementById('logout-bar');
       if (bar) bar.style.display = 'block';
-      
+
+      if (guardHandled) return; // อยู่ที่ index.html ต่อ ไม่เด้งไป Dashboard ทับข้อความแจ้งเตือน
+
       // ดึงข้อมูล profile
       const { data: profile } = await sb
         .from('profiles')
