@@ -186,7 +186,7 @@ body {
 .pkg:hover { border-color: rgba(14,165,233,.3); }
 .pkg.selected { border-color: var(--primary); background: rgba(14,165,233,.08); }
 .pkg-name { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
-.pkg-price { font-size: 12px; color: var(--muted); }
+.pkg-price { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: .2px; }
 .pkg-badge {
   display: inline-block; font-size: 10px; padding: 2px 7px;
   border-radius: 6px; margin-top: 5px; font-family: monospace;
@@ -668,6 +668,7 @@ const I18N = {
   guard_not_approved:{ th: '⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', en: '⏳ Your account is awaiting admin approval. Please check your email.' },
   guard_upgrade:{ th: '🔒 เนื้อหานี้สำหรับแพ็กเกจรายเดือน/รายปี/ตลอดชีพเท่านั้น — อัปเกรดเพื่อปลดล็อกทันที', en: '🔒 This content is for Monthly/Yearly/Lifetime members only — upgrade to unlock instantly' },
   guard_error:{ th: '⚠️ เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์ กรุณาเข้าสู่ระบบอีกครั้ง', en: '⚠️ There was a problem verifying your access. Please log in again.' },
+  guard_expired:{ th: '⏰ แพ็กเกจของคุณหมดอายุแล้ว — กรุณาต่ออายุเพื่อใช้งานต่อ', en: '⏰ Your package has expired — please renew to continue using it' },
   pagetitle:  { th: 'ContentThai AI — เข้าสู่ระบบ', en: 'ContentThai AI — Log in' }
 };
 
@@ -886,13 +887,14 @@ function handleGuardReason() {
     no_session:       { key: 'guard_no_session',   type: 'info'  },
     not_approved:     { key: 'guard_not_approved',  type: 'info'  },
     upgrade_required: { key: 'guard_upgrade',       type: 'info'  },
+    expired:          { key: 'guard_expired',       type: 'info'  },
     no_profile:       { key: 'guard_error',         type: 'error' },
     error:            { key: 'guard_error',         type: 'error' }
   };
   const m = map[reason] || map.error;
 
-  // เนื้อหาต้องอัปเกรดแพ็กเกจ → เปิดแท็บสมัครสมาชิกก่อน (switchTab จะล้าง alert เดิม)
-  if (reason === 'upgrade_required') switchTab('register');
+  // เนื้อหาต้องอัปเกรดแพ็กเกจ หรือแพ็กเกจหมดอายุ → เปิดแท็บสมัครสมาชิก/ต่ออายุให้เห็นตัวเลือกทันที
+  if (reason === 'upgrade_required' || reason === 'expired') switchTab('register');
 
   showAlert(I18N[m.key][currentLang], m.type);
   return true;
