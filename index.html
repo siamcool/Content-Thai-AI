@@ -662,6 +662,7 @@ const I18N = {
   err_pwlen:  { th: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', en: 'Password must be at least 8 characters' },
   err_emailexists:{ th: 'อีเมลนี้มีบัญชีอยู่แล้ว', en: 'This email is already registered' },
   success_register:{ th: '✅ สมัครสำเร็จ! ระบบจะส่งอีเมลยืนยัน และ Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง', en: '✅ Registration successful! Check your email to confirm — admin will approve your account within 24 hours.' },
+  success_register_free:{ th: '✅ สมัครสำเร็จ! กรุณายืนยันอีเมลที่เราส่งไป จากนั้นเข้าสู่ระบบได้ทันที — ไม่ต้องรอ Admin', en: '✅ Registered! Please confirm your email, then log in right away — no admin wait needed.' },
   success_forgot:{ th: '✅ ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบ Inbox', en: '✅ Reset link sent to your email. Please check your inbox.' },
   guard_no_session:{ th: 'กรุณาเข้าสู่ระบบก่อนเข้าใช้งานเนื้อหานี้', en: 'Please log in to access this content' },
   guard_not_approved:{ th: '⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', en: '⏳ Your account is awaiting admin approval. Please check your email.' },
@@ -845,19 +846,23 @@ async function doRegister() {
     return;
   }
 
-  // สร้าง Profile record
-  await sb.from('profiles').upsert({
-    id: data.user.id,
-    full_name: name,
-    email: email,
-    package: selectedPkg,
-    status: 'pending',
-    role: 'member',
-    created_at: new Date().toISOString()
-  });
+  // หมายเหตุ: โปรไฟล์ (ตาราง profiles) ถูกสร้างอัตโนมัติโดย Database Trigger
+  // ฝั่ง Supabase แล้ว (ดูไฟล์ supabase_trigger.sql) — ไม่ต้อง insert จาก client อีกต่อไป
+  // เพื่อป้องกันปัญหา RLS บล็อกการบันทึกแบบเงียบๆ เหมือนที่เจอก่อนหน้านี้
 
   setLoading('btn-register', false);
-  showAlert(I18N.success_register[currentLang], 'success');
+
+  if (selectedPkg === 'free' && data.session) {
+    // แพ็กเกจฟรี + ได้ Session ทันที (ไม่ต้องรอยืนยันอีเมล) → เข้าใช้งานได้เลย ไม่ต้องรอ Admin
+    window.location.href = 'dashboard.html';
+    return;
+  } else if (selectedPkg === 'free') {
+    // แพ็กเกจฟรี แต่ Supabase ตั้งให้ต้องยืนยันอีเมลก่อน (ไม่เกี่ยวกับ Admin)
+    showAlert(I18N.success_register_free[currentLang], 'success');
+  } else {
+    // แพ็กเกจเสียเงิน → ยังต้องรอ Admin ตรวจสอบการชำระเงินและอนุมัติเหมือนเดิม
+    showAlert(I18N.success_register[currentLang], 'success');
+  }
 }
 
 // ── FORGOT PASSWORD ──
