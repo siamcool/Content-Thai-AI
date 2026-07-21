@@ -30,6 +30,7 @@ body {
   font-family: var(--font);
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -272,23 +273,6 @@ body {
   line-height: 1.7;
   margin-bottom: 20px;
 }
-.video-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 9/16;
-  max-height: 520px;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 20px 60px rgba(0,0,0,.5);
-  margin-bottom: 20px;
-}
-.video-wrap iframe {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  border: none;
-}
 .video-stats {
   display: flex;
   align-items: center;
@@ -313,6 +297,60 @@ body {
   height: 32px;
   background: rgba(255,255,255,.1);
 }
+.video-stats-top {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+}
+.video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/16;
+  max-height: 420px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  margin-bottom: 16px;
+  cursor: pointer;
+  background: #000;
+}
+.video-thumb {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+.video-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 100%);
+}
+.play-btn {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(14,165,233,.9);
+  border: 3px solid rgba(255,255,255,.9);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(14,165,233,.5);
+  transition: transform .2s;
+}
+.video-wrap:hover .play-btn { transform: translate(-50%,-50%) scale(1.08); }
+.play-btn svg { margin-left: 3px; }
+.video-caption {
+  position: absolute; bottom: 12px; left: 0; right: 0;
+  text-align: center; font-size: 12px; font-weight: 600;
+  color: #fff; letter-spacing: .3px;
+}
+.video-wrap iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border: none;
+}
 .btn-free {
   display: inline-flex;
   align-items: center;
@@ -334,6 +372,14 @@ body {
   opacity: .9;
   transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(14,165,233,.45);
+}
+.btn-free-secondary {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  box-shadow: 0 8px 24px rgba(245,158,11,.3);
+  margin-bottom: 16px;
 }
 .btn-ikigai {
   display: inline-flex;
@@ -358,6 +404,26 @@ body {
   background: rgba(245,158,11,.06);
 }
 .btn-ikigai .ik-emoji { font-size: 15px; }
+
+/* ══ LANG TOGGLE ══ */
+.lang-toggle {
+  position: fixed; top: 14px; right: 14px; z-index: 5;
+  display: flex; background: var(--s1);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 3px; gap: 2px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+.lang-btn {
+  border: none; background: none; cursor: pointer;
+  font-family: var(--font); font-size: 12px; font-weight: 700;
+  color: var(--muted); padding: 6px 12px; border-radius: 16px;
+  transition: .2s;
+}
+.lang-btn.active { background: var(--primary); color: #fff; }
+@media(max-width:480px){
+  .lang-toggle{ top: 10px; right: 10px; }
+  .lang-btn{ padding:5px 10px; font-size:11px; }
+}
 </style>
 </head>
 <body>
@@ -365,36 +431,49 @@ body {
 <div class="bg-glow-1"></div>
 <div class="bg-glow-2"></div>
 
+<div class="lang-toggle">
+  <button class="lang-btn active" id="lang-th" onclick="setLang('th')">TH</button>
+  <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+</div>
+
 <!-- VIDEO HERO SECTION -->
 <div class="video-hero">
   <div class="video-hero-text">
-    <div class="video-badge">🤖 AI สำหรับคนไทย — ไม่ต้องเขียนโค้ด</div>
-    <h1 class="video-headline">สร้างคอนเทนต์ง่าย<br><span>ขายดีขึ้นจริง</span></h1>
-    <p class="video-sub">Prompt AI พร้อมใช้ 1,000 ข้อ ครบทุกธุรกิจ<br>แค่ก็อปไปวาง — ได้ผลลัพธ์ทันที</p>
-  <a href="#form-register" class="btn-free" onclick="document.querySelector('.tab:last-child').click()">
-    🎁 ทดลองฟรี 7 วัน — ไม่ต้องใช้บัตรเครดิต →
-  </a>
-  <div>
-    <a href="IKIGAI_Starter.html" class="btn-ikigai">
-      <span class="ik-emoji">🧭</span> ยังไม่รู้จะเริ่มยังไง? หา Niche ของคุณก่อน (ฟรี)
+    <div class="video-badge" data-i18n="badge">🤖 AI สำหรับคนไทย — ไม่ต้องเขียนโค้ด</div>
+    <h1 class="video-headline" data-i18n-html="headline">สร้างคอนเทนต์ง่าย<br><span>ขายดีขึ้นจริง</span></h1>
+    <p class="video-sub" data-i18n-html="headsub">Prompt AI พร้อมใช้ 1,000 ข้อ ครบทุกธุรกิจ<br>แค่ก็อปไปวาง — ได้ผลลัพธ์ทันที</p>
+
+    <div class="video-stats video-stats-top">
+      <div class="vstat"><span>1,000+</span><small data-i18n="stat1">Prompt พร้อมใช้</small></div>
+      <div class="vstat-div"></div>
+      <div class="vstat"><span>10</span><small data-i18n="stat2">หมวดหมู่</small></div>
+      <div class="vstat-div"></div>
+      <div class="vstat"><span data-i18n="stat3num">ฟรี 7 วัน</span><small data-i18n="stat3">ไม่ต้องใช้บัตรเครดิต</small></div>
+    </div>
+
+    <a href="#form-register" class="btn-free" data-i18n="ctafree" onclick="document.querySelector('.tab:last-child').click()">
+      🎁 ทดลองฟรี 7 วัน — ไม่ต้องใช้บัตรเครดิต →
     </a>
   </div>
+
+  <!-- Lazy-load video: โหลดเฉพาะรูปปกก่อน กด Play ถึงจะโหลด iframe จริง -->
+  <div class="video-wrap" id="video-wrap" onclick="loadVideo()">
+    <img class="video-thumb" src="https://img.youtube.com/vi/VeyoT5QANuU/hqdefault.jpg" alt="ContentThai AI demo" loading="lazy">
+    <div class="video-overlay"></div>
+    <button class="play-btn" aria-label="Play video" type="button">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <div class="video-caption" data-i18n="videocaption">▶ ดูตัวอย่างการใช้งานจริง 45 วิ</div>
   </div>
-  <div class="video-wrap">
-    <iframe
-      src="https://www.youtube.com/embed/VeyoT5QANuU?rel=0&modestbranding=1"
-      title="ContentThai AI — แนะนำธุรกิจ"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen>
-    </iframe>
-  </div>
-  <div class="video-stats">
-    <div class="vstat"><span>1,000+</span><small>Prompt พร้อมใช้</small></div>
-    <div class="vstat-div"></div>
-    <div class="vstat"><span>10</span><small>หมวดหมู่</small></div>
-    <div class="vstat-div"></div>
-    <div class="vstat"><span>ฟรี 7 วัน</span><small>ไม่ต้องใช้บัตรเครดิต</small></div>
+
+  <a href="#form-register" class="btn-free btn-free-secondary" data-i18n="ctafree2" onclick="document.querySelector('.tab:last-child').click()">
+    ✨ อยากได้ผลแบบนี้บ้าง — เริ่มฟรีเลย →
+  </a>
+
+  <div>
+    <a href="IKIGAI_Starter.html" class="btn-ikigai">
+      <span class="ik-emoji">🧭</span> <span data-i18n="ikigai">ยังไม่รู้จะเริ่มยังไง? หา Niche ของคุณก่อน (ฟรี)</span>
+    </a>
   </div>
 </div>
 
@@ -405,11 +484,11 @@ body {
     </div>
     <div class="logo-text">ContentThai <span>AI</span></div>
   </div>
-  <div class="logo-sub">ใช้ AI ให้ชีวิตและงานดีขึ้น — <span>ไม่ต้องเขียนโค้ด</span></div>
+  <div class="logo-sub" data-i18n-html="logosub">ใช้ AI ให้ชีวิตและงานดีขึ้น — <span>ไม่ต้องเขียนโค้ด</span></div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('login')">เข้าสู่ระบบ</button>
-    <button class="tab" onclick="switchTab('register')">สมัครสมาชิก</button>
+    <button class="tab active" data-i18n="tablogin" onclick="switchTab('login')">เข้าสู่ระบบ</button>
+    <button class="tab" data-i18n="tabregister" onclick="switchTab('register')">สมัครสมาชิก</button>
   </div>
 
   <!-- ALERT -->
@@ -418,19 +497,19 @@ body {
   <!-- LOGIN FORM -->
   <div class="form active" id="form-login">
     <div class="form-group">
-      <label class="form-label">อีเมล</label>
+      <label class="form-label" data-i18n="labelemail">อีเมล</label>
       <input class="form-input" id="login-email" type="email" placeholder="your@email.com">
     </div>
     <div class="form-group">
-      <label class="form-label">รหัสผ่าน</label>
+      <label class="form-label" data-i18n="labelpw">รหัสผ่าน</label>
       <div class="pw-wrap">
         <input class="form-input" id="login-password" type="password" placeholder="••••••••">
-        <button class="btn-pw-toggle" type="button" onclick="togglePw('login-password',this)">แสดง</button>
+        <button class="btn-pw-toggle" type="button" data-i18n="pwshow" onclick="togglePw('login-password',this)">แสดง</button>
       </div>
     </div>
-    <button class="btn-submit" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
-    <div class="divider">หรือ</div>
-    <button class="btn-submit" style="background:linear-gradient(135deg,#1c2540,#131a2e);box-shadow:none;border:1px solid rgba(255,255,255,.1)" onclick="switchTab('forgot')">
+    <button class="btn-submit" id="btn-login" data-i18n="btnlogin" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="divider" data-i18n="or">หรือ</div>
+    <button class="btn-submit" style="background:linear-gradient(135deg,#1c2540,#131a2e);box-shadow:none;border:1px solid rgba(255,255,255,.1)" data-i18n="forgotlink" onclick="switchTab('forgot')">
       ลืมรหัสผ่าน?
     </button>
   </div>
@@ -438,50 +517,50 @@ body {
   <!-- REGISTER FORM -->
   <div class="form" id="form-register">
     <div class="form-group">
-      <label class="form-label">ชื่อ-นามสกุล</label>
-      <input class="form-input" id="reg-name" type="text" placeholder="ชื่อของคุณ">
+      <label class="form-label" data-i18n="labelname">ชื่อ-นามสกุล</label>
+      <input class="form-input" id="reg-name" type="text" placeholder="ชื่อของคุณ" data-i18n-placeholder="phname">
     </div>
     <div class="form-group">
-      <label class="form-label">อีเมล</label>
+      <label class="form-label" data-i18n="labelemail">อีเมล</label>
       <input class="form-input" id="reg-email" type="email" placeholder="your@email.com">
     </div>
     <div class="form-group">
-      <label class="form-label">รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)</label>
+      <label class="form-label" data-i18n="labelpw8">รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)</label>
       <div class="pw-wrap">
         <input class="form-input" id="reg-password" type="password" placeholder="••••••••">
-        <button class="btn-pw-toggle" type="button" onclick="togglePw('reg-password',this)">แสดง</button>
+        <button class="btn-pw-toggle" type="button" data-i18n="pwshow" onclick="togglePw('reg-password',this)">แสดง</button>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">เลือกแพ็กเกจที่สนใจ</label>
+      <label class="form-label" data-i18n="labelpkg">เลือกแพ็กเกจที่สนใจ</label>
       <div class="packages">
         <div class="pkg selected" onclick="selectPkg(this,'free')" data-pkg="free">
-          <span class="pkg-hot">⭐ เริ่มต้นที่นี่</span>
-          <div class="pkg-name">ทดลองฟรี</div>
-          <div class="pkg-price">7 วัน ไม่มีค่าใช้จ่าย</div>
-          <span class="pkg-badge" style="background:rgba(107,127,163,.2);color:var(--muted)">3 Templates</span>
+          <span class="pkg-hot" data-i18n="pkgstart">⭐ เริ่มต้นที่นี่</span>
+          <div class="pkg-name" data-i18n="pkgfreename">ทดลองฟรี</div>
+          <div class="pkg-price" data-i18n="pkgfreeprice">7 วัน ไม่มีค่าใช้จ่าย</div>
+          <span class="pkg-badge" style="background:rgba(107,127,163,.2);color:var(--muted)" data-i18n="pkgfreebadge">3 Templates</span>
         </div>
-        <div class="pkg" onclick="selectPkg(this,'monthly')\" data-pkg="monthly">
-          <div class="pkg-name">รายเดือน</div>
+        <div class="pkg" onclick="selectPkg(this,'monthly')" data-pkg="monthly">
+          <div class="pkg-name" data-i18n="pkgmonthname">รายเดือน</div>
           <div class="pkg-price">฿199/เดือน</div>
-          <span class="pkg-badge" style="background:rgba(14,165,233,.15);color:var(--primary)">ลดแรกเข้า</span>
+          <span class="pkg-badge" style="background:rgba(14,165,233,.15);color:var(--primary)" data-i18n="pkgmonthbadge">ลดแรกเข้า</span>
         </div>
         <div class="pkg" onclick="selectPkg(this,'yearly')" data-pkg="yearly">
-          <div class="pkg-name">รายปี</div>
+          <div class="pkg-name" data-i18n="pkgyearname">รายปี</div>
           <div class="pkg-price">฿1,490/ปี</div>
-          <span class="pkg-badge" style="background:rgba(245,158,11,.15);color:var(--accent)">Best Deal</span>
+          <span class="pkg-badge" style="background:rgba(245,158,11,.15);color:var(--accent)" data-i18n="pkgyearbadge">Best Deal</span>
         </div>
         <div class="pkg" onclick="selectPkg(this,'lifetime')" data-pkg="lifetime">
-          <div class="pkg-name">ตลอดชีพ</div>
+          <div class="pkg-name" data-i18n="pkglifename">ตลอดชีพ</div>
           <div class="pkg-price">฿4,990 ครั้งเดียว</div>
-          <span class="pkg-badge" style="background:rgba(34,197,94,.15);color:var(--green)">Best Value</span>
+          <span class="pkg-badge" style="background:rgba(34,197,94,.15);color:var(--green)" data-i18n="pkglifebadge">Best Value</span>
         </div>
       </div>
     </div>
-    <button class="btn-submit" id="btn-register" onclick="doRegister()">สมัครสมาชิกฟรี →</button>
+    <button class="btn-submit" id="btn-register" data-i18n="btnregister" onclick="doRegister()">สมัครสมาชิกฟรี →</button>
     <div class="foot-note">
-      Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง<br>
-      <span style="color:var(--primary)">ไม่ต้องใช้บัตรเครดิต</span> สำหรับแพ็กเกจทดลอง
+      <span data-i18n="approvenote">Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง</span><br>
+      <span style="color:var(--primary)" data-i18n="nocard">ไม่ต้องใช้บัตรเครดิต</span> <span data-i18n="fortrial">สำหรับแพ็กเกจทดลอง</span>
     </div>
   </div>
 
@@ -489,26 +568,26 @@ body {
   <div class="form" id="form-forgot">
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:32px;margin-bottom:8px">🔑</div>
-      <div style="font-size:15px;font-weight:700">รีเซ็ตรหัสผ่าน</div>
-      <div style="font-size:13px;color:var(--muted);margin-top:4px">ระบบจะส่งลิงก์ไปยังอีเมลของคุณ</div>
+      <div style="font-size:15px;font-weight:700" data-i18n="resetpw">รีเซ็ตรหัสผ่าน</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px" data-i18n="resetsub">ระบบจะส่งลิงก์ไปยังอีเมลของคุณ</div>
     </div>
     <div class="form-group">
-      <label class="form-label">อีเมล</label>
+      <label class="form-label" data-i18n="labelemail">อีเมล</label>
       <input class="form-input" id="forgot-email" type="email" placeholder="your@email.com">
     </div>
-    <button class="btn-submit" onclick="doForgot()">ส่งลิงก์รีเซ็ต</button>
+    <button class="btn-submit" data-i18n="sendreset" onclick="doForgot()">ส่งลิงก์รีเซ็ต</button>
     <div class="divider"></div>
-    <button class="btn-submit" style="background:transparent;box-shadow:none;border:1px solid rgba(255,255,255,.1);color:var(--muted)" onclick="switchTab('login')">
+    <button class="btn-submit" style="background:transparent;box-shadow:none;border:1px solid rgba(255,255,255,.1);color:var(--muted)" data-i18n="backtologin" onclick="switchTab('login')">
       ← กลับไปหน้า Login
     </button>
   </div>
 
-  <div class="foot-note" style="margin-top:16px">
+  <div class="foot-note" style="margin-top:16px" data-i18n-html="sslnote">
     ContentThai AI · ข้อมูลปลอดภัยด้วย <a href="#">256-bit SSL</a>
   </div>
   <div id="logout-bar" style="display:none;text-align:center;margin-top:12px">
-    <span style="font-size:12px;color:var(--muted)">มี Session ค้างอยู่ — </span>
-    <a href="index.html?logout=true" style="font-size:12px;color:var(--red);cursor:pointer">ล้าง Session และ Login ใหม่</a>
+    <span style="font-size:12px;color:var(--muted)" data-i18n="sessionleft">มี Session ค้างอยู่ — </span>
+    <a href="index.html?logout=true" style="font-size:12px;color:var(--red);cursor:pointer" data-i18n="clearsession">ล้าง Session และ Login ใหม่</a>
   </div>
 </div>
 
@@ -523,18 +602,127 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ══════════════════════════════════════════
+// 🌐 I18N — ระบบสองภาษา (TH/EN)
+// ══════════════════════════════════════════
+const I18N = {
+  badge:      { th: '🤖 AI สำหรับคนไทย — ไม่ต้องเขียนโค้ด', en: '🤖 AI for Thai businesses — no coding needed' },
+  headline:   { th: 'สร้างคอนเทนต์ง่าย<br><span>ขายดีขึ้นจริง</span>', en: 'Create content easily<br><span>Sell more, for real</span>' },
+  headsub:    { th: 'Prompt AI พร้อมใช้ 1,000 ข้อ ครบทุกธุรกิจ<br>แค่ก็อปไปวาง — ได้ผลลัพธ์ทันที', en: '1,000 ready-to-use AI prompts for every business<br>Just copy & paste — get results instantly' },
+  stat1:      { th: 'Prompt พร้อมใช้', en: 'Ready prompts' },
+  stat2:      { th: 'หมวดหมู่', en: 'Categories' },
+  stat3num:   { th: 'ฟรี 7 วัน', en: '7 days free' },
+  stat3:      { th: 'ไม่ต้องใช้บัตรเครดิต', en: 'No credit card' },
+  ctafree:    { th: '🎁 ทดลองฟรี 7 วัน — ไม่ต้องใช้บัตรเครดิต →', en: '🎁 Try free for 7 days — no credit card →' },
+  ctafree2:   { th: '✨ อยากได้ผลแบบนี้บ้าง — เริ่มฟรีเลย →', en: '✨ Want results like this — start free now →' },
+  videocaption:{ th: '▶ ดูตัวอย่างการใช้งานจริง 45 วิ', en: '▶ Watch a 45-sec real demo' },
+  ikigai:     { th: 'ยังไม่รู้จะเริ่มยังไง? หา Niche ของคุณก่อน (ฟรี)', en: "Not sure where to start? Find your niche first (free)" },
+  logosub:    { th: 'ใช้ AI ให้ชีวิตและงานดีขึ้น — <span>ไม่ต้องเขียนโค้ด</span>', en: 'Make AI work for you — <span>no coding needed</span>' },
+  tablogin:   { th: 'เข้าสู่ระบบ', en: 'Log in' },
+  tabregister:{ th: 'สมัครสมาชิก', en: 'Sign up' },
+  labelemail: { th: 'อีเมล', en: 'Email' },
+  labelpw:    { th: 'รหัสผ่าน', en: 'Password' },
+  labelpw8:   { th: 'รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)', en: 'Password (min. 8 characters)' },
+  labelname:  { th: 'ชื่อ-นามสกุล', en: 'Full name' },
+  phname:     { th: 'ชื่อของคุณ', en: 'Your name' },
+  pwshow:     { th: 'แสดง', en: 'Show' },
+  pwhide:     { th: 'ซ่อน', en: 'Hide' },
+  btnlogin:   { th: 'เข้าสู่ระบบ', en: 'Log in' },
+  or:         { th: 'หรือ', en: 'or' },
+  forgotlink: { th: 'ลืมรหัสผ่าน?', en: 'Forgot password?' },
+  labelpkg:   { th: 'เลือกแพ็กเกจที่สนใจ', en: 'Choose a package' },
+  pkgstart:   { th: '⭐ เริ่มต้นที่นี่', en: '⭐ Start here' },
+  pkgfreename:{ th: 'ทดลองฟรี', en: 'Free trial' },
+  pkgfreeprice:{ th: '7 วัน ไม่มีค่าใช้จ่าย', en: '7 days, no charge' },
+  pkgfreebadge:{ th: '3 Templates', en: '3 Templates' },
+  pkgmonthname:{ th: 'รายเดือน', en: 'Monthly' },
+  pkgmonthbadge:{ th: 'ลดแรกเข้า', en: 'Intro discount' },
+  pkgyearname:{ th: 'รายปี', en: 'Yearly' },
+  pkgyearbadge:{ th: 'Best Deal', en: 'Best Deal' },
+  pkglifename:{ th: 'ตลอดชีพ', en: 'Lifetime' },
+  pkglifebadge:{ th: 'Best Value', en: 'Best Value' },
+  btnregister:{ th: 'สมัครสมาชิกฟรี →', en: 'Sign up free →' },
+  approvenote:{ th: 'Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง', en: 'Admin will approve your account within 24 hours' },
+  nocard:     { th: 'ไม่ต้องใช้บัตรเครดิต', en: 'No credit card needed' },
+  fortrial:   { th: 'สำหรับแพ็กเกจทดลอง', en: 'for the trial package' },
+  resetpw:    { th: 'รีเซ็ตรหัสผ่าน', en: 'Reset password' },
+  resetsub:   { th: 'ระบบจะส่งลิงก์ไปยังอีเมลของคุณ', en: "We'll send a link to your email" },
+  sendreset:  { th: 'ส่งลิงก์รีเซ็ต', en: 'Send reset link' },
+  backtologin:{ th: '← กลับไปหน้า Login', en: '← Back to login' },
+  sslnote:    { th: 'ContentThai AI · ข้อมูลปลอดภัยด้วย <a href="#">256-bit SSL</a>', en: 'ContentThai AI · Secured with <a href="#">256-bit SSL</a>' },
+  sessionleft:{ th: 'มี Session ค้างอยู่ — ', en: 'Active session found — ' },
+  clearsession:{ th: 'ล้าง Session และ Login ใหม่', en: 'Clear session & log in again' },
+  loading:    { th: 'กำลังดำเนินการ...', en: 'Processing...' },
+  err_fillboth:{ th: 'กรุณากรอกอีเมลและรหัสผ่าน', en: 'Please enter your email and password' },
+  err_invalidlogin:{ th: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง', en: 'Incorrect email or password' },
+  info_pending:{ th: '⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', en: '⏳ Your account is awaiting admin approval. Please check your email for updates.' },
+  err_rejected:{ th: '❌ บัญชีของคุณไม่ได้รับการอนุมัติ กรุณาติดต่อ Admin', en: '❌ Your account was not approved. Please contact admin.' },
+  err_name:   { th: 'กรุณาใส่ชื่อ-นามสกุล', en: 'Please enter your full name' },
+  err_email:  { th: 'กรุณาใส่อีเมล', en: 'Please enter your email' },
+  err_pwlen:  { th: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', en: 'Password must be at least 8 characters' },
+  err_emailexists:{ th: 'อีเมลนี้มีบัญชีอยู่แล้ว', en: 'This email is already registered' },
+  success_register:{ th: '✅ สมัครสำเร็จ! ระบบจะส่งอีเมลยืนยัน และ Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง', en: '✅ Registration successful! Check your email to confirm — admin will approve your account within 24 hours.' },
+  success_forgot:{ th: '✅ ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบ Inbox', en: '✅ Reset link sent to your email. Please check your inbox.' },
+  pagetitle:  { th: 'ContentThai AI — เข้าสู่ระบบ', en: 'ContentThai AI — Log in' }
+};
+
+let currentLang = localStorage.getItem('cta_lang') || 'th';
+
+function applyLang() {
+  document.documentElement.lang = currentLang;
+  document.title = I18N.pagetitle[currentLang];
+  document.getElementById('lang-th').classList.toggle('active', currentLang === 'th');
+  document.getElementById('lang-en').classList.toggle('active', currentLang === 'en');
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[key]) el.textContent = I18N[key][currentLang];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (I18N[key]) el.innerHTML = I18N[key][currentLang];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (I18N[key]) el.placeholder = I18N[key][currentLang];
+  });
+
+  // อัปเดต dataset.label ของปุ่มที่มีสถานะ Loading
+  document.getElementById('btn-login').dataset.label = I18N.btnlogin[currentLang];
+  document.getElementById('btn-register').dataset.label = I18N.btnregister[currentLang];
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('cta_lang', lang);
+  applyLang();
+}
+
 let selectedPkg = 'free';
+
+// ── Lazy-load วิดีโอ: โหลด iframe เฉพาะตอนกด Play ──
+function loadVideo() {
+  const wrap = document.getElementById('video-wrap');
+  wrap.innerHTML = `<iframe
+      src="https://www.youtube.com/embed/VeyoT5QANuU?rel=0&modestbranding=1&autoplay=1"
+      title="ContentThai AI — แนะนำธุรกิจ"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>`;
+  wrap.style.cursor = 'default';
+  wrap.onclick = null;
+}
 
 // ── Tab Switching ──
 function togglePw(inputId, btn) {
   const input = document.getElementById(inputId);
+  const key = input.type === 'password' ? 'pwhide' : 'pwshow';
   if (input.type === 'password') {
     input.type = 'text';
-    btn.textContent = 'ซ่อน';
   } else {
     input.type = 'password';
-    btn.textContent = 'แสดง';
   }
+  btn.textContent = I18N[key][currentLang];
 }
 
 function switchTab(tab) {
@@ -569,18 +757,18 @@ function setLoading(btnId, loading) {
   const btn = document.getElementById(btnId);
   btn.disabled = loading;
   btn.innerHTML = loading
-    ? `<span class="spinner"></span> กำลังดำเนินการ...`
+    ? `<span class="spinner"></span> ${I18N.loading[currentLang]}`
     : btn.dataset.label;
 }
 
-document.getElementById('btn-login').dataset.label = 'เข้าสู่ระบบ';
-document.getElementById('btn-register').dataset.label = 'สมัครสมาชิก';
+// เริ่มต้นภาษาตามที่บันทึกไว้ (หรือไทยเป็นค่าเริ่มต้น)
+applyLang();
 
 // ── LOGIN ──
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
-  if (!email || !password) { showAlert('กรุณากรอกอีเมลและรหัสผ่าน'); return; }
+  if (!email || !password) { showAlert(I18N.err_fillboth[currentLang]); return; }
   setLoading('btn-login', true);
   hideAlert();
 
@@ -588,7 +776,7 @@ async function doLogin() {
 
   if (error) {
     setLoading('btn-login', false);
-    const msg = error.message.includes('Invalid') ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' : error.message;
+    const msg = error.message.includes('Invalid') ? I18N.err_invalidlogin[currentLang] : error.message;
     showAlert('❌ ' + msg);
     return;
   }
@@ -603,14 +791,14 @@ async function doLogin() {
   if (!profile || profile.status === 'pending') {
     await sb.auth.signOut();
     setLoading('btn-login', false);
-    showAlert('⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', 'info');
+    showAlert(I18N.info_pending[currentLang], 'info');
     return;
   }
 
   if (profile.status === 'rejected') {
     await sb.auth.signOut();
     setLoading('btn-login', false);
-    showAlert('❌ บัญชีของคุณไม่ได้รับการอนุมัติ กรุณาติดต่อ Admin');
+    showAlert(I18N.err_rejected[currentLang]);
     return;
   }
 
@@ -634,9 +822,9 @@ async function doRegister() {
   const email = document.getElementById('reg-email').value.trim();
   const password = document.getElementById('reg-password').value;
 
-  if (!name) { showAlert('กรุณาใส่ชื่อ-นามสกุล'); return; }
-  if (!email) { showAlert('กรุณาใส่อีเมล'); return; }
-  if (password.length < 8) { showAlert('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'); return; }
+  if (!name) { showAlert(I18N.err_name[currentLang]); return; }
+  if (!email) { showAlert(I18N.err_email[currentLang]); return; }
+  if (password.length < 8) { showAlert(I18N.err_pwlen[currentLang]); return; }
 
   setLoading('btn-register', true);
   hideAlert();
@@ -648,7 +836,7 @@ async function doRegister() {
 
   if (error) {
     setLoading('btn-register', false);
-    const msg = error.message.includes('already') ? 'อีเมลนี้มีบัญชีอยู่แล้ว' : error.message;
+    const msg = error.message.includes('already') ? I18N.err_emailexists[currentLang] : error.message;
     showAlert('❌ ' + msg);
     return;
   }
@@ -665,18 +853,18 @@ async function doRegister() {
   });
 
   setLoading('btn-register', false);
-  showAlert(`✅ สมัครสำเร็จ! ระบบจะส่งอีเมลยืนยัน และ Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง`, 'success');
+  showAlert(I18N.success_register[currentLang], 'success');
 }
 
 // ── FORGOT PASSWORD ──
 async function doForgot() {
   const email = document.getElementById('forgot-email').value.trim();
-  if (!email) { showAlert('กรุณาใส่อีเมล'); return; }
+  if (!email) { showAlert(I18N.err_email[currentLang]); return; }
   const { error } = await sb.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.origin + '/index.html?reset=true'
   });
   if (error) { showAlert('❌ ' + error.message); return; }
-  showAlert('✅ ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบ Inbox', 'success');
+  showAlert(I18N.success_forgot[currentLang], 'success');
 }
 
 // ── Auto-redirect if already logged in ──
