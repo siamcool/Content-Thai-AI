@@ -87,6 +87,16 @@ nav{
 }
 .btn-logout:hover{background:var(--red);color:#fff}
 
+/* ══ LANG TOGGLE ══ */
+.lang-toggle{display:flex;background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px}
+.lang-btn{border:none;background:none;cursor:pointer;font-family:var(--font);font-size:11px;font-weight:700;color:var(--muted);padding:5px 10px;border-radius:16px;transition:.2s}
+.lang-btn.active{background:var(--primary);color:#fff}
+
+@media(max-width:700px){
+  nav{flex-wrap:wrap;height:auto;min-height:62px;padding:10px 16px;row-gap:8px}
+  .nav-right{margin-left:0;width:100%;justify-content:space-between}
+}
+
 /* ── WRAP ── */
 .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:36px 24px 60px}
 
@@ -342,8 +352,12 @@ nav{
   <div class="nav-brand">ContentThai <span>AI</span></div>
   <div class="pkg-badge pkg-free" id="nav-pkg">FREE</div>
   <div class="nav-right">
-    <div class="nav-user">สวัสดี, <strong id="nav-name">—</strong></div>
-    <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="lang-th" onclick="setLang('th')">TH</button>
+      <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+    </div>
+    <div class="nav-user"><span data-i18n="greeting">สวัสดี,</span> <strong id="nav-name">—</strong></div>
+    <button class="btn-logout" onclick="doLogout()" data-i18n="logout">ออกจากระบบ</button>
   </div>
 </nav>
 
@@ -361,13 +375,13 @@ nav{
       <button class="modal-close" onclick="closeModal('modal-tpl')">✕</button>
     </div>
     <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px" id="modal-desc"></div>
-    <div style="font-size:11px;font-family:monospace;letter-spacing:1px;color:var(--primary);text-transform:uppercase;margin-bottom:8px">📋 Prompt Template</div>
+    <div style="font-size:11px;font-family:monospace;letter-spacing:1px;color:var(--primary);text-transform:uppercase;margin-bottom:8px" data-i18n="promptLabel">📋 Prompt Template</div>
     <div class="prompt-box" id="modal-prompt"></div>
-    <button class="btn-copy-prompt" id="copy-btn" onclick="copyPrompt()">📋 Copy Prompt ไปใช้งาน</button>
-    <a class="btn-open-claude" href="https://claude.ai" target="_blank" id="claude-link" onclick="openClaude()">
+    <button class="btn-copy-prompt" id="copy-btn" onclick="copyPrompt()" data-i18n="copyBtn">📋 Copy Prompt ไปใช้งาน</button>
+    <a class="btn-open-claude" href="https://claude.ai" target="_blank" id="claude-link" onclick="openClaude()" data-i18n="openClaude">
       🤖 เปิด Claude.ai แล้ววาง Prompt ได้เลย ↗
     </a>
-    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6" data-i18n="modalHint">
       Copy Prompt ก่อน → กดปุ่มม่วง → วางใน Claude แล้วแก้รายละเอียดได้เลยครับ
     </div>
   </div>
@@ -377,45 +391,45 @@ nav{
 <div class="modal-bg" id="modal-upgrade">
   <div class="upgrade-modal">
     <div class="upgrade-modal-icon">🔒</div>
-    <div class="upgrade-modal-title">Prompt นี้สำหรับสมาชิก Paid</div>
-    <div class="upgrade-modal-desc">อัปเกรดแพ็กเกจเพื่อปลดล็อก Prompt Templates ครบ 12 ชุด และฟีเจอร์พรีเมียมอื่นๆ<br><span style="color:#c4b5fd">สมาชิกตลอดชีพรับสิทธิ์เพิ่ม: คลัง 1,000 Prompt Library</span></div>
+    <div class="upgrade-modal-title" data-i18n="upgModalTitle">Prompt นี้สำหรับสมาชิก Paid</div>
+    <div class="upgrade-modal-desc" data-i18n-html="upgModalDesc">อัปเกรดแพ็กเกจเพื่อปลดล็อก Prompt Templates ครบ 12 ชุด และคลัง 1,000 Prompt Library<br><span style="color:#c4b5fd">สมาชิกตลอดชีพรับสิทธิ์เพิ่ม: อัปเดต Template ใหม่ฟรีตลอดชีพ + VIP Support</span></div>
     <div class="pkg-options">
       <div class="pkg-opt">
-        <div class="pkg-opt-name">รายเดือน</div>
+        <div class="pkg-opt-name" data-i18n="pkgMonth">รายเดือน</div>
         <div class="pkg-opt-price">฿199/เดือน</div>
-        <div class="pkg-opt-desc">ทุก Templates ไม่จำกัด</div>
+        <div class="pkg-opt-desc" data-i18n="pkgMonthDesc">ทุก Templates ไม่จำกัด</div>
       </div>
       <div class="pkg-opt">
-        <div class="pkg-opt-name">รายปี</div>
+        <div class="pkg-opt-name" data-i18n="pkgYear">รายปี</div>
         <div class="pkg-opt-price">฿1,490/ปี</div>
-        <div class="pkg-opt-desc">ประหยัด 30% + Priority</div>
+        <div class="pkg-opt-desc" data-i18n="pkgYearDesc">ประหยัด 30% + Priority</div>
       </div>
       <div class="pkg-opt" style="grid-column:1/-1;border-color:rgba(34,197,94,.3)">
-        <div class="pkg-opt-name" style="color:var(--green)">ตลอดชีพ 🏆</div>
+        <div class="pkg-opt-name" style="color:var(--green)" data-i18n="pkgLife">ตลอดชีพ 🏆</div>
         <div class="pkg-opt-price" style="color:var(--green)">฿4,990 ครั้งเดียว</div>
-        <div class="pkg-opt-desc">ทุกอย่างไม่จำกัด ตลอดกาล</div>
+        <div class="pkg-opt-desc" data-i18n="pkgLifeDesc">ทุกอย่างไม่จำกัด ตลอดกาล</div>
       </div>
     </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">ติดต่อ Admin เพื่ออัปเกรดแพ็กเกจของคุณ</div>
-    <button class="btn-close-upgrade" onclick="closeModal('modal-upgrade')">ปิด</button>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px" data-i18n="upgContactAdmin">ติดต่อ Admin เพื่ออัปเกรดแพ็กเกจของคุณ</div>
+    <button class="btn-close-upgrade" onclick="closeModal('modal-upgrade')" data-i18n="close">ปิด</button>
   </div>
 </div>
 
 <div class="wrap">
 
   <!-- EXPIRY WARNING -->
-  <div class="expiry-bar" id="expiry-bar">⚠️ แพ็กเกจของคุณใกล้หมดอายุแล้ว — กรุณาต่ออายุก่อนหมดเขต</div>
+  <div class="expiry-bar" id="expiry-bar"></div>
 
   <!-- WELCOME -->
   <div class="welcome reveal">
     <div class="welcome-text">
-      <h2>สวัสดีครับ, <span id="welcome-name">—</span> 👋</h2>
-      <p>ยินดีต้อนรับสู่ ContentThai AI — เลือก Prompt Template ด้านล่างแล้วนำไปใช้ใน Claude ได้เลยครับ</p>
+      <h2><span data-i18n="welcomeGreeting">สวัสดีครับ,</span> <span id="welcome-name">—</span> 👋</h2>
+      <p data-i18n="welcomeSub">ยินดีต้อนรับสู่ ContentThai AI — เลือก Prompt Template ด้านล่างแล้วนำไปใช้ใน Claude ได้เลยครับ</p>
     </div>
     <div class="upgrade-box" id="upgrade-box">
-      <div class="upgrade-title">🚀 อัปเกรดเป็น Paid</div>
-      <div class="upgrade-desc">ปลดล็อกครบ 12 Template + คลัง 1,000 Prompt (Lifetime)</div>
-      <button class="btn-upgrade" onclick="document.getElementById('modal-upgrade').classList.add('show')">ดูแพ็กเกจ</button>
+      <div class="upgrade-title" data-i18n="upgradeTitle">🚀 อัปเกรดเป็น Paid</div>
+      <div class="upgrade-desc" data-i18n="upgradeDesc">ปลดล็อกครบ 12 Template + คลัง 1,000 Prompt Library</div>
+      <button class="btn-upgrade" onclick="document.getElementById('modal-upgrade').classList.add('show')" data-i18n="viewPackages">ดูแพ็กเกจ</button>
     </div>
   </div>
 
@@ -423,15 +437,15 @@ nav{
   <div class="stats-row reveal" id="stats-row">
     <div class="stat-card">
       <div class="stat-icon blue">📋</div>
-      <div><div class="stat-val" id="stat-unlocked" data-count="0">—</div><div class="stat-label">Templates ที่ใช้ได้</div></div>
+      <div><div class="stat-val" id="stat-unlocked" data-count="0">—</div><div class="stat-label" data-i18n="statTemplates">Templates ที่ใช้ได้</div></div>
     </div>
     <div class="stat-card">
       <div class="stat-icon amber">⭐</div>
-      <div><div class="stat-val" id="stat-pkg-name">—</div><div class="stat-label">แพ็กเกจปัจจุบัน</div></div>
+      <div><div class="stat-val" id="stat-pkg-name">—</div><div class="stat-label" data-i18n="statPackage">แพ็กเกจปัจจุบัน</div></div>
     </div>
     <div class="stat-card">
       <div class="stat-icon green">📅</div>
-      <div><div class="stat-val" id="stat-expiry">—</div><div class="stat-label">วันหมดอายุ</div></div>
+      <div><div class="stat-val" id="stat-expiry">—</div><div class="stat-label" data-i18n="statExpiry">วันหมดอายุ</div></div>
     </div>
   </div>
 
@@ -445,11 +459,11 @@ nav{
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
         <div style="font-family:var(--head);font-size:15px;font-weight:700" id="profile-pkg-label">—</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">แพ็กเกจ</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" data-i18n="labelPackage">แพ็กเกจ</div>
       </div>
       <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
-        <div style="font-family:var(--head);font-size:15px;font-weight:700;color:var(--green)" id="profile-status">อนุมัติแล้ว</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">สถานะ</div>
+        <div style="font-family:var(--head);font-size:15px;font-weight:700;color:var(--green)" id="profile-status" data-i18n="approved">อนุมัติแล้ว</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" data-i18n="labelStatus">สถานะ</div>
       </div>
       <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
         <div style="font-family:var(--head);font-size:15px;font-weight:700" id="profile-tpl-count">—</div>
@@ -461,15 +475,15 @@ nav{
   <!-- TEMPLATES -->
   <div class="reveal">
     <div class="sec-label">Prompt Templates</div>
-    <div class="sec-title">เลือก Template ที่ต้องการใช้</div>
-    <div class="sec-desc">คลิก Template แล้ว Copy Prompt ไปวางใน Claude ได้เลยครับ 🤖</div>
+    <div class="sec-title" data-i18n="secTitle">เลือก Template ที่ต้องการใช้</div>
+    <div class="sec-desc" data-i18n="secDesc">คลิก Template แล้ว Copy Prompt ไปวางใน Claude ได้เลยครับ 🤖</div>
 
     <div class="cat-tabs" id="cat-tabs">
-      <button class="cat-tab active" onclick="filterCat('all',this)">🗂 ทั้งหมด</button>
-      <button class="cat-tab" onclick="filterCat('content',this)">✍️ คอนเทนต์</button>
-      <button class="cat-tab" onclick="filterCat('marketing',this)">📣 การตลาด</button>
-      <button class="cat-tab" onclick="filterCat('business',this)">💼 ธุรกิจ</button>
-      <button class="cat-tab" onclick="filterCat('ai',this)">🤖 AI Tools</button>
+      <button class="cat-tab active" onclick="filterCat('all',this)" data-i18n="catAll">🗂 ทั้งหมด</button>
+      <button class="cat-tab" onclick="filterCat('content',this)" data-i18n="catContent">✍️ คอนเทนต์</button>
+      <button class="cat-tab" onclick="filterCat('marketing',this)" data-i18n="catMarketing">📣 การตลาด</button>
+      <button class="cat-tab" onclick="filterCat('business',this)" data-i18n="catBusiness">💼 ธุรกิจ</button>
+      <button class="cat-tab" onclick="filterCat('ai',this)" data-i18n="catAI">🤖 AI Tools</button>
     </div>
 
     <div class="template-grid" id="template-grid"></div>
@@ -477,9 +491,9 @@ nav{
 
   <!-- PROMPT LIBRARY VAULT — Signature Element (สิทธิ์เฉพาะ Lifetime) -->
   <div class="vault-section reveal">
-    <div class="vault-eyebrow">🔮 Lifetime Exclusive</div>
-    <div class="vault-title">คลัง 1,000 Prompt Library</div>
-    <div class="vault-desc">พรอมต์พร้อมใช้ 1,000 ข้อ แบ่ง 5 ชุด ครอบคลุม 10 หมวดชีวิตและธุรกิจ ออกแบบตามหลักจิตวิทยาและกลยุทธ์การตลาด — สิทธิ์พิเศษสำหรับสมาชิกตลอดชีพเท่านั้น</div>
+    <div class="vault-eyebrow" data-i18n="vaultEyebrow">🔮 Paid Members Exclusive</div>
+    <div class="vault-title" data-i18n="vaultTitle">คลัง 1,000 Prompt Library</div>
+    <div class="vault-desc" data-i18n="vaultDesc">พรอมต์พร้อมใช้ 1,000 ข้อ แบ่ง 5 ชุด ครอบคลุม 10 หมวดชีวิตและธุรกิจ ออกแบบตามหลักจิตวิทยาและกลยุทธ์การตลาด — สิทธิ์พิเศษสำหรับสมาชิกรายเดือน/รายปี/ตลอดชีพเท่านั้น</div>
     <div class="vault-grid" id="vault-grid"></div>
   </div>
 </div>
@@ -492,6 +506,86 @@ const SUPABASE_URL = 'https://gpvhnrbhjymgeiujzbjt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ════════════════════════════════
+// 🌐 I18N — ระบบสองภาษา (TH/EN) — เฉพาะ UI Chrome
+// เนื้อหา Prompt Template คงเป็นภาษาไทยเท่านั้น (ตามข้อตกลง)
+// ════════════════════════════════
+const I18N = {
+  greeting: { th: 'สวัสดี,', en: 'Hi,' },
+  logout: { th: 'ออกจากระบบ', en: 'Log out' },
+  welcomeGreeting: { th: 'สวัสดีครับ,', en: 'Welcome,' },
+  welcomeSub: { th: 'ยินดีต้อนรับสู่ ContentThai AI — เลือก Prompt Template ด้านล่างแล้วนำไปใช้ใน Claude ได้เลยครับ', en: 'Welcome to ContentThai AI — pick a Prompt Template below and use it in Claude right away' },
+  upgradeTitle: { th: '🚀 อัปเกรดเป็น Paid', en: '🚀 Upgrade to Paid' },
+  upgradeDesc: { th: 'ปลดล็อกครบ 12 Template + คลัง 1,000 Prompt Library', en: 'Unlock all 12 templates + the 1,000-Prompt Library' },
+  viewPackages: { th: 'ดูแพ็กเกจ', en: 'View packages' },
+  statTemplates: { th: 'Templates ที่ใช้ได้', en: 'Available templates' },
+  statPackage: { th: 'แพ็กเกจปัจจุบัน', en: 'Current package' },
+  statExpiry: { th: 'วันหมดอายุ', en: 'Expires on' },
+  labelPackage: { th: 'แพ็กเกจ', en: 'Package' },
+  labelStatus: { th: 'สถานะ', en: 'Status' },
+  approved: { th: 'อนุมัติแล้ว', en: 'Approved' },
+  secTitle: { th: 'เลือก Template ที่ต้องการใช้', en: 'Choose the template you want to use' },
+  secDesc: { th: 'คลิก Template แล้ว Copy Prompt ไปวางใน Claude ได้เลยครับ 🤖', en: 'Click a template, copy the prompt, then paste it into Claude 🤖' },
+  catAll: { th: '🗂 ทั้งหมด', en: '🗂 All' },
+  catContent: { th: '✍️ คอนเทนต์', en: '✍️ Content' },
+  catMarketing: { th: '📣 การตลาด', en: '📣 Marketing' },
+  catBusiness: { th: '💼 ธุรกิจ', en: '💼 Business' },
+  catAI: { th: '🤖 AI Tools', en: '🤖 AI Tools' },
+  useTemplate: { th: 'ใช้งาน →', en: 'Use →' },
+  lockedPaid: { th: '🔒 Paid', en: '🔒 Paid' },
+  vaultEyebrow: { th: '🔮 Paid Members Exclusive', en: '🔮 Paid Members Exclusive' },
+  vaultTitle: { th: 'คลัง 1,000 Prompt Library', en: '1,000-Prompt Library' },
+  vaultDesc: { th: 'พรอมต์พร้อมใช้ 1,000 ข้อ แบ่ง 5 ชุด ครอบคลุม 10 หมวดชีวิตและธุรกิจ ออกแบบตามหลักจิตวิทยาและกลยุทธ์การตลาด — สิทธิ์พิเศษสำหรับสมาชิกรายเดือน/รายปี/ตลอดชีพเท่านั้น', en: '1,000 ready-to-use prompts across 5 sets covering 10 life & business categories, built on marketing psychology — exclusive to Monthly/Yearly/Lifetime members' },
+  vaultOpen: { th: 'เปิดคลัง →', en: 'Open →' },
+  promptLabel: { th: '📋 Prompt Template', en: '📋 Prompt Template' },
+  copyBtn: { th: '📋 Copy Prompt ไปใช้งาน', en: '📋 Copy Prompt' },
+  copyBtnDone: { th: '✅ Copy แล้ว! วางใน Claude ได้เลย', en: '✅ Copied! Paste it into Claude' },
+  openClaude: { th: '🤖 เปิด Claude.ai แล้ววาง Prompt ได้เลย ↗', en: '🤖 Open Claude.ai and paste the prompt ↗' },
+  modalHint: { th: 'Copy Prompt ก่อน → กดปุ่มม่วง → วางใน Claude แล้วแก้รายละเอียดได้เลยครับ', en: 'Copy the prompt first → tap the purple button → paste into Claude and edit the details' },
+  upgModalTitle: { th: 'Prompt นี้สำหรับสมาชิก Paid', en: 'This prompt is for Paid members' },
+  upgModalDesc: { th: 'อัปเกรดแพ็กเกจเพื่อปลดล็อก Prompt Templates ครบ 12 ชุด และคลัง 1,000 Prompt Library<br><span style="color:#c4b5fd">สมาชิกตลอดชีพรับสิทธิ์เพิ่ม: อัปเดต Template ใหม่ฟรีตลอดชีพ + VIP Support</span>', en: 'Upgrade to unlock all 12 Prompt Templates and the 1,000-Prompt Library<br><span style="color:#c4b5fd">Lifetime members also get: free template updates forever + VIP support</span>' },
+  pkgMonth: { th: 'รายเดือน', en: 'Monthly' },
+  pkgMonthDesc: { th: 'ทุก Templates ไม่จำกัด', en: 'Unlimited access to all templates' },
+  pkgYear: { th: 'รายปี', en: 'Yearly' },
+  pkgYearDesc: { th: 'ประหยัด 30% + Priority', en: 'Save 30% + priority support' },
+  pkgLife: { th: 'ตลอดชีพ 🏆', en: 'Lifetime 🏆' },
+  pkgLifeDesc: { th: 'ทุกอย่างไม่จำกัด ตลอดกาล', en: 'Everything, unlimited, forever' },
+  upgContactAdmin: { th: 'ติดต่อ Admin เพื่ออัปเกรดแพ็กเกจของคุณ', en: 'Contact admin to upgrade your package' },
+  close: { th: 'ปิด', en: 'Close' },
+  noAccessToast: { th: '🔒 <strong>สิทธิ์ไม่เพียงพอ</strong> — Template นี้สำหรับสมาชิก Paid เท่านั้น', en: '🔒 <strong>Access restricted</strong> — this template is for Paid members only' },
+  expiryWarn: { th: (d) => `⚠️ แพ็กเกจของคุณจะหมดอายุใน ${d} วัน — กรุณาต่ออายุก่อนหมดเขต`, en: (d) => `⚠️ Your package expires in ${d} days — please renew before it ends` },
+  lifetimeLabel: { th: 'ตลอดชีพ', en: 'Lifetime' },
+  pageTitle: { th: 'ContentThai AI — Dashboard', en: 'ContentThai AI — Dashboard' },
+};
+
+let currentLang = localStorage.getItem('cta_lang') || 'th';
+
+function applyLang() {
+  document.documentElement.lang = currentLang;
+  document.title = I18N.pageTitle[currentLang];
+  document.getElementById('lang-th').classList.toggle('active', currentLang === 'th');
+  document.getElementById('lang-en').classList.toggle('active', currentLang === 'en');
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[key]) el.textContent = I18N[key][currentLang];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (I18N[key]) el.innerHTML = I18N[key][currentLang];
+  });
+
+  // Re-render ส่วนที่สร้างด้วย JS (มีข้อความที่ต้องแปลอยู่ในนั้น)
+  if (typeof renderTemplates === 'function' && document.getElementById('template-grid')) renderTemplates();
+  if (typeof renderBatches === 'function' && document.getElementById('vault-grid')) renderBatches();
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('cta_lang', lang);
+  applyLang();
+}
 
 // ════════════════════════════════
 // TEMPLATES DATA
@@ -928,7 +1022,11 @@ let currentPrompt = '';
 // ════════════════════════════════
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = 'index.html'; return; }
+  if (!session) {
+    sessionStorage.setItem('guard_reason', 'no_session');
+    window.location.href = 'index.html';
+    return;
+  }
 
   const { data: profile } = await sb.from('profiles')
     .select('full_name, package, status, expiry_date, role')
@@ -937,6 +1035,7 @@ let currentPrompt = '';
 
   if (!profile || profile.status !== 'approved') {
     await sb.auth.signOut();
+    sessionStorage.setItem('guard_reason', profile ? 'not_approved' : 'no_profile');
     window.location.href = 'index.html';
     return;
   }
@@ -964,8 +1063,14 @@ let currentPrompt = '';
 
   // Package badge
   const badge = document.getElementById('nav-pkg');
-  const pkgLabel = {free:'FREE',monthly:'รายเดือน',yearly:'รายปี',lifetime:'ตลอดชีพ'};
-  badge.textContent = pkgLabel[userPackage] || userPackage.toUpperCase();
+  function pkgLabelFn(pkg) {
+    if (pkg === 'free') return 'FREE';
+    if (pkg === 'monthly') return I18N.pkgMonth[currentLang];
+    if (pkg === 'yearly') return I18N.pkgYear[currentLang];
+    if (pkg === 'lifetime') return I18N.lifetimeLabel[currentLang];
+    return pkg.toUpperCase();
+  }
+  badge.textContent = pkgLabelFn(userPackage);
   badge.className = `pkg-badge pkg-${userPackage}`;
 
   // Stats — แก้ไขจาก '27' (ตัวเลขเดิมผิด ไม่ตรงกับ ALL_TEMPLATES จริง) เป็นค่านับจริง
@@ -973,12 +1078,14 @@ let currentPrompt = '';
   const totalTemplates = ALL_TEMPLATES.length; // = 12
   const freeTemplates = ALL_TEMPLATES.filter(t => t.free).length; // = 3
   animateCount('stat-unlocked', isPaid ? totalTemplates : freeTemplates);
-  document.getElementById('stat-pkg-name').textContent = pkgLabel[userPackage] || userPackage;
+  document.getElementById('stat-pkg-name').textContent = pkgLabelFn(userPackage);
 
+  let expiryDaysLeft = null;
   if (profile.expiry_date) {
     const exp = new Date(profile.expiry_date);
-    document.getElementById('stat-expiry').textContent = exp.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'});
+    document.getElementById('stat-expiry').textContent = exp.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-GB',{day:'2-digit',month:'short',year:'2-digit'});
     const daysLeft = Math.ceil((exp - new Date()) / 86400000);
+    expiryDaysLeft = daysLeft;
     // ❌ หมดอายุแล้ว → sign out และ redirect
     if (daysLeft <= 0) {
       await sb.auth.signOut();
@@ -989,12 +1096,14 @@ let currentPrompt = '';
     // ⚠️ ใกล้หมดอายุ (7 วัน)
     if (daysLeft <= 7) {
       const bar = document.getElementById('expiry-bar');
-      bar.textContent = `⚠️ แพ็กเกจของคุณจะหมดอายุใน ${daysLeft} วัน — กรุณาต่ออายุก่อนหมดเขต`;
+      bar.textContent = I18N.expiryWarn[currentLang](daysLeft);
       bar.classList.add('show');
     }
   } else {
-    document.getElementById('stat-expiry').textContent = userPackage === 'lifetime' ? 'ตลอดชีพ' : '—';
+    document.getElementById('stat-expiry').textContent = userPackage === 'lifetime' ? I18N.lifetimeLabel[currentLang] : '—';
   }
+  window.__expiryDaysLeft = expiryDaysLeft;
+  window.__pkgLabelFn = pkgLabelFn;
 
   // Hide upgrade box if paid
   if (isPaid) document.getElementById('upgrade-box').classList.add('hidden');
@@ -1004,9 +1113,10 @@ let currentPrompt = '';
   document.getElementById('profile-avatar').textContent = initial;
   document.getElementById('profile-name').textContent = name;
   document.getElementById('profile-email').textContent = session.user.email || '';
-  document.getElementById('profile-pkg-label').textContent = pkgLabel[userPackage] || userPackage;
+  document.getElementById('profile-pkg-label').textContent = pkgLabelFn(userPackage);
   document.getElementById('profile-tpl-count').textContent = isPaid ? totalTemplates : freeTemplates;
 
+  applyLang();
   renderTemplates();
   renderBatches();
   initReveal();
@@ -1031,15 +1141,21 @@ function renderTemplates() {
       <div class="tpl-footer">
         <div class="tpl-cat">${catLabel(t.cat)}</div>
         ${canUse
-          ? `<button class="use-btn" onclick="event.stopPropagation();openTemplate(${t.id})">ใช้งาน →</button>`
-          : `<div class="lock-badge">🔒 Paid</div>`}
+          ? `<button class="use-btn" onclick="event.stopPropagation();openTemplate(${t.id})">${I18N.useTemplate[currentLang]}</button>`
+          : `<div class="lock-badge">${I18N.lockedPaid[currentLang]}</div>`}
       </div>
     </div>`;
   }).join('');
 }
 
 function catLabel(c) {
-  return {content:'คอนเทนต์',marketing:'การตลาด',business:'ธุรกิจ',ai:'AI Tools'}[c] || c;
+  const map = {
+    content: I18N.catContent[currentLang].replace(/^\S+\s/, ''),
+    marketing: I18N.catMarketing[currentLang].replace(/^\S+\s/, ''),
+    business: I18N.catBusiness[currentLang].replace(/^\S+\s/, ''),
+    ai: I18N.catAI[currentLang].replace(/^\S+\s/, '')
+  };
+  return map[c] || c;
 }
 
 // ════════════════════════════════
@@ -1054,16 +1170,16 @@ const PROMPT_BATCHES = [
 ];
 
 function renderBatches() {
-  const isLifetime = userPackage === 'lifetime';
+  const isPaid = userPackage !== 'free';
   document.getElementById('vault-grid').innerHTML = PROMPT_BATCHES.map(b => `
-    <div class="vault-card ${isLifetime ? '' : 'locked'}"
-         onclick="${isLifetime ? `window.location.href='${encodeURI(b.file)}'` : `openUpgrade()`}">
+    <div class="vault-card ${isPaid ? '' : 'locked'}"
+         onclick="${isPaid ? `window.location.href='${encodeURI(b.file)}'` : `openUpgrade()`}">
       <div class="vault-emoji">${b.emoji}</div>
       <div class="vault-name">${b.title}</div>
       <div class="vault-count">${b.desc} · 200 พรอมต์</div>
-      ${isLifetime
-        ? `<div class="vault-cta">เปิดคลัง →</div>`
-        : `<div class="vault-locked-badge">🔒 Lifetime</div>`}
+      ${isPaid
+        ? `<div class="vault-cta">${I18N.vaultOpen[currentLang]}</div>`
+        : `<div class="vault-locked-badge">${I18N.lockedPaid[currentLang]}</div>`}
     </div>`).join('');
 }
 
@@ -1114,7 +1230,7 @@ function openTemplate(id) {
   document.getElementById('modal-title').textContent = t.name;
   document.getElementById('modal-desc').textContent = t.desc;
   document.getElementById('modal-prompt').innerHTML = t.promptHTML || `<span style="color:#94a3b8;white-space:pre-wrap">${t.prompt || ''}</span>`;
-  document.getElementById('copy-btn').textContent = '📋 Copy Prompt ไปใช้งาน';
+  document.getElementById('copy-btn').textContent = I18N.copyBtn[currentLang];
   document.getElementById('copy-btn').classList.remove('copied');
   document.getElementById('modal-tpl').classList.add('show');
 }
@@ -1125,7 +1241,7 @@ function openUpgrade() {
 
 function showNoAccess() {
   const toast = document.getElementById('toast');
-  toast.innerHTML = '🔒 <strong>สิทธิ์ไม่เพียงพอ</strong> — Template นี้สำหรับสมาชิก Paid เท่านั้น';
+  toast.innerHTML = I18N.noAccessToast[currentLang];
   toast.style.borderColor = 'rgba(168,85,247,.35)';
   toast.style.color = '#c4b5fd';
   toast.classList.add('show');
@@ -1135,10 +1251,10 @@ function showNoAccess() {
 function copyPrompt() {
   navigator.clipboard?.writeText(currentPrompt).then(() => {
     const btn = document.getElementById('copy-btn');
-    btn.textContent = '✅ Copy แล้ว! วางใน Claude ได้เลย';
+    btn.textContent = I18N.copyBtnDone[currentLang];
     btn.classList.add('copied');
     setTimeout(() => {
-      btn.textContent = '📋 Copy Prompt ไปใช้งาน';
+      btn.textContent = I18N.copyBtn[currentLang];
       btn.classList.remove('copied');
     }, 3000);
   });
@@ -1147,10 +1263,10 @@ function copyPrompt() {
 function openClaude() {
   navigator.clipboard?.writeText(currentPrompt).then(() => {
     const btn = document.getElementById('copy-btn');
-    btn.textContent = '✅ Copy แล้ว! กำลังเปิด Claude...';
+    btn.textContent = currentLang === 'th' ? '✅ Copy แล้ว! กำลังเปิด Claude...' : '✅ Copied! Opening Claude...';
     btn.classList.add('copied');
     setTimeout(() => {
-      btn.textContent = '📋 Copy Prompt ไปใช้งาน';
+      btn.textContent = I18N.copyBtn[currentLang];
       btn.classList.remove('copied');
     }, 3000);
   });
