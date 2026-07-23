@@ -58,6 +58,13 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;}
 .topbar{position:sticky;top:0;z-index:100;background:rgba(13,17,23,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;}
+@media(max-width:640px){
+  .topbar{flex-wrap:wrap;padding:10px 16px;row-gap:6px;}
+  .topbar-meta{flex-wrap:wrap;row-gap:4px;gap:8px;font-size:10px;}
+}
+@media(max-width:420px){
+  .topbar-meta span:nth-child(1){display:none;} /* ซ่อน "Batch x/5" บนจอเล็กสุด เหลือแค่ที่จำเป็น */
+}
 .brand{font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;}
 .brand-dot{width:10px;height:10px;background:var(--c9);border-radius:50%;}
 .brand span{color:var(--accent);}
@@ -126,7 +133,7 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;fon
     <span>Batch <b>5/5</b> — Final!</span>
     <span>หมวด <b>9–10</b></span>
     <span>Prompt <b>200</b> ข้อ</span>
-    <span>⭐ Lifetime</span>
+    <span>⭐ Paid</span>
   </div>
 </div>
 
@@ -136,10 +143,10 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;fon
   <p class="hero-sub">Prompt พร้อมใช้ที่ออกแบบโดยหลักการตลาดและจิตวิทยา<br>Batch สุดท้าย — ครบ 1,000 ข้อ!</p>
   <div class="complete-badge">✅ ครบทั้ง 5 Batch · 10 หมวด · 1,000 Prompt</div>
   <div class="batch-nav">
-    <div class="batch-chip done">✓ Batch 1: วางแผน & การทำงาน</div>
-    <div class="batch-chip done">✓ Batch 2: เรียน & การเงิน</div>
-    <div class="batch-chip done">✓ Batch 3: สุขภาพ & ความสัมพันธ์</div>
-    <div class="batch-chip done">✓ Batch 4: ซื้อของ & เดินทาง</div>
+    <div class="batch-chip done" onclick="location.href='prompts_batch1_หมวด1-2.html'">✓ Batch 1: วางแผน & การทำงาน</div>
+    <div class="batch-chip done" onclick="location.href='prompts_batch2_หมวด3-4.html'">✓ Batch 2: เรียน & การเงิน</div>
+    <div class="batch-chip done" onclick="location.href='prompts_batch3_หมวด5-6.html'">✓ Batch 3: สุขภาพ & ความสัมพันธ์</div>
+    <div class="batch-chip done" onclick="location.href='prompts_batch4_หมวด7-8.html'">✓ Batch 4: ซื้อของ & เดินทาง</div>
     <div class="batch-chip active">🎯 Batch 5: สื่อสาร & พัฒนาตน</div>
   </div>
 </div>
@@ -179,11 +186,11 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;fon
     <div class="stat-box"><div class="stat-num">10</div><div class="stat-label">หมวดหมู่</div></div>
     <div class="stat-box"><div class="stat-num">5</div><div class="stat-label">Batch Files</div></div>
   </div>
-  <p>ทุก prompt ออกแบบโดยหลักการตลาดและจิตวิทยา<br>เพื่อให้ AI ตอบได้ตรงประเด็นและเป็นประโยชน์สูงสุด<br><br>สิทธิ์พิเศษสำหรับ <strong>Lifetime Member</strong> เท่านั้น<br>ContentThai AI © 2026</p>
+  <p>ทุก prompt ออกแบบโดยหลักการตลาดและจิตวิทยา<br>เพื่อให้ AI ตอบได้ตรงประเด็นและเป็นประโยชน์สูงสุด<br><br>สิทธิ์พิเศษสำหรับ <strong>สมาชิกรายเดือน/รายปี/ตลอดชีพ</strong> เท่านั้น<br>ContentThai AI © 2026</p>
 </div>
 
 </div>
-<div class="footer">ContentThai AI © 2026 · <span>Lifetime Member Exclusive</span> · Complete Collection 1,000 Prompts</div>
+<div class="footer">ContentThai AI © 2026 · <span>Paid Members Exclusive</span> · Complete Collection 1,000 Prompts</div>
 
 <script>
 const CAT9=[
