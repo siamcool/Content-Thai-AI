@@ -727,6 +727,71 @@ body::before{
 let agentResults = {};
 let unlockedSteps = new Set([0,1,2]);
 
+// ════════════════════════════════════════
+// 💾 AUTO-SAVE — กันข้อมูลหายตอนสลับแอปไป Claude.ai แล้วเบราว์เซอร์รีเซ็ตแท็บ
+// (พฤติกรรมที่พบบ่อยบนมือถือเมื่อสลับแอประหว่างทำงานหลาย Agent ต่อเนื่อง)
+// ════════════════════════════════════════
+const STORAGE_KEY = 'ctai_pipeline_state_v1';
+const FIELD_IDS = ['biz_name','biz_type','biz_age','biz_product','biz_problem','biz_audience','biz_budget','biz_channels','biz_awareness','comp_names','comp_content'];
+
+function saveState() {
+  const fields = {};
+  FIELD_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) fields[id] = el.value;
+  });
+  const state = {
+    fields,
+    agentResults,
+    unlockedSteps: [...unlockedSteps],
+    savedAt: Date.now()
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) { /* เก็บไม่ได้ก็ไม่เป็นไร ไม่ให้เว็บพัง */ }
+}
+
+function loadState() {
+  let raw;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) { return; }
+  if (!raw) return;
+  let state;
+  try { state = JSON.parse(raw); } catch(e) { return; }
+
+  // มีข้อมูลเก่าจริงไหม (กันกรณี state ว่างเปล่า)
+  const hasData = Object.keys(state.agentResults || {}).length > 0 || (state.fields && state.fields.biz_name);
+  if (!hasData) return;
+
+  const hoursAgo = state.savedAt ? Math.round((Date.now() - state.savedAt) / 3600000) : null;
+  const timeText = hoursAgo === null ? '' : hoursAgo < 1 ? ' (เมื่อสักครู่)' : ` (${hoursAgo} ชม.ที่แล้ว)`;
+  if (!confirm(`📂 พบข้อมูลเคสที่ทำค้างไว้${timeText} ต้องการทำต่อจากเดิมไหมครับ?\n\nกด "ตกลง" = ทำต่อจากเดิม\nกด "ยกเลิก" = เริ่มเคสใหม่ (ข้อมูลเก่าจะถูกลบ)`)) {
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+    return;
+  }
+
+  // คืนค่าฟอร์ม
+  Object.entries(state.fields || {}).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+
+  // คืนค่าผลลัพธ์ Agent + สถานะปลดล็อก
+  agentResults = state.agentResults || {};
+  unlockedSteps = new Set(state.unlockedSteps || [0,1,2]);
+
+  Object.entries(agentResults).forEach(([agentId, text]) => {
+    const textarea = document.getElementById('result_' + agentId);
+    if (textarea) textarea.value = text;
+    const btn = document.getElementById('savebtn_' + agentId);
+    if (btn) { btn.innerHTML = '<span class="emj">✓</span> บันทึกแล้ว'; btn.classList.add('saved'); }
+    const checkEl = document.getElementById('check_' + agentId);
+    if (checkEl) checkEl.classList.add('done');
+  });
+
+  // อัปเดตหน้า step-pill ให้ตรงสถานะที่กู้คืนมา
+  document.querySelectorAll('.step-pill').forEach((p, i) => {
+    if (unlockedSteps.has(i) && i > 0) p.classList.add('done');
+  });
+}
+
 const AGENT_INFO = {
   diag:       { name: "Business Diagnostic Agent", role: "ที่ปรึกษาธุรกิจระดับสูง เชี่ยวชาญการวินิจฉัยปัญหาธุรกิจ SME ด้วยหลัก Root Cause Analysis", depends: [], next: 2 },
   persona:    { name: "Persona Agent", role: "นักวิจัยตลาดและผู้เชี่ยวชาญ Customer Persona ใช้หลัก Jobs-to-be-Done Framework", depends: [], next: 3 },
@@ -875,6 +940,7 @@ function saveResult(agentId) {
 
   const info = AGENT_INFO[agentId];
   unlockedSteps.add(info.next);
+  saveState();
 
   setTimeout(() => {
     goStep(info.next);
@@ -975,8 +1041,17 @@ function resetAll() {
   });
   agentResults = {};
   unlockedSteps = new Set([0,1,2]);
+  document.querySelectorAll('.step-pill').forEach(p => p.classList.remove('done'));
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
   goStep(0);
 }
+
+// ── เริ่มต้น: กู้คืนความคืบหน้าเดิม (ถ้ามี) + ตั้ง auto-save ทุกครั้งที่พิมพ์ฟอร์มธุรกิจ ──
+loadState();
+FIELD_IDS.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', saveState);
+});
 
 </script>
 </body>
