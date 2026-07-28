@@ -528,6 +528,9 @@ body::before {
   .grid-section { padding: 0 16px 60px; }
   .hero-stats { gap: 20px; }
 }
+@media (max-width: 380px) {
+  .prompt-total { display: none; }
+}
 </style>
 </head>
 <body>
@@ -541,8 +544,9 @@ body::before {
     Content<span>Thai</span> AI
   </div>
   <div class="topbar-right">
+    <a href="dashboard.html" style="font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--b1);border-radius:8px;padding:6px 12px;white-space:nowrap">← กลับ Dashboard</a>
     <div class="prompt-total">Prompt ทั้งหมด <span>1,000</span> ข้อ</div>
-    <div class="badge-lifetime">⭐ Lifetime Member</div>
+    <div class="badge-lifetime">⭐ Paid Member</div>
   </div>
 </div>
 
@@ -578,7 +582,7 @@ body::before {
 
 <!-- FOOTER -->
 <div class="footer">
-  ContentThai AI &copy; 2026 · <span>Lifetime Member Exclusive</span> · ห้ามเผยแพร่โดยไม่ได้รับอนุญาต
+  ContentThai AI &copy; 2026 · <span>Paid Members Exclusive</span> · ห้ามเผยแพร่โดยไม่ได้รับอนุญาต
 </div>
 
 <!-- MODAL -->
