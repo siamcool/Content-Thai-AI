@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<style>body{display:none!important}</style>
+<style>html{background:#060910}body{display:none!important}</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async function(){
@@ -9,21 +9,34 @@
   const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s';
   const ALLOWED=['monthly','yearly','lifetime'];
   function go(r){sessionStorage.setItem('guard_reason',r);window.location.replace('index.html');}
+  // ป้องกันหน้าค้าง: ถ้า Supabase ตอบช้าหรือค้างเกิน 8 วิ ให้ redirect แทนการค้างขาวตลอดไป
+  function withTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('guard_timeout')),ms))]);}
   let t=0;
   while(typeof supabase==='undefined'&&t<40){await new Promise(r=>setTimeout(r,100));t++;}
   if(typeof supabase==='undefined'){go('error');return;}
   const sb=supabase.createClient(SURL,SKEY);
   try{
-    const{data:{session}}=await sb.auth.getSession();
+    const{data:{session}}=await withTimeout(sb.auth.getSession(),8000);
     if(!session){go('no_session');return;}
-    const{data:p,error}=await sb.from('profiles').select('status,package,full_name').eq('id',session.user.id).single();
+    // เลือก role มาด้วย เพื่อให้ Admin เข้าดูตัวอย่างเนื้อหาได้โดยไม่ต้องมีแพ็กเกจ (ตรงกับ pattern เดียวกับ dashboard.html)
+    const{data:p,error}=await withTimeout(
+      sb.from('profiles').select('status,package,full_name,role').eq('id',session.user.id).maybeSingle(),
+      8000
+    );
     if(error||!p){go('no_profile');return;}
     if(p.status!=='approved'){go('not_approved');return;}
-    if(!ALLOWED.includes(p.package)){go('upgrade_required');return;}
+    if(p.role!=='admin'&&!ALLOWED.includes(p.package)){go('upgrade_required');return;}
     document.body.style.display='';
     const m=document.querySelector('.topbar-meta');
-    if(m&&p.full_name){const s=document.createElement('span');s.innerHTML='👤 <b>'+p.full_name+'</b>';m.appendChild(s);}
-  }catch(e){go('error');}
+    if(m&&p.full_name){
+      const s=document.createElement('span');
+      s.innerHTML='👤 <b>'+p.full_name+'</b>'+(p.role==='admin'?' <span style="color:#a855f7;font-size:11px">(Admin Preview)</span>':'');
+      m.appendChild(s);
+    }
+  }catch(e){
+    console.error('Guard error:',e);
+    go('error');
+  }
 })();
 </script>
 <meta charset="UTF-8">
@@ -32,18 +45,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0d1117;
-  --s1: #161b22;
-  --s2: #21262d;
-  --s3: #30363d;
-  --b1: #30363d;
+  --bg: #060910;
+  --s1: #0d1220;
+  --s2: #131a2e;
+  --s3: #1c2540;
+  --b1: rgba(14,165,233,.15);
   --primary: #0ea5e9;
   --accent: #f59e0b;
   --green: #22c55e;
+  --red: #ef4444;
   --purple: #a855f7;
-  --pink: #ec4899;
-  --text: #e6edf3;
-  --muted: #8b949e;
+  --text: #e8f0fe;
+  --muted: #6b7fa3;
   --font: 'Sarabun', sans-serif;
   --head: 'Outfit', sans-serif;
 }
