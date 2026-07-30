@@ -26,7 +26,7 @@
     if(error||!p){go('no_profile');return;}
     if(p.status!=='approved'){go('not_approved');return;}
     if(p.role!=='admin'&&!ALLOWED.includes(p.package)){go('upgrade_required');return;}
-    document.body.style.display='';
+    document.body.style.display='block';
     const m=document.querySelector('.topbar-meta');
     if(m&&p.full_name){
       const s=document.createElement('span');
