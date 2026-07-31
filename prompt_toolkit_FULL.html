@@ -5,27 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ContentThai AI — Prompt Toolkit Full</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<style>html{background:#060910}body{display:none}</style>
+<script src="supabase-js.min.js"></script>
+<script>
+(async function(){
+  const SURL='https://gpvhnrbhjymgeiujzbjt.supabase.co';
+  const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s';
+  const ALLOWED=['monthly','yearly','lifetime'];
+  function go(r){sessionStorage.setItem('guard_reason',r);window.location.replace('index.html');}
+  // ป้องกันหน้าค้าง: ถ้า Supabase ตอบช้าหรือค้างเกิน 8 วิ ให้ redirect แทนการค้างขาวตลอดไป
+  function withTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('guard_timeout')),ms))]);}
+  let t=0;
+  while(typeof supabase==='undefined'&&t<40){await new Promise(r=>setTimeout(r,100));t++;}
+  if(typeof supabase==='undefined'){go('error');return;}
+  const sb=supabase.createClient(SURL,SKEY);
+  try{
+    const{data:{session}}=await withTimeout(sb.auth.getSession(),8000);
+    if(!session){go('no_session');return;}
+    // เลือก role มาด้วย เพื่อให้ Admin เข้าดูตัวอย่างเนื้อหาได้โดยไม่ต้องมีแพ็กเกจ (ตรงกับ pattern เดียวกับ dashboard.html)
+    const{data:p,error}=await withTimeout(
+      sb.from('profiles').select('status,package,full_name,role').eq('id',session.user.id).maybeSingle(),
+      8000
+    );
+    if(error||!p){go('no_profile');return;}
+    if(p.status!=='approved'){go('not_approved');return;}
+    if(p.role!=='admin'&&!ALLOWED.includes(p.package)){go('upgrade_required');return;}
+    document.body.style.display='block';
+  }catch(e){
+    console.error('Guard error:',e);
+    go('error');
+  }
+})();
+</script>
 <style>
 /* ══ DESIGN TOKENS ══ */
 :root {
-  --bg:      #f0f4f8;
-  --surface: #ffffff;
-  --s2:      #f7f9fc;
-  --s3:      #edf1f7;
-  --border:  #dde3ee;
-  --primary: #2563eb;
-  --primary-light: #eff6ff;
+  --bg:      #060910;
+  --surface: #0d1220;
+  --s2:      #131a2e;
+  --s3:      #1c2540;
+  --border:  rgba(14,165,233,.15);
+  --primary: #0ea5e9;
+  --primary-light: rgba(14,165,233,.12);
   --accent:  #f59e0b;
-  --green:   #16a34a;
-  --red:     #dc2626;
-  --purple:  #7c3aed;
-  --text:    #1e293b;
-  --text2:   #475569;
-  --muted:   #94a3b8;
+  --green:   #22c55e;
+  --red:     #ef4444;
+  --purple:  #a855f7;
+  --text:    #e8f0fe;
+  --text2:   #a8bdda;
+  --muted:   #6b7fa3;
   --font:    'Sarabun', sans-serif;
   --head:    'Outfit', sans-serif;
   --radius:  12px;
-  --shadow:  0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+  --shadow:  0 2px 8px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.2);
 }
 
 /* ══ RESET ══ */
@@ -40,7 +72,7 @@ input, textarea { font-family:var(--font); }
   background:var(--surface);
   border-bottom:1px solid var(--border);
   padding:12px 20px;
-  display:flex; align-items:center; gap:12px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   position:sticky; top:0; z-index:100;
   box-shadow:var(--shadow);
 }
@@ -48,7 +80,7 @@ input, textarea { font-family:var(--font); }
 .brand span { color:var(--accent); }
 .brand-badge {
   font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px;
-  background:linear-gradient(135deg,#7c3aed,#2563eb);
+  background:linear-gradient(135deg,#a855f7,#0ea5e9);
   color:white; font-family:monospace; letter-spacing:.5px; margin-left:4px;
 }
 
@@ -59,7 +91,7 @@ input, textarea { font-family:var(--font); }
   border-radius:10px; padding:9px 14px 9px 38px;
   color:var(--text); font-size:14px; outline:none; transition:.2s;
 }
-.search-wrap input:focus { border-color:var(--primary); background:var(--surface); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+.search-wrap input:focus { border-color:var(--primary); background:var(--surface); box-shadow:0 0 0 3px rgba(14,165,233,.1); }
 .search-wrap input::placeholder { color:var(--muted); }
 .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); }
 
@@ -105,7 +137,7 @@ input, textarea { font-family:var(--font); }
 .cat-btn:hover { background:var(--s2); color:var(--text); }
 .cat-btn.active { background:var(--primary-light); color:var(--primary); }
 .cat-count { background:var(--s3); border-radius:10px; padding:1px 7px; font-size:10px; font-weight:700; color:var(--muted); }
-.cat-btn.active .cat-count { background:rgba(37,99,235,.1); color:var(--primary); }
+.cat-btn.active .cat-count { background:rgba(14,165,233,.1); color:var(--primary); }
 
 /* Template List */
 .list {
@@ -146,7 +178,7 @@ input, textarea { font-family:var(--font); }
 .detail-name { font-family:var(--head); font-size:22px; font-weight:800; color:var(--text); margin-bottom:10px; }
 .detail-use {
   display:inline-flex; align-items:center; gap:6px;
-  background:var(--primary-light); border:1px solid rgba(37,99,235,.2);
+  background:var(--primary-light); border:1px solid rgba(14,165,233,.25);
   border-radius:20px; padding:5px 14px; font-size:13px; color:var(--primary); font-weight:600;
 }
 .detail-actions { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
@@ -155,11 +187,11 @@ input, textarea { font-family:var(--font); }
   padding:8px 16px; border-radius:10px; font-size:13px; font-weight:700; border:none; transition:.2s;
 }
 .btn-copy { background:var(--primary); color:white; }
-.btn-copy:hover { background:#1d4ed8; transform:translateY(-1px); }
+.btn-copy:hover { background:#0284c7; transform:translateY(-1px); }
 .btn-copy.copied { background:var(--green); }
 .btn-fav { background:var(--s3); color:var(--text2); border:1.5px solid var(--border); }
 .btn-fav:hover { border-color:var(--accent); color:var(--accent); }
-.btn-fav.active { background:#fef3c7; border-color:var(--accent); color:var(--accent); }
+.btn-fav.active { background:rgba(245,158,11,.15); border-color:var(--accent); color:var(--accent); }
 .btn-open-claude {
   background:linear-gradient(135deg,#f59e0b,#ef4444);
   color:white; text-decoration:none;
@@ -169,8 +201,8 @@ input, textarea { font-family:var(--font); }
 
 /* Warn Box */
 .warn-box {
-  background:#fff7ed; border:1.5px solid #fed7aa;
-  border-radius:10px; padding:12px 16px; font-size:13px; color:#9a3412;
+  background:rgba(239,68,68,.1); border:1.5px solid rgba(239,68,68,.35);
+  border-radius:10px; padding:12px 16px; font-size:13px; color:#fca5a5;
   margin-bottom:16px; display:flex; gap:10px; align-items:flex-start;
 }
 
@@ -181,18 +213,18 @@ input, textarea { font-family:var(--font); }
   box-shadow:var(--shadow);
 }
 .prompt-card-header {
-  background:#1e293b; padding:12px 18px;
+  background:#0a0e1a; padding:12px 18px;
   display:flex; align-items:center; justify-content:space-between;
 }
 .prompt-dots { display:flex; gap:6px; }
 .prompt-dots span { width:10px; height:10px; border-radius:50%; }
-.prompt-label { font-size:11px; color:#64748b; font-family:monospace; }
+.prompt-label { font-size:11px; color:var(--muted); font-family:monospace; }
 .prompt-body {
-  padding:20px; font-size:14px; line-height:2; color:#334155;
+  padding:20px; font-size:14px; line-height:2; color:var(--text);
   white-space:pre-wrap; word-break:break-word;
-  max-height:400px; overflow-y:auto; background:#f8fafc;
+  max-height:400px; overflow-y:auto; background:var(--s2);
 }
-.prompt-body .bracket { color:var(--primary); font-weight:700; background:rgba(37,99,235,.08); border-radius:3px; padding:0 2px; }
+.prompt-body .bracket { color:var(--primary); font-weight:700; background:rgba(14,165,233,.08); border-radius:3px; padding:0 2px; }
 
 /* Generate Box */
 .generate-card {
@@ -210,13 +242,13 @@ input, textarea { font-family:var(--font); }
 }
 .gen-field input:focus, .gen-field select:focus { border-color:var(--primary); }
 .btn-generate {
-  width:100%; padding:11px; background:linear-gradient(135deg,var(--primary),#7c3aed);
+  width:100%; padding:11px; background:linear-gradient(135deg,var(--primary),#a855f7);
   color:white; border:none; border-radius:10px; font-size:14px; font-weight:700; transition:.2s;
 }
-.btn-generate:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(37,99,235,.3); }
+.btn-generate:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(14,165,233,.3); }
 .btn-generate:disabled { opacity:.6; transform:none; cursor:not-allowed; }
 .gen-result {
-  background:#f0f9ff; border:1.5px solid #bae6fd;
+  background:rgba(14,165,233,.08); border:1.5px solid rgba(14,165,233,.25);
   border-radius:10px; padding:16px; font-size:13px; line-height:1.9;
   color:var(--text); white-space:pre-wrap; display:none; margin-top:12px;
 }
@@ -240,7 +272,7 @@ input, textarea { font-family:var(--font); }
 .how-steps { counter-reset:step; }
 
 /* Tip */
-.tip-card { background:#fefce8; border:1.5px solid #fde68a; border-radius:10px; padding:12px 16px; font-size:13px; color:#713f12; }
+.tip-card { background:rgba(245,158,11,.1); border:1.5px solid rgba(245,158,11,.3); border-radius:10px; padding:12px 16px; font-size:13px; color:var(--text); }
 
 /* Fav Page */
 .fav-empty { text-align:center; padding:60px 20px; color:var(--muted); }
@@ -267,6 +299,10 @@ input, textarea { font-family:var(--font); }
   .btn-claude { padding:8px 12px; font-size:12px; }
   .detail-name { font-size:18px; }
 }
+@media(max-width:600px){
+  .topbar a[href="dashboard.html"] { font-size:11px; padding:5px 8px; }
+  .framing-banner { font-size:11px; padding:8px 14px; }
+}
 @media(max-width:480px){
   .top-actions { flex-shrink:0; }
   .search-wrap { display:none; }
@@ -277,16 +313,23 @@ input, textarea { font-family:var(--font); }
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="brand">ContentThai <span>AI</span><span class="brand-badge">FULL</span></div>
+  <a href="dashboard.html" style="font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;white-space:nowrap;margin-right:4px">← กลับ Dashboard</a>
+  <div class="brand">ContentThai <span>AI</span><span class="brand-badge">DEEP-DIVE</span></div>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
     <input id="searchInput" placeholder="ค้นหา template... (เช่น ร้านอาหาร, สคริปต์)" oninput="doSearch(this.value)">
   </div>
   <div class="top-actions">
     <span class="top-count" id="totalCount"></span>
-    <button class="btn-action" style="background:#fef3c7;color:#92400e;border:1.5px solid #fde68a;font-size:13px" onclick="showFavorites()" id="btn-fav-top">⭐ Favorites <span id="fav-count-badge"></span></button>
+    <button class="btn-action" style="background:rgba(245,158,11,.15);color:var(--accent);border:1.5px solid rgba(245,158,11,.35);font-size:13px" onclick="showFavorites()" id="btn-fav-top">⭐ Favorites <span id="fav-count-badge"></span></button>
     <a class="btn-claude" href="https://claude.ai" target="_blank">🤖 เปิด Claude AI</a>
   </div>
+</div>
+
+<!-- FRAMING BANNER -->
+<div class="framing-banner" style="background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(245,158,11,.08));border-bottom:1px solid var(--border);padding:10px 20px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <span style="background:linear-gradient(135deg,#a855f7,#f59e0b);color:white;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.5px;white-space:nowrap">🎯 INDUSTRY DEEP-DIVE</span>
+  <span>ระดับที่ลึกกว่า — Prompt เจาะเฉพาะ 9 ธุรกิจ/สายงาน ต่อยอดจากคลัง 1,000 Prompt ทั่วไปที่มีอยู่แล้ว</span>
 </div>
 
 <!-- MOBILE NAV -->
@@ -300,7 +343,7 @@ input, textarea { font-family:var(--font); }
     <div class="detail-empty">
       <div class="empty-icon">✨</div>
       <div style="font-size:17px;font-weight:700;color:var(--text)">เลือก Template ที่ต้องการ</div>
-      <div style="font-size:14px" id="emptyDesc">มีทั้งหมด 27 templates พร้อมใช้งาน</div>
+      <div style="font-size:14px" id="emptyDesc">มีทั้งหมด 24 templates พร้อมใช้งาน</div>
     </div>
   </div>
 </div>
@@ -903,72 +946,6 @@ B: Friendly Professional — อบอุ่นกว่า แต่ยัง�
 - 2 แบบ: ใช้ตัวเลข
 
 พร้อมแนะนำ: สีตัวอักษร + พื้นหลัง + ตำแหน่งข้อความ`
-      },
-    ]
-  },
-  {
-    cat:"💼 เครื่องมือธุรกิจ ContentThai AI", accent:"#0ea5e9",
-    items:[
-      {
-        name:"PROPOSAL — เสนองานให้ลูกค้าใหม่",
-        use:"ส่งข้อความแรกเสนอบริการ AI Content",
-        tags:["หาลูกค้า","Inbox","เสนองาน"],
-        warn:null,
-        genFields:["ประเภทธุรกิจลูกค้า","บริการที่เสนอ","ราคา","ทำไมธุรกิจนี้ต้องการบริการนี้"],
-        prompt:`คุณคือที่ปรึกษาธุรกิจที่ช่วยเขียน Outreach Message ให้ได้งานจริง
-
-ข้อมูล:
-- ผู้ส่ง: ปอนด์ (ContentThai AI)
-- ประเภทธุรกิจลูกค้า: [เช่น ร้านอาหาร คลินิก ร้านขายของ]
-- บริการที่เสนอ: [เช่น เขียน Caption 8 โพสต์/เดือน]
-- ราคา: [บาท/เดือน]
-- ทำไมธุรกิจนี้ต้องการบริการ: [ระบุปัญหาที่เห็น]
-
-เขียน 3 แบบ:
-แบบที่ 1 (Inbox สั้น): ไม่เกิน 4 บรรทัด เปิดด้วยคำชมจริงใจ
-แบบที่ 2 (มี Demo): ยาวกว่า ใส่ตัวอย่าง Caption 1 ชิ้นสำหรับธุรกิจเขาโดยเฉพาะ
-แบบที่ 3 (Follow-up): Gentle Reminder ถ้าไม่ตอบใน 3 วัน
-
-ทุกแบบดูเป็นมนุษย์จริงๆ ไม่ Copy-Paste ทั่วไป`
-      },
-      {
-        name:"LINE-OA — ข้อความต้อนรับ Line OA",
-        use:"ตั้งค่า Auto Reply สำหรับ Line OA ของลูกค้า",
-        tags:["Line OA","Auto Reply","ต้อนรับ"],
-        warn:null,
-        genFields:["ธุรกิจ","สิ่งที่ลูกค้าจะได้รับจาก Line","CTA หลัก"],
-        prompt:`คุณคือผู้เชี่ยวชาญ Line Official Account สำหรับธุรกิจไทย
-
-ข้อมูล:
-- ธุรกิจ: [ชื่อและประเภท]
-- สิ่งที่ลูกค้าจะได้: [โปรพิเศษ ข่าวสาร สั่งสินค้า นัดหมาย]
-- CTA หลัก: [สิ่งที่ต้องการให้ทำทันทีที่ Add]
-
-สร้าง 4 ชุดข้อความ:
-1. Welcome Message (Add เพื่อนครั้งแรก): อบอุ่น + ประโยชน์ + CTA + Rich Menu 3 ปุ่ม
-2. Greeting Message (ทุกครั้งที่เปิดแชท): สั้น กระชับ + Quick Reply
-3. Away Message (นอกเวลา): แจ้งเวลา + ให้ความหวัง
-4. Broadcast Template: Hook → ข้อเสนอ → Deadline → วิธีรับสิทธิ์`
-      },
-      {
-        name:"PRICE-LIST — โพสต์ราคาบริการ",
-        use:"โพสต์ราคาที่น่าซื้อ ไม่ใช่แค่ตารางแห้งๆ",
-        tags:["Facebook","ราคา","บริการ"],
-        warn:null,
-        genFields:["ธุรกิจ","รายการบริการและราคา","บริการ Best Seller","จุดเด่นที่ทำให้คุ้มค่า"],
-        prompt:`คุณคือผู้เชี่ยวชาญ Pricing Communication ที่ทำให้ราคาดูคุ้มค่า
-
-ข้อมูล:
-- ธุรกิจ: [ชื่อและประเภท]
-- รายการบริการ/สินค้าและราคา: [ระบุครบ]
-- Best Seller: [ระบุ]
-- จุดเด่น: [เช่น ฟรีปรึกษา, รับประกัน]
-
-สร้างโพสต์ 2 แบบ:
-แบบที่ 1: Simple & Clear — ตารางราคาอ่านง่าย
-แบบที่ 2: Value-First — เริ่มด้วยสิ่งที่ได้รับ แล้วค่อยบอกราคา
-
-ทุกแบบ: หัวข้อดึงดูด + จัดกลุ่มชัดเจน + เน้น Best Value + CTA + Emoji`
       },
     ]
   },
