@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ContentThai AI — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -15,18 +15,18 @@
    COLOR — เก็บโทนเดิม (Dark Navy + Blue + Amber) แต่เพิ่มระบบ Tier
    ที่สื่อความหมายชัดเจนขึ้น: Free=เทา / Monthly=ฟ้า / Yearly=ทอง /
    Lifetime=ม่วง-ทอง (Signature Gradient เฉพาะ Tier สูงสุด)
-   TYPE — Outfit (Display/ตัวเลข/หัวข้อ) + Sarabun (เนื้อหาไทย)
+   TYPE — Kanit (Display/ตัวเลข/หัวข้อ) + Sarabun (เนื้อหาไทย)
    + monospace (Label/Eyebrow/Badge) — คงชุดเดิม เพิ่มน้ำหนักตัวอักษร
    ให้ Headline เด่นขึ้นแทนการเปลี่ยนฟอนต์
    ═══════════════════════════════════════════════════════════ */
 :root{
   /* พื้นผิว (Surface) */
-  --bg:#060910;--s1:#0d1220;--s2:#131a2e;--s3:#1c2540;
-  --border:rgba(14,165,233,.15);--border2:rgba(14,165,233,.25);
+  --bg:#0a0f1f;--s1:#111a30;--s2:#182446;--s3:#213060;
+  --border:rgba(247,181,0,.15);--border2:rgba(247,181,0,.25);
 
-  /* สีหลัก (Brand & Status) */
-  --primary:#0ea5e9;      /* ฟ้า — Action หลัก, Monthly Tier */
-  --accent:#f59e0b;       /* ทอง — Upgrade CTA, Yearly Tier */
+  /* สีหลัก (Brand & Status) — ล็อกกับโลโก้ ContentThai AI (น้ำเงิน-ทอง) */
+  --primary:#f7b500;      /* ทอง — Action หลัก, Monthly Tier (สีเช็คมาร์กในโลโก้) */
+  --accent:#2563eb;       /* น้ำเงิน — Upgrade CTA รอง, Yearly Tier (สีวงแหวนในโลโก้) */
   --green:#22c55e;        /* เขียว — สถานะสำเร็จ/อนุมัติแล้วเท่านั้น */
   --red:#ef4444;          /* แดง — คำเตือน/ออกจากระบบ */
   --purple:#a855f7;       /* ม่วง — Premium/Locked Content */
@@ -34,13 +34,13 @@
   /* Signature Gradient — ใช้เฉพาะจุดที่สื่อ "สิทธิ์สูงสุด" เท่านั้น
      (Lifetime badge, Prompt Library, ปุ่มเปิด Claude) เพื่อให้ยังคง
      ความรู้สึกพิเศษไว้ ไม่ใช้พร่ำเพรื่อจนหมดความหมาย */
-  --signature: linear-gradient(135deg,#a855f7,#f59e0b);
+  --signature: linear-gradient(135deg,#a855f7,#f7b500);
   --signature-glow: rgba(168,85,247,.25);
 
   /* ตัวอักษร */
-  --text:#e8f0fe;--muted:#6b7fa3;
+  --text:#f1f5fb;--muted:#7c88a8;
   --font:'Sarabun',sans-serif;   /* Body — อ่านภาษาไทยง่าย */
-  --head:'Outfit',sans-serif;    /* Display — Headline/ตัวเลข/ปุ่ม */
+  --head:'Kanit',sans-serif;     /* Display — Headline/ตัวเลข/ปุ่ม */
 
   /* จังหวะ Motion (ใช้ร่วมกันทั้งระบบ เพื่อความ Consistent) */
   --ease:cubic-bezier(.16,1,.3,1);
@@ -54,10 +54,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 60% 50% at 10% 0%,rgba(14,165,233,.07) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 40% at 90% 100%,rgba(245,158,11,.05) 0%,transparent 60%),
-    linear-gradient(rgba(14,165,233,.025) 1px,transparent 1px) 0 0/48px 48px,
-    linear-gradient(90deg,rgba(14,165,233,.025) 1px,transparent 1px) 0 0/48px 48px;
+    radial-gradient(ellipse 60% 50% at 10% 0%,rgba(247,181,0,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 100%,rgba(37,99,235,.05) 0%,transparent 60%),
+    linear-gradient(rgba(247,181,0,.025) 1px,transparent 1px) 0 0/48px 48px,
+    linear-gradient(90deg,rgba(247,181,0,.025) 1px,transparent 1px) 0 0/48px 48px;
 }
 
 /* ── NAV ── */
@@ -74,8 +74,8 @@ nav{
   letter-spacing:.5px;text-transform:uppercase;
 }
 .pkg-free{background:rgba(107,127,163,.15);border:1px solid rgba(107,127,163,.3);color:var(--muted)}
-.pkg-monthly{background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.3);color:var(--primary)}
-.pkg-yearly{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:var(--accent)}
+.pkg-monthly{background:rgba(247,181,0,.12);border:1px solid rgba(247,181,0,.3);color:var(--primary)}
+.pkg-yearly{background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:var(--accent)}
 .pkg-lifetime{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:var(--green)}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px}
 .nav-user{font-size:13px;color:var(--muted)}
@@ -111,14 +111,14 @@ nav{
 .welcome::before{
   content:'';position:absolute;top:-60px;right:-60px;
   width:200px;height:200px;border-radius:50%;
-  background:radial-gradient(circle,rgba(14,165,233,.12),transparent 70%);
+  background:radial-gradient(circle,rgba(247,181,0,.12),transparent 70%);
 }
 .welcome-text h2{font-family:var(--head);font-size:clamp(24px,3.4vw,34px);font-weight:900;letter-spacing:-.5px;margin-bottom:8px;line-height:1.15}
 .welcome-text h2 span{color:var(--primary)}
 .welcome-text p{font-size:14px;color:var(--muted);line-height:1.7}
 .upgrade-box{
-  background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.04));
-  border:1px solid rgba(245,158,11,.25);border-radius:14px;
+  background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(37,99,235,.04));
+  border:1px solid rgba(37,99,235,.25);border-radius:14px;
   padding:16px 20px;text-align:center;min-width:200px;flex-shrink:0;
 }
 .upgrade-box.hidden{display:none}
@@ -130,7 +130,7 @@ nav{
   font-family:var(--head);font-size:13px;font-weight:700;cursor:pointer;transition:.2s;
   display:inline-block;
 }
-.btn-upgrade:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,.3)}
+.btn-upgrade:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.3)}
 
 /* ── STATS ROW ── */
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
@@ -142,8 +142,8 @@ nav{
   width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
   justify-content:center;font-size:18px;flex-shrink:0;
 }
-.stat-icon.blue{background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.2)}
-.stat-icon.amber{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2)}
+.stat-icon.blue{background:rgba(247,181,0,.12);border:1px solid rgba(247,181,0,.2)}
+.stat-icon.amber{background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.2)}
 .stat-icon.green{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2)}
 .stat-val{font-family:var(--head);font-size:28px;font-weight:900;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
 .stat-label{font-size:12px;color:var(--muted);margin-top:1px}
@@ -178,7 +178,7 @@ nav{
   background:linear-gradient(90deg,var(--primary),var(--accent));
   opacity:0;transition:.2s;
 }
-.tpl-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(14,165,233,.1)}
+.tpl-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(247,181,0,.1)}
 .tpl-card:hover::before{opacity:1}
 .tpl-card.locked{cursor:default;opacity:.6}
 .tpl-card.locked:hover{transform:none;box-shadow:none;border-color:var(--border)}
@@ -199,7 +199,7 @@ nav{
   display:flex;align-items:center;gap:4px;
 }
 .use-btn{
-  background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);
+  background:rgba(247,181,0,.12);border:1px solid rgba(247,181,0,.25);
   color:var(--primary);padding:5px 14px;border-radius:7px;
   font-size:12px;font-weight:700;cursor:pointer;transition:.15s;font-family:var(--font);
 }
@@ -236,7 +236,7 @@ nav{
   color:#fff;border:none;border-radius:10px;
   font-family:var(--head);font-size:14px;font-weight:700;cursor:pointer;transition:.2s;
 }
-.btn-copy-prompt:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(14,165,233,.3)}
+.btn-copy-prompt:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(247,181,0,.3)}
 .btn-copy-prompt.copied{background:linear-gradient(135deg,var(--green),#16a34a)}
 
 .btn-open-claude{
@@ -251,7 +251,7 @@ nav{
 
 /* ── UPGRADE MODAL ── */
 .upgrade-modal{
-  background:var(--s1);border:1px solid rgba(245,158,11,.3);border-radius:20px;
+  background:var(--s1);border:1px solid rgba(37,99,235,.3);border-radius:20px;
   padding:36px;width:100%;max-width:460px;text-align:center;
   animation:modalIn .25s ease;
 }
@@ -263,7 +263,7 @@ nav{
   background:var(--s2);border:2px solid var(--border);border-radius:12px;
   padding:16px;cursor:pointer;transition:.2s;text-align:center;
 }
-.pkg-opt:hover{border-color:rgba(245,158,11,.4)}
+.pkg-opt:hover{border-color:rgba(37,99,235,.4)}
 .pkg-opt-name{font-family:var(--head);font-size:14px;font-weight:700;margin-bottom:4px}
 .pkg-opt-price{font-size:15px;color:var(--accent);font-weight:800;letter-spacing:.2px}
 .pkg-opt-desc{font-size:11px;color:var(--muted);margin-top:3px}
@@ -282,6 +282,35 @@ nav{
 .toast.show{display:block}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
+/* ── PREMIUM STATUS BAR — สถานะสมาชิก (Tier-aware) ── */
+.status-bar{
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  border:1px solid var(--border2);border-radius:18px;
+  padding:20px 24px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  transition:.3s;
+}
+.status-bar.tier-monthly{border-color:rgba(247,181,0,.4);box-shadow:0 0 24px rgba(247,181,0,.08)}
+.status-bar.tier-yearly{border-color:rgba(37,99,235,.4);box-shadow:0 0 24px rgba(37,99,235,.1)}
+.status-bar.tier-lifetime{border-color:rgba(168,85,247,.5);box-shadow:0 0 28px rgba(168,85,247,.22);background:linear-gradient(135deg,rgba(168,85,247,.14),var(--s1))}
+.status-left{display:flex;align-items:center;gap:14px}
+.status-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:22px;font-weight:800;color:#000;flex-shrink:0}
+.status-name{font-family:var(--head);font-weight:700;font-size:16px}
+.status-tier{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-top:4px;padding:3px 10px;border-radius:20px;width:fit-content}
+.status-tier.tier-free{background:var(--s3);color:var(--muted)}
+.status-tier.tier-monthly{background:rgba(247,181,0,.15);color:var(--primary)}
+.status-tier.tier-yearly{background:rgba(37,99,235,.15);color:var(--accent)}
+.status-tier.tier-lifetime{background:rgba(168,85,247,.2);color:#e9b8ff}
+.status-right{display:flex;align-items:center;gap:26px}
+.status-metric{text-align:right}
+.status-metric-val{font-family:var(--head);font-weight:700;font-size:18px}
+.status-metric-sub{font-size:10.5px;color:var(--muted);margin-top:1px}
+.status-metric-label{font-size:11px;color:var(--muted);margin-top:1px}
+@media(max-width:600px){
+  .status-bar{padding:16px 18px;gap:12px}
+  .status-right{gap:16px;width:100%;justify-content:space-between}
+}
+
 /* ── EXPIRY BAR ── */
 .expiry-bar{
   background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
@@ -299,7 +328,7 @@ nav{
    จุดเดียวในหน้านี้ที่ใช้ Signature Gradient (ม่วง-ทอง) เพื่อสื่อว่า
    นี่คือสิทธิ์ระดับสูงสุด แยกจาก Template ทั่วไปอย่างชัดเจน */
 .vault-section{
-  background:linear-gradient(160deg,#15102a,#0d1220);
+  background:linear-gradient(160deg,#15102a,#111a30);
   border:1px solid rgba(168,85,247,.25);border-radius:20px;
   padding:28px;margin-top:40px;position:relative;overflow:hidden;
 }
@@ -338,29 +367,29 @@ nav{
 
 /* ══ EXTRA RESOURCES — สีแยกจาก Vault เพื่อไม่ให้สับสน (โทนฟ้า/เขียวอมฟ้า) ══ */
 .extra-section{
-  background:linear-gradient(160deg,#08202b,#0d1220);
-  border:1px solid rgba(20,184,166,.25);border-radius:20px;
+  background:linear-gradient(160deg,#1a0f2e,#111a30);
+  border:1px solid rgba(168,85,247,.25);border-radius:20px;
   padding:28px;margin-top:24px;position:relative;overflow:hidden;
 }
 .extra-section::before{
   content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;
-  border-radius:50%;background:radial-gradient(circle,rgba(20,184,166,.18),transparent 70%);
+  border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.18),transparent 70%);
   pointer-events:none;
 }
 .extra-eyebrow{
   display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
   font-family:monospace;letter-spacing:2px;text-transform:uppercase;
-  color:#5eead4;background:rgba(20,184,166,.12);border:1px solid rgba(20,184,166,.3);
+  color:#e9b8ff;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);
   padding:5px 12px;border-radius:20px;margin-bottom:14px;
 }
 .extra-title{font-family:var(--head);font-size:clamp(20px,2.6vw,26px);font-weight:900;margin-bottom:6px;letter-spacing:-.4px}
 .extra-desc{color:var(--muted);font-size:13.5px;margin-bottom:22px;line-height:1.7;max-width:560px}
 .extra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
 .extra-card{
-  background:rgba(255,255,255,.02);border:1px solid rgba(20,184,166,.18);
+  background:rgba(255,255,255,.02);border:1px solid rgba(168,85,247,.18);
   border-radius:14px;padding:18px;cursor:pointer;transition:.2s var(--ease);
 }
-.extra-card:hover{border-color:rgba(20,184,166,.45);transform:translateY(-2px);box-shadow:0 10px 28px rgba(20,184,166,.12)}
+.extra-card:hover{border-color:rgba(168,85,247,.45);transform:translateY(-2px);box-shadow:0 10px 28px rgba(168,85,247,.12)}
 .extra-card.locked{cursor:default;opacity:.55;filter:grayscale(.3)}
 .extra-card.locked:hover{transform:none;box-shadow:none}
 .extra-emoji{font-size:24px;margin-bottom:10px}
@@ -470,43 +499,30 @@ nav{
     </div>
   </div>
 
-  <!-- STATS -->
-  <div class="stats-row reveal" id="stats-row">
-    <div class="stat-card">
-      <div class="stat-icon blue">📋</div>
-      <div><div class="stat-val" id="stat-unlocked" data-count="0">—</div><div class="stat-label" data-i18n="statTemplates">Templates ที่ใช้ได้</div></div>
+  <!-- PREMIUM STATUS BAR — รวม Stats + Profile เดิมที่ซ้ำซ้อนกันเป็นแถบเดียว -->
+  <div class="status-bar reveal" id="status-bar">
+    <div class="status-left">
+      <div class="status-avatar" id="profile-avatar">—</div>
+      <div>
+        <div class="status-name" id="profile-name">—</div>
+        <div class="status-tier tier-free" id="tier-badge"><span id="tier-icon">🌱</span><span id="tier-label">—</span></div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon amber">⭐</div>
-      <div><div class="stat-val" id="stat-pkg-name">—</div><div class="stat-label" data-i18n="statPackage">แพ็กเกจปัจจุบัน</div></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon green">📅</div>
-      <div><div class="stat-val" id="stat-expiry">—</div><div class="stat-label" data-i18n="statExpiry">วันหมดอายุ</div></div>
+    <div class="status-right">
+      <div class="status-metric">
+        <div class="status-metric-val" id="stat-unlocked" data-count="0">—</div>
+        <div class="status-metric-label" data-i18n="statTemplates">Templates ที่ใช้ได้</div>
+      </div>
+      <div class="status-metric">
+        <div class="status-metric-val" id="stat-expiry">—</div>
+        <div class="status-metric-sub" id="tier-progress-text"></div>
+      </div>
     </div>
   </div>
-
-  <!-- PROFILE CARD -->
-  <div class="reveal" style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-    <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:22px;font-weight:800;color:#000;flex-shrink:0" id="profile-avatar">—</div>
-    <div style="flex:1;min-width:160px">
-      <div style="font-family:var(--head);font-size:16px;font-weight:700;margin-bottom:3px" id="profile-name">—</div>
-      <div style="font-size:12px;color:var(--muted)" id="profile-email">—</div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
-        <div style="font-family:var(--head);font-size:15px;font-weight:700" id="profile-pkg-label">—</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px" data-i18n="labelPackage">แพ็กเกจ</div>
-      </div>
-      <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
-        <div style="font-family:var(--head);font-size:15px;font-weight:700;color:var(--green)" id="profile-status" data-i18n="approved">อนุมัติแล้ว</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px" data-i18n="labelStatus">สถานะ</div>
-      </div>
-      <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center">
-        <div style="font-family:var(--head);font-size:15px;font-weight:700" id="profile-tpl-count">—</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Templates</div>
-      </div>
-    </div>
+  <!-- Element เดิมที่ยังต้องมีไว้ให้ JS อ้างอิงได้ แต่ไม่จำเป็นต้องแสดงซ้ำในแถบใหม่แล้ว -->
+  <div style="display:none" aria-hidden="true">
+    <span id="stat-pkg-name"></span><span id="profile-email"></span>
+    <span id="profile-pkg-label"></span><span id="profile-status"></span><span id="profile-tpl-count"></span>
   </div>
 
   <!-- TEMPLATES -->
@@ -536,9 +552,9 @@ nav{
 
   <!-- EXTRA RESOURCES — เนื้อหาเสริมนอกเหนือ Template หลักและ Vault -->
   <div class="extra-section reveal">
-    <div class="extra-eyebrow" data-i18n="extraEyebrow">🎁 Bonus Resources</div>
-    <div class="extra-title" data-i18n="extraTitle">แหล่งข้อมูลเสริม</div>
-    <div class="extra-desc" data-i18n="extraDesc">เนื้อหาเพิ่มเติมนอกเหนือจาก Template หลักและคลัง 1,000 Prompt — อัปเดตเรื่อยๆ</div>
+    <div class="extra-eyebrow" data-i18n="extraEyebrow">✨ Exclusive For You</div>
+    <div class="extra-title" data-i18n="extraTitle">สิทธิพิเศษเฉพาะคุณ</div>
+    <div class="extra-desc" data-i18n="extraDesc">เนื้อหาระดับพรีเมียมนอกเหนือจาก Template หลักและคลัง 1,000 Prompt — สิทธิ์เฉพาะสมาชิกเสียเงินเท่านั้น</div>
     <div class="extra-grid" id="extra-grid"></div>
   </div>
 </div>
@@ -583,9 +599,9 @@ const I18N = {
   vaultTitle: { th: 'คลัง 1,000 Prompt Library', en: '1,000-Prompt Library' },
   vaultDesc: { th: 'พรอมต์พร้อมใช้ 1,000 ข้อ แบ่ง 5 ชุด ครอบคลุม 10 หมวดชีวิตและธุรกิจ ออกแบบตามหลักจิตวิทยาและกลยุทธ์การตลาด — สิทธิ์พิเศษสำหรับสมาชิกรายเดือน/รายปี/ตลอดชีพเท่านั้น', en: '1,000 ready-to-use prompts across 5 sets covering 10 life & business categories, built on marketing psychology — exclusive to Monthly/Yearly/Lifetime members' },
   vaultOpen: { th: 'เปิดคลัง →', en: 'Open →' },
-  extraEyebrow: { th: '🎁 Bonus Resources', en: '🎁 Bonus Resources' },
-  extraTitle: { th: 'แหล่งข้อมูลเสริม', en: 'Bonus Resources' },
-  extraDesc: { th: 'เนื้อหาเพิ่มเติมนอกเหนือจาก Template หลักและคลัง 1,000 Prompt — อัปเดตเรื่อยๆ', en: 'Extra content beyond the main templates and prompt library — updated regularly' },
+  extraEyebrow: { th: '✨ Exclusive For You', en: '✨ Exclusive For You' },
+  extraTitle: { th: 'สิทธิพิเศษเฉพาะคุณ', en: 'Exclusive For You' },
+  extraDesc: { th: 'เนื้อหาระดับพรีเมียมนอกเหนือจาก Template หลักและคลัง 1,000 Prompt — สิทธิ์เฉพาะสมาชิกเสียเงินเท่านั้น', en: 'Premium content beyond the main templates and prompt library — for paid members only' },
   extraOpen: { th: 'เปิดอ่าน →', en: 'Open →' },
   promptLabel: { th: '📋 Prompt Template', en: '📋 Prompt Template' },
   copyBtn: { th: '📋 Copy Prompt ไปใช้งาน', en: '📋 Copy Prompt' },
@@ -1168,6 +1184,33 @@ let currentPrompt = '';
   document.getElementById('profile-email').textContent = session.user.email || '';
   document.getElementById('profile-pkg-label').textContent = pkgLabelFn(userPackage);
   document.getElementById('profile-tpl-count').textContent = isPaid ? totalTemplates : freeTemplates;
+
+  // ══ PREMIUM STATUS BAR — Tier Badge (สี/ไอคอนตามระดับ) + ข้อความแบบ Small Area Hypothesis ══
+  // อ้างอิง: ช่วงต้นรอบเน้นความคืบหน้าที่ทำไปแล้ว / ช่วงปลายรอบเน้นเวลาที่เหลือ เพื่อกระตุ้นแรงจูงใจ
+  const TIER_META = {
+    free:     { cls:'tier-free',     icon:'🌱', duration:7 },
+    monthly:  { cls:'tier-monthly',  icon:'⚡', duration:30 },
+    yearly:   { cls:'tier-yearly',   icon:'🔥', duration:365 },
+    lifetime: { cls:'tier-lifetime', icon:'👑', duration:null }
+  };
+  const tm = TIER_META[userPackage] || TIER_META.free;
+  document.getElementById('status-bar').className = `status-bar reveal ${tm.cls}`;
+  document.getElementById('tier-badge').className = `status-tier ${tm.cls}`;
+  document.getElementById('tier-icon').textContent = tm.icon;
+  document.getElementById('tier-label').textContent = pkgLabelFn(userPackage);
+
+  const progressEl = document.getElementById('tier-progress-text');
+  if (userPackage === 'lifetime') {
+    progressEl.textContent = currentLang === 'th' ? 'สิทธิ์ถาวร ∞' : 'Lifetime access ∞';
+  } else if (expiryDaysLeft !== null && tm.duration) {
+    const daysUsed = Math.max(0, tm.duration - expiryDaysLeft);
+    // ครึ่งแรกของรอบ → โชว์ความคืบหน้า / ครึ่งหลัง → โชว์เวลาที่เหลือ (กระตุ้นต่ออายุ)
+    if (expiryDaysLeft <= tm.duration / 2) {
+      progressEl.textContent = currentLang === 'th' ? `เหลืออีก ${expiryDaysLeft} วัน` : `${expiryDaysLeft} days left`;
+    } else {
+      progressEl.textContent = currentLang === 'th' ? `ใช้งานมาแล้ว ${daysUsed} วัน` : `${daysUsed} days in`;
+    }
+  }
 
   applyLang();
   renderTemplates();
