@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ContentThai AI — Prompt Toolkit Full</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
-<style>html{background:#060910}body{display:none}</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Kanit:wght@600;700;800&display=swap" rel="stylesheet">
+<style>html{background:#0a0f1f}body{display:none}</style>
 <script src="supabase-js.min.js"></script>
 <script>
 (async function(){
@@ -40,22 +40,22 @@
 <style>
 /* ══ DESIGN TOKENS ══ */
 :root {
-  --bg:      #060910;
-  --surface: #0d1220;
-  --s2:      #131a2e;
-  --s3:      #1c2540;
-  --border:  rgba(14,165,233,.15);
-  --primary: #0ea5e9;
-  --primary-light: rgba(14,165,233,.12);
-  --accent:  #f59e0b;
+  --bg:      #0a0f1f;
+  --surface: #111a30;
+  --s2:      #182446;
+  --s3:      #213060;
+  --border:  rgba(247,181,0,.15);
+  --primary: #f7b500;
+  --primary-light: rgba(247,181,0,.12);
+  --accent:  #2563eb;
   --green:   #22c55e;
   --red:     #ef4444;
   --purple:  #a855f7;
-  --text:    #e8f0fe;
-  --text2:   #a8bdda;
-  --muted:   #6b7fa3;
+  --text:    #f1f5fb;
+  --text2:   #a8b4d4;
+  --muted:   #7c88a8;
   --font:    'Sarabun', sans-serif;
-  --head:    'Outfit', sans-serif;
+  --head:    'Kanit', sans-serif;
   --radius:  12px;
   --shadow:  0 2px 8px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.2);
 }
@@ -77,10 +77,10 @@ input, textarea { font-family:var(--font); }
   box-shadow:var(--shadow);
 }
 .brand { font-family:var(--head); font-weight:800; font-size:18px; white-space:nowrap; }
-.brand span { color:var(--accent); }
+.brand span { color:var(--primary); }
 .brand-badge {
   font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px;
-  background:linear-gradient(135deg,#a855f7,#0ea5e9);
+  background:linear-gradient(135deg,#a855f7,#f7b500);
   color:white; font-family:monospace; letter-spacing:.5px; margin-left:4px;
 }
 
@@ -91,7 +91,7 @@ input, textarea { font-family:var(--font); }
   border-radius:10px; padding:9px 14px 9px 38px;
   color:var(--text); font-size:14px; outline:none; transition:.2s;
 }
-.search-wrap input:focus { border-color:var(--primary); background:var(--surface); box-shadow:0 0 0 3px rgba(14,165,233,.1); }
+.search-wrap input:focus { border-color:var(--primary); background:var(--surface); box-shadow:0 0 0 3px rgba(247,181,0,.1); }
 .search-wrap input::placeholder { color:var(--muted); }
 .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); }
 
@@ -99,12 +99,12 @@ input, textarea { font-family:var(--font); }
 .top-actions { display:flex; align-items:center; gap:8px; margin-left:auto; }
 .btn-claude {
   display:flex; align-items:center; gap:6px;
-  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  background:linear-gradient(135deg,#f7b500,#ef4444);
   color:white; border:none; border-radius:10px;
   padding:8px 16px; font-size:13px; font-weight:700;
   text-decoration:none; transition:.2s; white-space:nowrap;
 }
-.btn-claude:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(245,158,11,.3); }
+.btn-claude:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(247,181,0,.3); }
 .top-count { font-size:12px; color:var(--muted); white-space:nowrap; }
 
 /* ══ MOBILE NAV ══ */
@@ -137,7 +137,7 @@ input, textarea { font-family:var(--font); }
 .cat-btn:hover { background:var(--s2); color:var(--text); }
 .cat-btn.active { background:var(--primary-light); color:var(--primary); }
 .cat-count { background:var(--s3); border-radius:10px; padding:1px 7px; font-size:10px; font-weight:700; color:var(--muted); }
-.cat-btn.active .cat-count { background:rgba(14,165,233,.1); color:var(--primary); }
+.cat-btn.active .cat-count { background:rgba(247,181,0,.1); color:var(--primary); }
 
 /* Template List */
 .list {
@@ -161,7 +161,7 @@ input, textarea { font-family:var(--font); }
   transition:.15s; padding:2px;
 }
 .fav-btn:hover { transform:scale(1.2); }
-.fav-btn.active { color:var(--accent); }
+.fav-btn.active { color:var(--primary); }
 
 /* Detail Pane */
 .detail { flex:1; overflow-y:auto; padding:24px; background:var(--bg); }
@@ -178,7 +178,7 @@ input, textarea { font-family:var(--font); }
 .detail-name { font-family:var(--head); font-size:22px; font-weight:800; color:var(--text); margin-bottom:10px; }
 .detail-use {
   display:inline-flex; align-items:center; gap:6px;
-  background:var(--primary-light); border:1px solid rgba(14,165,233,.25);
+  background:var(--primary-light); border:1px solid rgba(247,181,0,.25);
   border-radius:20px; padding:5px 14px; font-size:13px; color:var(--primary); font-weight:600;
 }
 .detail-actions { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
@@ -190,10 +190,10 @@ input, textarea { font-family:var(--font); }
 .btn-copy:hover { background:#0284c7; transform:translateY(-1px); }
 .btn-copy.copied { background:var(--green); }
 .btn-fav { background:var(--s3); color:var(--text2); border:1.5px solid var(--border); }
-.btn-fav:hover { border-color:var(--accent); color:var(--accent); }
-.btn-fav.active { background:rgba(245,158,11,.15); border-color:var(--accent); color:var(--accent); }
+.btn-fav:hover { border-color:var(--primary); color:var(--primary); }
+.btn-fav.active { background:rgba(247,181,0,.15); border-color:var(--primary); color:var(--primary); }
 .btn-open-claude {
-  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  background:linear-gradient(135deg,#f7b500,#ef4444);
   color:white; text-decoration:none;
   display:inline-flex; align-items:center; gap:6px;
   padding:8px 16px; border-radius:10px; font-size:13px; font-weight:700;
@@ -224,7 +224,7 @@ input, textarea { font-family:var(--font); }
   white-space:pre-wrap; word-break:break-word;
   max-height:400px; overflow-y:auto; background:var(--s2);
 }
-.prompt-body .bracket { color:var(--primary); font-weight:700; background:rgba(14,165,233,.08); border-radius:3px; padding:0 2px; }
+.prompt-body .bracket { color:var(--primary); font-weight:700; background:rgba(247,181,0,.08); border-radius:3px; padding:0 2px; }
 
 /* Generate Box */
 .generate-card {
@@ -245,10 +245,10 @@ input, textarea { font-family:var(--font); }
   width:100%; padding:11px; background:linear-gradient(135deg,var(--primary),#a855f7);
   color:white; border:none; border-radius:10px; font-size:14px; font-weight:700; transition:.2s;
 }
-.btn-generate:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(14,165,233,.3); }
+.btn-generate:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(247,181,0,.3); }
 .btn-generate:disabled { opacity:.6; transform:none; cursor:not-allowed; }
 .gen-result {
-  background:rgba(14,165,233,.08); border:1.5px solid rgba(14,165,233,.25);
+  background:rgba(247,181,0,.08); border:1.5px solid rgba(247,181,0,.25);
   border-radius:10px; padding:16px; font-size:13px; line-height:1.9;
   color:var(--text); white-space:pre-wrap; display:none; margin-top:12px;
 }
@@ -272,7 +272,7 @@ input, textarea { font-family:var(--font); }
 .how-steps { counter-reset:step; }
 
 /* Tip */
-.tip-card { background:rgba(245,158,11,.1); border:1.5px solid rgba(245,158,11,.3); border-radius:10px; padding:12px 16px; font-size:13px; color:var(--text); }
+.tip-card { background:rgba(247,181,0,.1); border:1.5px solid rgba(247,181,0,.3); border-radius:10px; padding:12px 16px; font-size:13px; color:var(--text); }
 
 /* Fav Page */
 .fav-empty { text-align:center; padding:60px 20px; color:var(--muted); }
@@ -321,14 +321,14 @@ input, textarea { font-family:var(--font); }
   </div>
   <div class="top-actions">
     <span class="top-count" id="totalCount"></span>
-    <button class="btn-action" style="background:rgba(245,158,11,.15);color:var(--accent);border:1.5px solid rgba(245,158,11,.35);font-size:13px" onclick="showFavorites()" id="btn-fav-top">⭐ Favorites <span id="fav-count-badge"></span></button>
+    <button class="btn-action" style="background:rgba(247,181,0,.15);color:var(--primary);border:1.5px solid rgba(247,181,0,.35);font-size:13px" onclick="showFavorites()" id="btn-fav-top">⭐ Favorites <span id="fav-count-badge"></span></button>
     <a class="btn-claude" href="https://claude.ai" target="_blank">🤖 เปิด Claude AI</a>
   </div>
 </div>
 
 <!-- FRAMING BANNER -->
-<div class="framing-banner" style="background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(245,158,11,.08));border-bottom:1px solid var(--border);padding:10px 20px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-  <span style="background:linear-gradient(135deg,#a855f7,#f59e0b);color:white;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.5px;white-space:nowrap">🎯 INDUSTRY DEEP-DIVE</span>
+<div class="framing-banner" style="background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(247,181,0,.08));border-bottom:1px solid var(--border);padding:10px 20px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <span style="background:linear-gradient(135deg,#a855f7,#f7b500);color:white;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.5px;white-space:nowrap">🎯 INDUSTRY DEEP-DIVE</span>
   <span>ระดับที่ลึกกว่า — Prompt เจาะเฉพาะ 9 ธุรกิจ/สายงาน ต่อยอดจากคลัง 1,000 Prompt ทั่วไปที่มีอยู่แล้ว</span>
 </div>
 
@@ -1020,7 +1020,7 @@ function renderSidebar() {
         <span>${c.cat}</span>
         <span class="cat-count">${c.items.length}</span>
       </button>`).join('') +
-    `<div style="margin-top:8px;padding:4px 8px"><button class="cat-btn ${showFav ? 'active' : ''}" onclick="showFavorites()" style="${showFav ? 'border-left:3px solid #f59e0b' : ''}">
+    `<div style="margin-top:8px;padding:4px 8px"><button class="cat-btn ${showFav ? 'active' : ''}" onclick="showFavorites()" style="${showFav ? 'border-left:3px solid #f7b500' : ''}">
       <span>⭐ Favorites</span>
       <span class="cat-count">${favorites.length}</span>
     </button></div>`;
@@ -1050,7 +1050,7 @@ function renderList() {
     lp.innerHTML = `<div style="padding:32px 16px;text-align:center;color:var(--muted);font-size:13px">${showFav ? '⭐ ยังไม่มี Favorites<br>กด ⭐ ที่ template ที่ชอบ' : 'ไม่พบ template'}</div>`;
     return;
   }
-  const acc = showFav ? '#f59e0b' : (searchQ ? 'var(--primary)' : DATA[activeCat]?.accent || 'var(--primary)');
+  const acc = showFav ? '#f7b500' : (searchQ ? 'var(--primary)' : DATA[activeCat]?.accent || 'var(--primary)');
   lp.innerHTML = items.map(it => {
     const fav = isFav(it.ci, it.ii);
     const active = !showFav && !searchQ && activeItem === it.ii && activeCat === it.ci;
