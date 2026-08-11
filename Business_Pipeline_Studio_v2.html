@@ -4,21 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ContentThai AI — Business Pipeline Studio (7 Agent)</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
 
 :root{
-  --bg:#0a0e1a;--surface:#111827;--surface2:#1a2236;--surface3:#1e2d40;
-  --border:#1e3a5f;--border2:#2a4a6b;
-  --primary:#facc15;--primary-dim:rgba(250,204,21,.14);--primary-glow:rgba(250,204,21,.35);
+  --bg:#0a0f1f;--surface:#111a30;--surface2:#182446;--surface3:#213060;
+  --border:rgba(247,181,0,.15);--border2:rgba(247,181,0,.3);
+  --primary:#f7b500;--primary-dim:rgba(247,181,0,.14);--primary-glow:rgba(247,181,0,.35);
   --blue:#2563eb;--blue-dim:rgba(37,99,235,.14);--blue-glow:rgba(37,99,235,.4);
-  --green:#10b981;--green-dim:rgba(16,185,129,.12);
-  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,.12);
+  --green:#22c55e;--green-dim:rgba(34,197,94,.12);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,.12);
   --red:#ef4444;--red-dim:rgba(239,68,68,.12);
-  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --text:#f1f5fb;--text2:#94a3b8;--text3:#64748b;
   --radius:14px;
   --font:'Sarabun','Noto Sans Thai',sans-serif;
-  --head:'Space Grotesk',sans-serif;
+  --head:'Kanit',sans-serif;
   --emoji:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji','Twemoji Mozilla','EmojiOne Color','Android Emoji',sans-serif;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -45,7 +45,7 @@ body::before{
 .brand-tag{font-size:9.5px;background:var(--blue-dim);border:1px solid var(--blue-glow);color:#60a5fa;padding:3px 8px;border-radius:20px;font-weight:600;letter-spacing:.4px;white-space:nowrap}
 .topbar-right{margin-left:auto;display:flex;gap:5px;flex-shrink:0}
 .step-pill{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid var(--border2);color:var(--text3);background:transparent;cursor:pointer;transition:.2s;white-space:nowrap}
-.step-pill.active{background:var(--primary);border-color:var(--primary);color:#0a0e1a}
+.step-pill.active{background:var(--primary);border-color:var(--primary);color:#1a1108}
 .step-pill.done{border-color:var(--green);color:var(--green);background:var(--green-dim)}
 .wrap{max-width:880px;margin:0 auto;padding:28px 22px 70px;position:relative;z-index:1}
 .step-view{display:none}
@@ -107,7 +107,7 @@ body::before{
 .btn-save:hover{background:#1d4ed8}
 .btn-save.saved{background:var(--green)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:.2s}
-.btn-primary{background:linear-gradient(135deg,var(--primary),#eab308);color:#0a0e1a}
+.btn-primary{background:linear-gradient(135deg,var(--primary),#d99700);color:#1a1108}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 22px var(--primary-glow)}
 .btn-secondary{background:var(--surface2);border:1.5px solid var(--border2);color:var(--text2)}
 .btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
@@ -122,7 +122,7 @@ body::before{
 .btn-copy-sm{background:var(--surface3);border:1px solid var(--border2);color:var(--text2);padding:6px 14px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
 .btn-copy-sm:hover{border-color:var(--green);color:var(--green)}
 .btn-copy-sm.ok{border-color:var(--green);color:var(--green);background:var(--green-dim)}
-.btn-send{width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),#eab308);color:#0a0e1a;border:none;border-radius:10px;font-family:var(--head);font-size:15px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:14px}
+.btn-send{width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),#d99700);color:#1a1108;border:none;border-radius:10px;font-family:var(--head);font-size:15px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:14px}
 .btn-send:hover{transform:translateY(-1px);box-shadow:0 6px 22px var(--primary-glow)}
 .send-note{text-align:center;font-size:12px;color:var(--text3);margin-top:9px;line-height:1.6}
 .progress-bar{height:3px;background:var(--border);border-radius:2px;margin-bottom:22px;overflow:hidden}
