@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบสต็อกสินค้า | ContentThai AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#0a0f1f;--surface:#111a30;--surface2:#182446;--surface3:#213060;
+  --border:rgba(247,181,0,.15);--border2:rgba(247,181,0,.3);
+  --primary:#f7b500;--primary-dim:rgba(247,181,0,.14);
+  --blue:#2563eb;--blue-dim:rgba(37,99,235,.14);
+  --green:#22c55e;--green-dim:rgba(34,197,94,.12);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,.12);
+  --text:#f1f5fb;--text2:#94a3b8;--text3:#64748b;
+  --font:'Sarabun',sans-serif;--head:'Kanit',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;min-height:100vh}
+button,input,select{font-family:var(--font)}
+
+/* TOPBAR */
+header{background:var(--surface);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--primary);flex-wrap:wrap;gap:10px}
+header h1{font-family:var(--head);font-size:19px;color:var(--primary);display:flex;align-items:center;gap:8px}
+.head-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#branchInfo{font-size:13px;color:var(--text2)}
+#userInfo{font-size:12.5px;color:var(--text2);background:var(--surface2);padding:5px 12px;border-radius:20px;border:1px solid var(--border)}
+.role-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.5px}
+.role-badge.owner{background:var(--primary-dim);color:var(--primary)}
+.role-badge.staff{background:var(--blue-dim);color:#60a5fa}
+
+main{max-width:1000px;margin:0 auto;padding:18px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+.card h2{font-family:var(--head);font-size:17px;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h3{font-family:var(--head);font-size:14px;color:var(--text2);margin:14px 0 8px}
+
+label{display:block;font-size:12.5px;font-weight:600;color:var(--text2);margin-bottom:5px;margin-top:10px}
+input,select,textarea{width:100%;font-size:15px;padding:11px 12px;border-radius:9px;border:1px solid var(--border2);background:var(--surface2);color:var(--text)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
+button{background:var(--blue);border:none;font-weight:700;cursor:pointer;padding:12px 18px;border-radius:9px;color:#fff;font-size:14.5px;transition:.15s}
+button:hover{opacity:.88}
+button.primary{background:linear-gradient(135deg,var(--primary),#d99700);color:#1a1108}
+button.secondary{background:var(--surface3);color:var(--text2)}
+button.danger{background:var(--red)}
+button.ok{background:var(--green)}
+button.block{width:100%;margin-top:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1;min-width:120px}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--border)}
+th{color:var(--primary);font-family:var(--head);font-weight:600;font-size:12.5px}
+tr:hover td{background:rgba(247,181,0,.03)}
+.low{color:var(--red);font-weight:700}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px}
+.tag.pending{background:var(--primary-dim);color:var(--primary)}
+.tag.active{background:var(--green-dim);color:var(--green)}
+.tag.suspended{background:var(--red-dim);color:var(--red)}
+.tag.regulated{background:var(--purple-dim);color:var(--purple);margin-left:6px}
+.tag.expiring{background:var(--red-dim);color:var(--red)}
+
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px}
+.tabs button{width:auto;flex:none;background:var(--surface2);color:var(--text2);font-size:13px;padding:9px 14px;white-space:nowrap}
+.tabs button.active{background:var(--primary);color:#1a1108}
+.hidden{display:none !important}
+.tab-content{animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.msg{padding:11px 14px;border-radius:9px;margin-bottom:12px;font-size:13.5px}
+.msg.ok{background:var(--green-dim);color:#86efac;border:1px solid rgba(34,197,94,.3)}
+.msg.err{background:var(--red-dim);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.msg.info{background:var(--blue-dim);color:#93c5fd;border:1px solid rgba(37,99,235,.3)}
+
+.center-box{max-width:400px;margin:60px auto}
+.auth-tabs{display:flex;gap:6px;margin-bottom:16px}
+.auth-tabs button{flex:1;background:var(--surface2);color:var(--text2)}
+.auth-tabs button.active{background:var(--primary);color:#1a1108}
+.hint{font-size:11.5px;color:var(--text3);margin-top:6px;line-height:1.6}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.stat{flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat .val{font-family:var(--head);font-size:22px;font-weight:700;color:var(--primary)}
+.stat .lbl{font-size:11.5px;color:var(--text2);margin-top:4px}
+footer{text-align:center;font-size:11.5px;color:var(--text3);padding:30px 20px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📦 ระบบสต็อกสินค้า</h1>
+  <div class="head-right">
+    <span id="branchInfo"></span>
+    <span id="userInfo" class="hidden"></span>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════ LOGIN / SIGNUP ══════════════ -->
+<div id="authBox" class="center-box">
+  <div class="card">
+    <div class="auth-tabs">
+      <button id="atLogin" class="active" onclick="showAuth('login')">เข้าสู่ระบบ</button>
+      <button id="atSignup" onclick="showAuth('signup')">สมัครใช้งาน</button>
+    </div>
+    <div id="authMsg"></div>
+
+    <div id="authLogin">
+      <label>อีเมล</label>
+      <input id="loginEmail" type="email" placeholder="you@email.com">
+      <label>รหัสผ่าน</label>
+      <input id="loginPass" type="password" placeholder="รหัสผ่าน">
+      <button class="primary block" onclick="doLogin()">เข้าสู่ระบบ</button>
+    </div>
+
+    <div id="authSignup" class="hidden">
+      <label>ชื่อ-นามสกุล</label>
+      <input id="suName" placeholder="ชื่อพนักงาน">
+      <label>อีเมล</label>
+      <input id="suEmail" type="email" placeholder="you@email.com">
+      <label>ตั้งรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label>
+      <input id="suPass" type="password" placeholder="รหัสผ่าน">
+      <button class="primary block" onclick="doSignup()">สมัครใช้งาน</button>
+      <div class="hint">หลังสมัครแล้ว ต้องรอเจ้าของร้านกด "อนุมัติ" ในเมนูจัดการพนักงานก่อน ถึงจะเข้าระบบได้</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PENDING APPROVAL ══════════════ -->
+<div id="pendingBox" class="center-box hidden">
+  <div class="card" style="text-align:center">
+    <h2 style="justify-content:center">⏳ รออนุมัติ</h2>
+    <p style="color:var(--text2);font-size:13.5px;line-height:1.8">บัญชีของคุณสมัครสำเร็จแล้ว แต่ยังรอเจ้าของร้านกด "อนุมัติ" ในระบบก่อน<br>ลองแจ้งเจ้าของร้านให้เข้าไปที่เมนู "จัดการพนักงาน" ครับ</p>
+    <button class="secondary block" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app" class="hidden">
+
+  <div class="card">
+    <label>สาขาที่ทำงานอยู่ตอนนี้</label>
+    <select id="branchSelect" onchange="onBranchChange()"></select>
+    <button class="secondary block" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
+
+  <div class="tabs">
+    <button onclick="showTab('tx')" id="tabBtn-tx" class="active">รับเข้า/ขายออก</button>
+    <button onclick="showTab('transfer')" id="tabBtn-transfer">โอนสาขา</button>
+    <button onclick="showTab('stock')" id="tabBtn-stock">สต็อกคงเหลือ</button>
+    <button onclick="showTab('reorder')" id="tabBtn-reorder">ต้องสั่งซื้อ</button>
+    <button onclick="showTab('product')" id="tabBtn-product">สินค้า</button>
+    <button onclick="showTab('branch')" id="tabBtn-branch">สาขา/ใบอนุญาต</button>
+    <button onclick="showTab('dashboard')" id="tabBtn-dashboard">สรุปยอด</button>
+    <button onclick="showTab('staff')" id="tabBtn-staff" class="hidden">จัดการพนักงาน</button>
+  </div>
+
+  <!-- TX -->
+  <div id="tab-tx" class="tab-content">
+    <div class="card">
+      <h2>📥 บันทึกรายการรับเข้า/ขายออก</h2>
+      <div id="txMsg"></div>
+      <label>สินค้า</label>
+      <select id="txProduct" onchange="updateTxUnitHint()"></select>
+      <div class="row">
+        <div>
+          <label>ประเภทรายการ</label>
+          <select id="txType">
+            <option value="IN">รับสินค้าเข้า</option>
+            <option value="OUT">ขายสินค้าออก</option>
+          </select>
+        </div>
+        <div>
+          <label>หน่วยที่นับ</label>
+          <select id="txUnitMode" onchange="updateTxUnitHint()">
+            <option value="unit">นับเป็นหน่วยย่อย (ขวด/ซอง)</option>
+            <option value="case">นับเป็นลัง (แปลงเป็นหน่วยย่อยอัตโนมัติ)</option>
+          </select>
+        </div>
+      </div>
+      <label>จำนวน</label>
+      <input id="txQty" type="number" min="0" step="1" placeholder="จำนวน">
+      <div class="hint" id="txUnitHint"></div>
+      <label>ราคาที่ใช้อ้างอิง</label>
+      <select id="txPriceType">
+        <option value="cost">ราคาต้นทุน</option>
+        <option value="wholesale">ราคาค้าส่ง</option>
+        <option value="retail">ราคาค้าปลีก</option>
+      </select>
+      <label>เลขที่บิล/ใบกำกับ (ไม่บังคับ)</label>
+      <input id="txRef" placeholder="เช่น INV-00123">
+      <button class="primary block" onclick="saveTx()">บันทึกรายการ</button>
+    </div>
+  </div>
+
+  <!-- TRANSFER -->
+  <div id="tab-transfer" class="tab-content hidden">
+    <div class="card">
+      <h2>🔄 โอนสินค้าระหว่างสาขา</h2>
+      <div id="transferMsg"></div>
+      <label>สินค้า</label>
+      <select id="trProduct"></select>
+      <div class="row">
+        <div>
+          <label>จากสาขา</label>
+          <select id="trFrom"></select>
+        </div>
+        <div>
+          <label>ไปสาขา</label>
+          <select id="trTo"></select>
+        </div>
+      </div>
+      <label>จำนวน (หน่วยย่อย)</label>
+      <input id="trQty" type="number" min="0" step="1" placeholder="จำนวน">
+      <label>หมายเหตุ (ไม่บังคับ)</label>
+      <input id="trNote" placeholder="เช่น เติมสต็อกสาขา 2">
+      <button class="primary block" onclick="saveTransfer()">สร้างรายการโอน</button>
+      <div class="hint">สินค้าจะถูก "หัก" จากสาขาต้นทางทันที แต่ต้องกด "รับของแล้ว" ที่สาขาปลายทางก่อน ถึงจะเข้าสต็อกสาขาปลายทาง (ป้องกันสต็อกหายระหว่างทาง)</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">รายการรอรับที่สาขานี้</h3>
+      <table><thead><tr><th>สินค้า</th><th>จากสาขา</th><th>จำนวน</th><th></th></tr></thead>
+        <tbody id="transferPendingTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- STOCK -->
+  <div id="tab-stock" class="tab-content hidden">
+    <div class="card">
+      <h2>📊 สต็อกคงเหลือ (สาขานี้)</h2>
+      <table>
+        <thead><tr><th>สินค้า</th><th>หมวด</th><th>คงเหลือ</th><th>จุดสั่งซื้อ</th></tr></thead>
+        <tbody id="stockTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REORDER -->
+  <div id="tab-reorder" class="tab-content hidden">
+    <div class="card">
+      <h2>⚠️ รายการต้องสั่งซื้อซ้ำ</h2>
+      <table>
+        <thead><tr><th>สินค้า</th><th>คงเหลือ</th><th>จุดสั่งซื้อ</th></tr></thead>
+        <tbody id="reorderTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRODUCT -->
+  <div id="tab-product" class="tab-content hidden">
+    <div class="card">
+      <h2>🏷️ เพิ่มสินค้าใหม่</h2>
+      <div id="prodMsg"></div>
+      <div class="row">
+        <div><label>รหัสสินค้า (SKU)</label><input id="pSku" placeholder="เช่น WSK-001"></div>
+        <div><label>ชื่อสินค้า</label><input id="pName" placeholder="เช่น Johnnie Walker Black 750ml"></div>
+      </div>
+      <div class="row">
+        <div>
+          <label>หมวดหมู่</label>
+          <select id="pCategory" onchange="toggleRegulatedHint()">
+            <option>บุหรี่</option><option>สุรา</option><option>วิสกี้</option><option>ไวน์</option><option>เบียร์</option><option>อื่นๆ</option>
+          </select>
+        </div>
+        <div><label>ประเทศผู้ผลิต</label><input id="pOrigin" placeholder="เช่น ไทย, สกอตแลนด์, ฝรั่งเศส"></div>
+      </div>
+      <div class="row">
+        <div>
+          <label>หน่วยนับย่อย</label>
+          <select id="pUnitType"><option>ขวด</option><option>ซอง</option><option>กระป๋อง</option><option>กล่อง</option></select>
+        </div>
+        <div><label>1 ลัง = กี่หน่วยย่อย</label><input id="pUnitsPerCase" type="number" value="1" placeholder="เช่น 12"></div>
+      </div>
+      <div class="row">
+        <div><label>ดีกรีแอลกอฮอล์ % (ถ้ามี)</label><input id="pAbv" type="number" step="0.1" placeholder="เช่น 40"></div>
+        <div><label>ปีผลิต/Vintage (ถ้ามี — สำหรับไวน์)</label><input id="pVintage" type="number" placeholder="เช่น 2019"></div>
+      </div>
+      <label>ผู้จัดจำหน่าย (ไม่บังคับ)</label>
+      <input id="pSupplier" placeholder="ชื่อร้าน/บริษัทที่สั่งซื้อ">
+      <div class="row">
+        <div><label>ราคาต้นทุน</label><input id="pCost" type="number" placeholder="บาท"></div>
+        <div><label>ราคาค้าส่ง</label><input id="pWholesale" type="number" placeholder="บาท"></div>
+        <div><label>ราคาค้าปลีก</label><input id="pRetail" type="number" placeholder="บาท"></div>
+      </div>
+      <label>จุดสั่งซื้อซ้ำ (แจ้งเตือนเมื่อคงเหลือน้อยกว่านี้)</label>
+      <input id="pReorder" type="number" placeholder="เช่น 5">
+      <label style="display:flex;align-items:center;gap:8px;margin-top:14px">
+        <input type="checkbox" id="pRegulated" style="width:auto"> ราคาขายปลีกกำหนดตายตัวตามกฎหมาย (ห้ามปรับเอง — ใช้กับบุหรี่)
+      </label>
+      <button class="primary block" onclick="saveProduct()">บันทึกสินค้า</button>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">รายการสินค้าทั้งหมด</h3>
+      <table><thead><tr><th>สินค้า</th><th>หมวด</th><th>ต้นทาง</th><th>ราคาขายปลีก</th></tr></thead>
+        <tbody id="productListTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BRANCH / LICENSE -->
+  <div id="tab-branch" class="tab-content hidden">
+    <div class="card">
+      <h2>🏪 เพิ่ม/แก้ไขสาขา</h2>
+      <div id="branchMsg"></div>
+      <label>ชื่อสาขา</label><input id="bName" placeholder="เช่น สาขาสีลม">
+      <label>ที่อยู่ (ไม่บังคับ)</label><input id="bAddress" placeholder="ที่อยู่สาขา">
+      <div class="row">
+        <div><label>เลขที่ใบอนุญาตขายสุรา</label><input id="bLiquorNo" placeholder="เลขที่ใบอนุญาต"></div>
+        <div><label>วันหมดอายุใบอนุญาตสุรา</label><input id="bLiquorExp" type="date"></div>
+      </div>
+      <div class="row">
+        <div><label>เลขที่ใบอนุญาตขายยาสูบ</label><input id="bTobaccoNo" placeholder="เลขที่ใบอนุญาต"></div>
+        <div><label>วันหมดอายุใบอนุญาตยาสูบ</label><input id="bTobaccoExp" type="date"></div>
+      </div>
+      <button class="primary block" onclick="saveBranch()">บันทึกสาขา</button>
+      <div class="hint">💡 ใบอนุญาตขายสุราขอต่ออายุล่วงหน้าได้ 90 วันก่อนหมดอายุ ระบบจะแจ้งเตือนอัตโนมัติเมื่อใกล้ครบกำหนด</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">สาขาทั้งหมด</h3>
+      <table><thead><tr><th>สาขา</th><th>ใบอนุญาตสุราหมดอายุ</th><th>ใบอนุญาตยาสูบหมดอายุ</th></tr></thead>
+        <tbody id="branchListTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="tab-content hidden">
+    <div class="card">
+      <h2>📈 สรุปยอด (สาขานี้)</h2>
+      <div class="stat-row">
+        <div class="stat"><div class="val" id="sumIn">-</div><div class="lbl">ยอดซื้อรวม (รับเข้า)</div></div>
+        <div class="stat"><div class="val" id="sumOut">-</div><div class="lbl">ยอดขายรวม (ขายออก)</div></div>
+        <div class="stat"><div class="val" id="sumProfit">-</div><div class="lbl">กำไรขั้นต้นโดยประมาณ</div></div>
+      </div>
+      <h3>แยกตามหมวดหมู่</h3>
+      <table><thead><tr><th>หมวด</th><th>ยอดขายออก (บาท)</th></tr></thead>
+        <tbody id="catTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- STAFF (owner only) -->
+  <div id="tab-staff" class="tab-content hidden">
+    <div class="card">
+      <h2>👥 จัดการพนักงาน</h2>
+      <div id="staffMsg"></div>
+      <table>
+        <thead><tr><th>ชื่อ</th><th>อีเมล</th><th>สถานะ</th><th>บทบาท</th><th>จัดการ</th></tr></thead>
+        <tbody id="staffTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer>ContentThai AI — ระบบสต็อกสินค้าภายใน · ข้อมูลเก็บบน Supabase</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// ใช้ Supabase Project เดียวกับ contentthaiai.online ตามที่กำหนด
+// ตารางทั้งหมดขึ้นต้นด้วย stock_ แยกจากตารางเว็บหลักชัดเจน
+// ═══════════════════════════════════════════════════════
+const SUPABASE_URL = "https://gpvhnrbhjymgeiujzbjt.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentBranch = null;
+let branches = [];
+let products = [];
+let myStaffRow = null;
+
+// ── AUTH ──
+function showAuth(which){
+  document.getElementById('atLogin').classList.toggle('active', which==='login');
+  document.getElementById('atSignup').classList.toggle('active', which==='signup');
+  document.getElementById('authLogin').classList.toggle('hidden', which!=='login');
+  document.getElementById('authSignup').classList.toggle('hidden', which!=='signup');
+  document.getElementById('authMsg').innerHTML = '';
+}
+
+async function doSignup(){
+  const msg = document.getElementById('authMsg');
+  const name = document.getElementById('suName').value.trim();
+  const email = document.getElementById('suEmail').value.trim();
+  const password = document.getElementById('suPass').value;
+  if(!name || !email || password.length < 6){
+    msg.innerHTML = '<div class="msg err">กรุณากรอกข้อมูลให้ครบ (รหัสผ่านอย่างน้อย 6 ตัวอักษร)</div>';
+    return;
+  }
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if(error){ msg.innerHTML = `<div class="msg err">สมัครไม่สำเร็จ: ${error.message}</div>`; return; }
+  const uid = data.user?.id;
+  if(uid){
+    await sb.from('stock_staff').insert({ id: uid, email, full_name: name, role: 'staff', status: 'pending' });
+  }
+  msg.innerHTML = '<div class="msg ok">สมัครสำเร็จ! กำลังเข้าสู่ระบบ...</div>';
+  setTimeout(checkSession, 800);
+}
+
+async function doLogin(){
+  const msg = document.getElementById('authMsg');
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){ msg.innerHTML = `<div class="msg err">เข้าสู่ระบบไม่สำเร็จ: ${error.message}</div>`; return; }
+  await checkSession();
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  location.reload();
+}
+
+async function checkSession(){
+  const { data } = await sb.auth.getSession();
+  if(!data.session){ return; }
+  const uid = data.session.user.id;
+  const { data: staffRow, error } = await sb.from('stock_staff').select('*').eq('id', uid).maybeSingle();
+  if(error || !staffRow){
+    document.getElementById('authBox').classList.remove('hidden');
+    document.getElementById('pendingBox').classList.add('hidden');
+    document.getElementById('app').classList.add('hidden');
+    return;
+  }
+  myStaffRow = staffRow;
+  if(staffRow.status !== 'active'){
+    document.getElementById('authBox').classList.add('hidden');
+    document.getElementById('pendingBox').classList.remove('hidden');
+    document.getElementById('app').classList.add('hidden');
+    return;
+  }
+  document.getElementById('authBox').classList.add('hidden');
+  document.getElementById('pendingBox').classList.add('hidden');
+  await initApp();
+}
+
+// ── INIT ──
+async function initApp(){
+  document.getElementById('app').classList.remove('hidden');
+  const ui = document.getElementById('userInfo');
+  ui.classList.remove('hidden');
+  ui.innerHTML = `👤 ${myStaffRow.full_name || myStaffRow.email} <span class="role-badge ${myStaffRow.role}">${myStaffRow.role==='owner'?'เจ้าของร้าน':'พนักงาน'}</span>`;
+  if(myStaffRow.role === 'owner'){
+    document.getElementById('tabBtn-staff').classList.remove('hidden');
+  }
+  await loadBranches();
+  await loadProducts();
+  showTab('tx');
+}
+
+async function loadBranches(){
+  const { data, error } = await sb.from('stock_branches').select('*').eq('is_active', true).order('name');
+  branches = data || [];
+  const sel = document.getElementById('branchSelect');
+  sel.innerHTML = '';
+  if(!branches.length){
+    sel.innerHTML = '<option value="">ยังไม่มีสาขา — ไปที่เมนู "สาขา/ใบอนุญาต" เพื่อเพิ่มสาขาแรก</option>';
+    document.getElementById('branchInfo').textContent = '';
+    return;
+  }
+  branches.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id; opt.textContent = b.name;
+    sel.appendChild(opt);
+  });
+  currentBranch = branches[0].id;
+  document.getElementById('branchInfo').textContent = 'สาขา: ' + branches[0].name;
+  fillTransferBranchSelects();
+}
+function onBranchChange(){
+  const sel = document.getElementById('branchSelect');
+  currentBranch = sel.value;
+  const b = branches.find(x => x.id === currentBranch);
+  document.getElementById('branchInfo').textContent = 'สาขา: ' + (b ? b.name : '');
+  refreshTabData(currentTabName());
+}
+function fillTransferBranchSelects(){
+  const from = document.getElementById('trFrom'), to = document.getElementById('trTo');
+  from.innerHTML = ''; to.innerHTML = '';
+  branches.forEach(b => {
+    from.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+    to.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+  });
+}
+
+async function loadProducts(){
+  const { data } = await sb.from('stock_products').select('*').eq('is_active', true).order('name_th');
+  products = data || [];
+  const sel = document.getElementById('txProduct');
+  const selTr = document.getElementById('trProduct');
+  sel.innerHTML = ''; selTr.innerHTML = '';
+  products.forEach(p => {
+    const label = `${p.name_th} (${p.category})`;
+    sel.innerHTML += `<option value="${p.id}">${label}</option>`;
+    selTr.innerHTML += `<option value="${p.id}">${label}</option>`;
+  });
+  updateTxUnitHint();
+}
+
+// ── TABS ──
+let lastTab = 'tx';
+function currentTabName(){ return lastTab; }
+function showTab(name){
+  lastTab = name;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.remove('hidden');
+  document.getElementById('tabBtn-' + name).classList.add('active');
+  refreshTabData(name);
+}
+function refreshTabData(name){
+  if(name === 'stock') loadStock();
+  if(name === 'reorder') loadReorder();
+  if(name === 'dashboard') loadDashboard();
+  if(name === 'product') loadProductList();
+  if(name === 'branch') loadBranchList();
+  if(name === 'transfer') loadPendingTransfers();
+  if(name === 'staff') loadStaffList();
+}
+
+// ── UNIT CONVERSION HINT ──
+function updateTxUnitHint(){
+  const pid = document.getElementById('txProduct').value;
+  const p = products.find(x => x.id === pid);
+  const mode = document.getElementById('txUnitMode').value;
+  const hint = document.getElementById('txUnitHint');
+  if(!p){ hint.textContent = ''; return; }
+  if(mode === 'case'){
+    hint.textContent = `1 ลัง = ${p.units_per_case || 1} ${p.unit_type || 'หน่วย'} — ระบบจะคูณให้อัตโนมัติตอนบันทึก`;
+  } else {
+    hint.textContent = `นับเป็น ${p.unit_type || 'หน่วย'}`;
+  }
+}
+
+// ── TRANSACTIONS ──
+async function saveTx(){
+  const msg = document.getElementById('txMsg');
+  const productId = document.getElementById('txProduct').value;
+  const type = document.getElementById('txType').value;
+  let qty = parseFloat(document.getElementById('txQty').value);
+  const unitMode = document.getElementById('txUnitMode').value;
+  const priceType = document.getElementById('txPriceType').value;
+  const ref = document.getElementById('txRef').value.trim();
+
+  if(!productId || !qty || qty <= 0 || !currentBranch){
+    msg.innerHTML = '<div class="msg err">กรุณาเลือกสินค้า สาขา และกรอกจำนวนให้ถูกต้อง</div>';
+    return;
+  }
+  const product = products.find(p => p.id === productId);
+  if(unitMode === 'case') qty = qty * (product?.units_per_case || 1);
+  const priceUsed = product ? (priceType === 'cost' ? product.cost_price : priceType === 'wholesale' ? product.wholesale_price : product.retail_price) : null;
+
+  const { data:{ session } } = await sb.auth.getSession();
+  const { error } = await sb.from('stock_transactions').insert({
+    product_id: productId, branch_id: currentBranch, type, quantity: qty,
+    price_used: priceUsed, price_type: priceType, ref_no: ref || null,
+    created_by: session.user.id
+  });
+  if(error){ msg.innerHTML = `<div class="msg err">บันทึกไม่สำเร็จ: ${error.message}</div>`; return; }
+  msg.innerHTML = `<div class="msg ok">บันทึกรายการสำเร็จ ✅ (${qty} ${product?.unit_type || 'หน่วย'})</div>`;
+  document.getElementById('txQty').value = '';
+  document.getElementById('txRef').value = '';
+}
+
+// ── TRANSFERS ──
+async function saveTransfer(){
+  const msg = document.getElementById('transferMsg');
+  const productId = document.getElementById('trProduct').value;
+  const from = document.getElementById('trFrom').value;
+  const to = document.getElementById('trTo').value;
+  const qty = parseFloat(document.getElementById('trQty').value);
+  const note = document.getElementById('trNote').value.trim();
+
+  if(!productId || !from || !to || from === to || !qty || qty <= 0){
+    msg.innerHTML = '<div class="msg err">กรุณาเลือกสินค้า สาขาต้นทาง-ปลายทาง (ต้องไม่ใช่สาขาเดียวกัน) และจำนวนให้ถูกต้อง</div>';
+    return;
+  }
+  const { data:{ session } } = await sb.auth.getSession();
+  const { error } = await sb.from('stock_transfers').insert({
+    product_id: productId, from_branch_id: from, to_branch_id: to,
+    quantity: qty, note: note || null, status: 'pending', created_by: session.user.id
+  });
+  if(error){ msg.innerHTML = `<div class="msg err">สร้างรายการโอนไม่สำเร็จ: ${error.message}</div>`; return; }
+  msg.innerHTML = '<div class="msg ok">สร้างรายการโอนสำเร็จ ✅ รอสาขาปลายทางกด "รับของแล้ว"</div>';
+  document.getElementById('trQty').value = ''; document.getElementById('trNote').value = '';
+  loadPendingTransfers();
+}
+async function loadPendingTransfers(){
+  const { data } = await sb.from('stock_transfers')
+    .select('id, quantity, product_id, from_branch_id, stock_products(name_th), stock_branches!stock_transfers_from_branch_id_fkey(name)')
+    .eq('to_branch_id', currentBranch).eq('status', 'pending');
+  const tbody = document.getElementById('transferPendingTable');
+  tbody.innerHTML = '';
+  if(!data || !data.length){ tbody.innerHTML = '<tr><td colspan="4">ไม่มีรายการรอรับ</td></tr>'; return; }
+  data.forEach(r => {
+    tbody.innerHTML += `<tr><td>${r.stock_products?.name_th || '-'}</td><td>${r.stock_branches?.name || '-'}</td><td>${r.quantity}</td>
+      <td><button class="ok" style="padding:6px 12px;font-size:12px" onclick="receiveTransfer('${r.id}')">✅ รับของแล้ว</button></td></tr>`;
+  });
+}
+async function receiveTransfer(id){
+  const { data:{ session } } = await sb.auth.getSession();
+  await sb.from('stock_transfers').update({ status:'received', received_by: session.user.id, received_at: new Date().toISOString() }).eq('id', id);
+  loadPendingTransfers();
+}
+
+// ── STOCK / REORDER ──
+async function loadStock(){
+  const { data, error } = await sb.from('stock_current').select('*').eq('branch_id', currentBranch);
+  const tbody = document.getElementById('stockTable');
+  tbody.innerHTML = '';
+  if(error || !data){ tbody.innerHTML = '<tr><td colspan="4">โหลดข้อมูลไม่สำเร็จ</td></tr>'; return; }
+  if(!data.length){ tbody.innerHTML = '<tr><td colspan="4">ยังไม่มีข้อมูลสต็อกในสาขานี้</td></tr>'; return; }
+  data.forEach(r => {
+    const low = r.stock_qty <= r.reorder_point;
+    tbody.innerHTML += `<tr><td>${r.name_th}</td><td>${r.category}</td>
+      <td class="${low?'low':''}">${r.stock_qty} ${r.unit_type||''}</td><td>${r.reorder_point}</td></tr>`;
+  });
+}
+async function loadReorder(){
+  const { data } = await sb.from('stock_reorder').select('*').eq('branch_id', currentBranch);
+  const tbody = document.getElementById('reorderTable');
+  tbody.innerHTML = '';
+  if(!data || !data.length){ tbody.innerHTML = '<tr><td colspan="3">ไม่มีสินค้าที่ต้องสั่งซื้อตอนนี้ 🎉</td></tr>'; return; }
+  data.forEach(r => {
+    tbody.innerHTML += `<tr><td>${r.name_th}</td><td class="low">${r.stock_qty}</td><td>${r.reorder_point}</td></tr>`;
+  });
+}
+
+// ── PRODUCT ──
+function toggleRegulatedHint(){
+  const cat = document.getElementById('pCategory').value;
+  document.getElementById('pRegulated').checked = (cat === 'บุหรี่');
+}
+async function saveProduct(){
+  const msg = document.getElementById('prodMsg');
+  const payload = {
+    sku: document.getElementById('pSku').value.trim(),
+    name_th: document.getElementById('pName').value.trim(),
+    category: document.getElementById('pCategory').value,
+    origin_country: document.getElementById('pOrigin').value.trim() || 'ไทย',
+    unit_type: document.getElementById('pUnitType').value,
+    units_per_case: parseInt(document.getElementById('pUnitsPerCase').value) || 1,
+    abv: parseFloat(document.getElementById('pAbv').value) || null,
+    vintage_year: parseInt(document.getElementById('pVintage').value) || null,
+    supplier_name: document.getElementById('pSupplier').value.trim() || null,
+    is_price_regulated: document.getElementById('pRegulated').checked,
+    cost_price: parseFloat(document.getElementById('pCost').value) || 0,
+    wholesale_price: parseFloat(document.getElementById('pWholesale').value) || 0,
+    retail_price: parseFloat(document.getElementById('pRetail').value) || 0,
+    reorder_point: parseFloat(document.getElementById('pReorder').value) || 0
+  };
+  if(!payload.sku || !payload.name_th){
+    msg.innerHTML = '<div class="msg err">กรุณากรอกรหัสสินค้าและชื่อสินค้า</div>';
+    return;
+  }
+  const { error } = await sb.from('stock_products').insert(payload);
+  if(error){ msg.innerHTML = `<div class="msg err">บันทึกไม่สำเร็จ: ${error.message}</div>`; return; }
+  msg.innerHTML = '<div class="msg ok">เพิ่มสินค้าสำเร็จ ✅</div>';
+  ['pSku','pName','pOrigin','pAbv','pVintage','pSupplier','pCost','pWholesale','pRetail','pReorder'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pUnitsPerCase').value = 1;
+  await loadProducts();
+  loadProductList();
+}
+async function loadProductList(){
+  const { data } = await sb.from('stock_products').select('*').eq('is_active', true).order('name_th');
+  const tbody = document.getElementById('productListTable');
+  tbody.innerHTML = '';
+  (data||[]).forEach(p => {
+    tbody.innerHTML += `<tr><td>${p.name_th}${p.is_price_regulated?'<span class="tag regulated">ราคาคงที่</span>':''}</td>
+      <td>${p.category}</td><td>${p.origin_country}</td><td>${(p.retail_price||0).toLocaleString()} บาท</td></tr>`;
+  });
+}
+
+// ── BRANCH ──
+async function saveBranch(){
+  const msg = document.getElementById('branchMsg');
+  const payload = {
+    name: document.getElementById('bName').value.trim(),
+    address: document.getElementById('bAddress').value.trim() || null,
+    liquor_license_no: document.getElementById('bLiquorNo').value.trim() || null,
+    liquor_license_expiry: document.getElementById('bLiquorExp').value || null,
+    tobacco_license_no: document.getElementById('bTobaccoNo').value.trim() || null,
+    tobacco_license_expiry: document.getElementById('bTobaccoExp').value || null
+  };
+  if(!payload.name){ msg.innerHTML = '<div class="msg err">กรุณากรอกชื่อสาขา</div>'; return; }
+  const { error } = await sb.from('stock_branches').insert(payload);
+  if(error){ msg.innerHTML = `<div class="msg err">บันทึกไม่สำเร็จ: ${error.message}</div>`; return; }
+  msg.innerHTML = '<div class="msg ok">บันทึกสาขาสำเร็จ ✅</div>';
+  ['bName','bAddress','bLiquorNo','bLiquorExp','bTobaccoNo','bTobaccoExp'].forEach(id => document.getElementById(id).value = '');
+  await loadBranches();
+  loadBranchList();
+}
+async function loadBranchList(){
+  const { data } = await sb.from('stock_branches').select('*').eq('is_active', true).order('name');
+  const tbody = document.getElementById('branchListTable');
+  tbody.innerHTML = '';
+  const soon = new Date(); soon.setDate(soon.getDate() + 90);
+  (data||[]).forEach(b => {
+    const liqExp = b.liquor_license_expiry ? new Date(b.liquor_license_expiry) : null;
+    const tobExp = b.tobacco_license_expiry ? new Date(b.tobacco_license_expiry) : null;
+    const liqWarn = liqExp && liqExp <= soon;
+    const tobWarn = tobExp && tobExp <= soon;
+    tbody.innerHTML += `<tr><td>${b.name}</td>
+      <td class="${liqWarn?'low':''}">${b.liquor_license_expiry || '-'}${liqWarn?' <span class="tag expiring">ใกล้หมดอายุ</span>':''}</td>
+      <td class="${tobWarn?'low':''}">${b.tobacco_license_expiry || '-'}${tobWarn?' <span class="tag expiring">ใกล้หมดอายุ</span>':''}</td></tr>`;
+  });
+}
+
+// ── DASHBOARD ──
+async function loadDashboard(){
+  const { data } = await sb.from('stock_transactions')
+    .select('type, quantity, price_used, stock_products(category)')
+    .eq('branch_id', currentBranch);
+  if(!data) return;
+  let inTotal = 0, outTotal = 0;
+  const byCat = {};
+  data.forEach(t => {
+    const amt = (t.quantity || 0) * (t.price_used || 0);
+    if(t.type === 'IN') inTotal += amt;
+    if(t.type === 'OUT'){
+      outTotal += amt;
+      const cat = t.stock_products?.category || 'อื่นๆ';
+      byCat[cat] = (byCat[cat] || 0) + amt;
+    }
+  });
+  document.getElementById('sumIn').textContent = inTotal.toLocaleString() + ' ฿';
+  document.getElementById('sumOut').textContent = outTotal.toLocaleString() + ' ฿';
+  document.getElementById('sumProfit').textContent = (outTotal - inTotal).toLocaleString() + ' ฿';
+  const catTable = document.getElementById('catTable');
+  catTable.innerHTML = '';
+  Object.entries(byCat).sort((a,b)=>b[1]-a[1]).forEach(([cat, amt]) => {
+    catTable.innerHTML += `<tr><td>${cat}</td><td>${amt.toLocaleString()} บาท</td></tr>`;
+  });
+  if(!Object.keys(byCat).length) catTable.innerHTML = '<tr><td colspan="2">ยังไม่มีข้อมูลการขาย</td></tr>';
+}
+
+// ── STAFF MANAGEMENT (owner only) ──
+async function loadStaffList(){
+  if(myStaffRow.role !== 'owner') return;
+  const { data } = await sb.from('stock_staff').select('*').order('created_at');
+  const tbody = document.getElementById('staffTable');
+  tbody.innerHTML = '';
+  (data||[]).forEach(s => {
+    let actions = '';
+    if(s.status === 'pending') actions += `<button class="ok" style="padding:5px 10px;font-size:12px" onclick="setStaffStatus('${s.id}','active')">อนุมัติ</button> `;
+    if(s.status === 'active' && s.id !== myStaffRow.id) actions += `<button class="danger" style="padding:5px 10px;font-size:12px" onclick="setStaffStatus('${s.id}','suspended')">ระงับ</button> `;
+    if(s.status === 'suspended') actions += `<button class="ok" style="padding:5px 10px;font-size:12px" onclick="setStaffStatus('${s.id}','active')">เปิดใช้อีกครั้ง</button>`;
+    tbody.innerHTML += `<tr><td>${s.full_name||'-'}</td><td>${s.email}</td>
+      <td><span class="tag ${s.status}">${s.status==='pending'?'รออนุมัติ':s.status==='active'?'ใช้งานได้':'ถูกระงับ'}</span></td>
+      <td>${s.role==='owner'?'เจ้าของร้าน':'พนักงาน'}</td><td>${actions}</td></tr>`;
+  });
+}
+async function setStaffStatus(id, status){
+  const { error } = await sb.from('stock_staff').update({ status }).eq('id', id);
+  const msg = document.getElementById('staffMsg');
+  if(error){ msg.innerHTML = `<div class="msg err">ทำรายการไม่สำเร็จ: ${error.message}</div>`; return; }
+  msg.innerHTML = '<div class="msg ok">อัปเดตสถานะสำเร็จ ✅</div>';
+  loadStaffList();
+}
+
+checkSession();
+</script>
+</body>
+</html>
