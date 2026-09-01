@@ -2,957 +2,405 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ContentThai AI — เข้าสู่ระบบ</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Kanit:wght@600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ContentThaiAI — ทำคอนเทนต์ขายของทั้งเดือน เสร็จใน 2 ชั่วโมง</title>
+<meta name="description" content="คลัง Prompt ภาษาไทยพร้อมใช้ สำหรับคนขายของออนไลน์ ก๊อป-วาง-ได้งาน ไม่ต้องเขียนโค้ด ไม่ต้องเก่ง AI เริ่มฟรี">
+<meta property="og:title" content="ทำคอนเทนต์ขายของทั้งเดือน เสร็จใน 2 ชั่วโมง">
+<meta property="og:description" content="Prompt ภาษาไทยพร้อมใช้ ก๊อป-วาง-ได้งาน เริ่มฟรีวันนี้">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ══ ROOT ══ */
-:root {
-  --bg:       #0a0f1f;
-  --s1:       #111a30;
-  --s2:       #182446;
-  --s3:       #213060;
-  --border:   rgba(247,181,0,.18);
-  --primary:  #f7b500;
-  --blue:     #2563eb;
-  --accent:   #2dd4bf;
-  --purple:   #a855f7;
-  --green:    #22c55e;
-  --red:      #ef4444;
-  --text:     #f1f5fb;
-  --muted:    #7c88a8;
-  --font:     'Sarabun', sans-serif;
-  --head:     'Kanit', sans-serif;
+:root{
+  --ink:#0F172A; --ink2:#475569; --line:#E2E8F0;
+  --bg:#FFFFFF; --soft:#F8FAFC;
+  --brand:#4F46E5; --brand2:#7C3AED; --ok:#059669; --warn:#F59E0B;
+  --r:16px; --max:1120px;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 20px 16px;
-}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans Thai',system-ui,sans-serif;color:var(--ink);
+  background:var(--bg);line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+section{padding:72px 0}
+h1{font-size:clamp(30px,5.5vw,52px);line-height:1.25;font-weight:700;letter-spacing:-.02em}
+h2{font-size:clamp(24px,3.6vw,36px);line-height:1.35;font-weight:700;margin-bottom:14px}
+h3{font-size:19px;font-weight:600;margin-bottom:8px}
+p{color:var(--ink2);font-size:17px}
+.center{text-align:center}
+.lead{font-size:19px;max-width:640px;margin:0 auto}
 
-/* ══ BACKGROUND ══ */
-.bg-grid {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image:
-    linear-gradient(rgba(247,181,0,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(247,181,0,.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
-.bg-glow-1 {
-  position: fixed; top: -200px; left: -200px;
-  width: 600px; height: 600px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(247,181,0,.12) 0%, transparent 70%);
-  z-index: 0;
-}
-.bg-glow-2 {
-  position: fixed; bottom: -150px; right: -150px;
-  width: 500px; height: 500px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(45,212,191,.08) 0%, transparent 70%);
-  z-index: 0;
-}
+/* NAV */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-weight:700;font-size:19px}
+.logo span{color:var(--brand)}
+.nav-r{display:flex;align-items:center;gap:14px}
+.link{color:var(--ink2);text-decoration:none;font-size:15px}
 
-/* ══ CARD ══ */
-.card {
-  position: relative; z-index: 1;
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 32px 28px;
-  width: 100%;
-  max-width: 440px;
-  box-shadow: 0 32px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(247,181,0,.08);
-  animation: cardIn .5s ease both;
-  margin: auto;
-}
-@media(max-height:750px){ .card{ padding:22px 22px; } }
-@media(max-width:480px){ .card{ padding:24px 18px; border-radius:18px; } }
-@keyframes cardIn {
-  from { opacity:0; transform:translateY(24px); }
-  to   { opacity:1; transform:translateY(0); }
-}
+/* BUTTONS */
+.btn{display:inline-block;padding:15px 30px;border-radius:12px;font-weight:600;
+  font-size:17px;text-decoration:none;border:0;cursor:pointer;transition:.2s;font-family:inherit}
+.btn-main{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;
+  box-shadow:0 8px 24px rgba(79,70,229,.28)}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(79,70,229,.36)}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn-sm{padding:9px 18px;font-size:15px}
+.btn-full{width:100%;text-align:center}
 
-/* ══ LOGO ══ */
-.logo {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 32px; justify-content: center;
-}
-.logo-icon {
-  width: 56px; height: 56px;
-  border-radius: 14px;
-  overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.logo-icon img {
-  width: 100%; height: 100%;
-  object-fit: contain;
-}
-.logo-text {
-  font-family: var(--head); font-weight: 900; font-size: 26px;
-  letter-spacing: -.5px; line-height: 1.1;
-}
-.logo-text span { color: var(--primary); }
+/* HERO */
+.hero{padding:64px 0 56px;background:
+  radial-gradient(900px 400px at 50% -10%,#EEF2FF 0%,transparent 70%)}
+.badge{display:inline-flex;align-items:center;gap:8px;background:#EEF2FF;color:var(--brand);
+  padding:7px 16px;border-radius:999px;font-size:14px;font-weight:500;margin-bottom:20px}
+.hero h1{max-width:900px;margin:0 auto 18px}
+.hl{background:linear-gradient(180deg,transparent 62%,#DDD6FE 62%);padding:0 4px}
+.hero-sub{font-size:19px;max-width:620px;margin:0 auto 28px}
+.cta-note{font-size:14px;color:#94A3B8;margin-top:14px}
 
-/* ══ TABS ══ */
-.tabs {
-  display: flex; gap: 4px;
-  background: var(--s2); border-radius: 12px; padding: 4px;
-  margin-bottom: 28px;
-}
-.tab {
-  flex: 1; padding: 10px; border: none; border-radius: 9px;
-  background: none; color: var(--muted);
-  font-family: var(--font); font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: .2s;
-}
-.tab.active {
-  background: var(--primary); color: white;
-  box-shadow: 0 4px 14px rgba(247,181,0,.3);
-}
+/* DEMO */
+.demo{max-width:840px;margin:48px auto 0;border:1px solid var(--line);
+  border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(15,23,42,.10);background:#fff}
+.demo-bar{background:var(--soft);padding:12px 18px;border-bottom:1px solid var(--line);
+  display:flex;gap:7px;align-items:center}
+.dot{width:11px;height:11px;border-radius:50%}
+.demo-title{margin-left:10px;font-size:13px;color:#94A3B8}
+.demo-body{display:grid;grid-template-columns:1fr 1fr;min-height:230px}
+.demo-col{padding:22px}
+.demo-col:first-child{border-left:0;background:var(--soft)}
+.demo-col+.demo-col{border-right:1px solid var(--line)}
+.demo-label{font-size:12px;font-weight:600;letter-spacing:.06em;color:#94A3B8;margin-bottom:10px}
+.demo-text{font-size:15px;color:var(--ink);white-space:pre-wrap}
+.typing::after{content:'▌';color:var(--brand);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.demo-tabs{display:flex;gap:8px;padding:14px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tab{padding:7px 15px;border-radius:999px;border:1px solid var(--line);background:#fff;
+  font-size:14px;cursor:pointer;font-family:inherit;transition:.15s}
+.tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 
-/* ══ FORM ══ */
-.form { display: none; }
-.form.active { display: block; }
-.form-group { margin-bottom: 16px; }
-.form-label {
-  display: block; font-size: 12px; color: var(--muted);
-  margin-bottom: 7px; font-family: monospace; letter-spacing: .5px;
-  text-transform: uppercase;
-}
-.form-input {
-  width: 100%;
-  background: var(--s2);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 10px;
-  padding: 12px 16px;
-  color: var(--text);
-  font-family: var(--font); font-size: 14px;
-  outline: none; transition: .2s;
-}
-.form-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(247,181,0,.1);
-}
-.form-input::placeholder { color: var(--muted); }
+/* PROOF BAR */
+.proof{background:var(--soft);padding:28px 0;border-block:1px solid var(--line)}
+.proof-g{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+.proof-n{font-size:28px;font-weight:700;color:var(--brand)}
+.proof-l{font-size:14px;color:var(--ink2)}
 
-/* ══ BTN ══ */
-.btn-submit {
-  width: 100%; padding: 14px;
-  background: linear-gradient(135deg, var(--primary), #d9822f);
-  color: white; border: none; border-radius: 12px;
-  font-family: var(--font); font-size: 15px; font-weight: 700;
-  cursor: pointer; transition: .2s; margin-top: 8px;
-  box-shadow: 0 4px 20px rgba(247,181,0,.3);
-}
-.btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(247,181,0,.4); }
-.btn-submit:active { transform: translateY(0); }
-.btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+/* GRIDS */
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:40px}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:28px;background:#fff;transition:.2s}
+.card:hover{border-color:#C7D2FE;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.ic{width:46px;height:46px;border-radius:12px;background:#EEF2FF;display:grid;
+  place-items:center;font-size:22px;margin-bottom:14px}
 
-/* ══ ALERT ══ */
-.alert {
-  border-radius: 10px; padding: 12px 16px;
-  font-size: 13px; margin-bottom: 16px; display: none;
-}
-.alert.show { display: block; }
-.alert-error { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25); color: #fca5a5; }
-.alert-success { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.25); color: #86efac; }
-.alert-info { background: rgba(247,181,0,.1); border: 1px solid rgba(247,181,0,.25); color: #fbbf7a; }
+/* STEPS */
+.step-n{width:38px;height:38px;border-radius:50%;background:var(--brand);color:#fff;
+  display:grid;place-items:center;font-weight:700;margin-bottom:14px}
 
-/* ══ DIVIDER ══ */
-.divider {
-  display: flex; align-items: center; gap: 12px;
-  color: var(--muted); font-size: 12px; margin: 20px 0;
-}
-.divider::before, .divider::after {
-  content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.08);
-}
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:32px}
+.chip{padding:9px 18px;border:1px solid var(--line);border-radius:999px;font-size:15px;background:#fff}
 
-/* ══ PACKAGE SELECTOR ══ */
-.packages { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.pkg {
-  background: var(--s2); border: 2px solid rgba(255,255,255,.07);
-  border-radius: 12px; padding: 14px; cursor: pointer; transition: .2s;
-  text-align: center;
-}
-.pkg:hover { border-color: rgba(247,181,0,.3); }
-.pkg.selected { border-color: var(--primary); background: rgba(247,181,0,.08); }
-.pkg-name { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
-.pkg-price { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: .2px; }
-.pkg-badge {
-  display: inline-block; font-size: 10px; padding: 2px 7px;
-  border-radius: 6px; margin-top: 5px; font-family: monospace;
-}
+/* FIT */
+.fit{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:40px}
+.fit-box{border-radius:var(--r);padding:28px}
+.fit-yes{background:#ECFDF5;border:1px solid #A7F3D0}
+.fit-no{background:#FEF2F2;border:1px solid #FECACA}
+.fit-box ul{list-style:none;margin-top:14px}
+.fit-box li{padding:7px 0;font-size:16px;display:flex;gap:10px}
 
-/* ══ PASSWORD TOGGLE ══ */
-.pw-wrap { position: relative; }
-.pw-wrap .form-input { padding-right: 70px; }
-.btn-pw-toggle {
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  background: var(--s3); border: 1px solid rgba(247,181,0,.25);
-  color: var(--primary); border-radius: 6px;
-  padding: 4px 10px; font-size: 12px; font-weight: 700;
-  cursor: pointer; font-family: var(--font); transition: .15s;
-  white-space: nowrap;
-}
-.btn-pw-toggle:hover { background: var(--primary); color: #fff; }
+/* PRICING */
+.price-g{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px;align-items:start}
+.pc{border:1px solid var(--line);border-radius:var(--r);padding:30px;background:#fff;position:relative}
+.pc.best{border:2px solid var(--brand);box-shadow:0 16px 44px rgba(79,70,229,.16)}
+.ribbon{position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  background:var(--brand);color:#fff;padding:5px 18px;border-radius:999px;
+  font-size:13px;font-weight:600;white-space:nowrap}
+.amt{font-size:40px;font-weight:700;margin:10px 0 4px}
+.amt small{font-size:16px;color:var(--ink2);font-weight:400}
+.was{color:#94A3B8;text-decoration:line-through;font-size:17px}
+.pc ul{list-style:none;margin:20px 0}
+.pc li{padding:7px 0;font-size:15.5px;display:flex;gap:9px;color:var(--ink2)}
+.save{display:inline-block;background:#FEF3C7;color:#92400E;padding:3px 11px;
+  border-radius:6px;font-size:13px;font-weight:600}
 
-/* ══ PKG HOT BADGE ══ */
-.pkg-hot {
-  position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
-  background: var(--accent); color: #000;
-  font-size: 9px; font-weight: 700; padding: 2px 8px;
-  border-radius: 10px; white-space: nowrap; font-family: var(--font);
-}
-.pkg { position: relative; }
+/* FAQ */
+.faq{max-width:760px;margin:36px auto 0}
+details{border-bottom:1px solid var(--line);padding:18px 0}
+summary{cursor:pointer;font-weight:600;font-size:17px;list-style:none;
+  display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';color:var(--brand);font-size:24px;line-height:1}
+details[open] summary::after{content:'−'}
+details p{margin-top:12px}
 
-/* ══ SUBTITLE ══ */
-.logo-sub {
-  text-align: center; font-size: 12px; color: var(--muted);
-  margin-top: -20px; margin-bottom: 24px; line-height: 1.6;
-}
-.logo-sub span { color: var(--primary); }
-.foot-note {
-  text-align: center; font-size: 12px; color: var(--muted);
-  margin-top: 24px; line-height: 1.8;
-}
-.foot-note a { color: var(--primary); text-decoration: none; }
+/* FINAL */
+.final{background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border-radius:24px;
+  padding:56px 32px;text-align:center;margin:0 auto;max-width:var(--max)}
+.final h2,.final p{color:#fff}
+.final p{opacity:.92}
+.final .btn-main{background:#fff;color:var(--brand);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.form{max-width:420px;margin:26px auto 0;display:grid;gap:11px}
+.form input{padding:15px 17px;border-radius:12px;border:0;font-size:16px;font-family:inherit}
+.msg{font-size:14.5px;min-height:20px}
 
-/* ══ LOADING ══ */
-.spinner {
-  width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3);
-  border-top-color: white; border-radius: 50%;
-  animation: spin .6s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+footer{padding:40px 0;border-top:1px solid var(--line);text-align:center;
+  color:#94A3B8;font-size:14.5px}
+footer a{color:var(--ink2);text-decoration:none;margin:0 10px}
 
-/* ── VIDEO HERO ── */
-.video-hero {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto 28px;
-  text-align: center;
-  padding: 0 16px;
-}
-.video-badge {
-  display: inline-block;
-  background: rgba(247,181,0,.12);
-  border: 1px solid rgba(247,181,0,.3);
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 11px;
-  color: var(--primary);
-  letter-spacing: 0.5px;
-  margin-bottom: 14px;
-}
-.video-headline {
-  font-size: clamp(22px, 5vw, 32px);
-  font-weight: 800;
-  line-height: 1.25;
-  color: var(--text);
-  margin-bottom: 10px;
-  letter-spacing: -0.5px;
-}
-.video-headline span {
-  background: linear-gradient(90deg, var(--primary), var(--blue));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.video-sub {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.7;
-  margin-bottom: 20px;
-}
-.video-stats {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-}
-.vstat { text-align: center; }
-.vstat span {
-  display: block;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--primary);
-  line-height: 1.2;
-}
-.vstat small {
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 0.3px;
-}
-.vstat-div {
-  width: 1px;
-  height: 32px;
-  background: rgba(255,255,255,.1);
-}
-.video-stats-top {
-  margin-bottom: 18px;
-  padding: 10px 14px;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 12px;
-}
-.video-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 9/16;
-  max-height: 420px;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 20px 60px rgba(0,0,0,.5);
-  margin-bottom: 16px;
-  cursor: pointer;
-  background: #000;
-}
-.video-thumb {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: center 20%;
-}
-.video-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 100%);
-}
-.play-btn {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
-  width: 64px; height: 64px; border-radius: 50%;
-  background: rgba(247,181,0,.9);
-  border: 3px solid rgba(255,255,255,.9);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 8px 28px rgba(247,181,0,.5);
-  transition: transform .2s;
-}
-.video-wrap:hover .play-btn { transform: translate(-50%,-50%) scale(1.08); }
-.play-btn svg { margin-left: 3px; }
-.video-caption {
-  position: absolute; bottom: 12px; left: 0; right: 0;
-  text-align: center; font-size: 12px; font-weight: 600;
-  color: #fff; letter-spacing: .3px;
-}
-.video-wrap iframe {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  border: none;
-}
-.btn-free {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(90deg, var(--primary), #e07a3f);
-  color: #fff;
-  text-decoration: none;
-  border-radius: 12px;
-  padding: 14px 28px;
-  font-size: 15px;
-  font-weight: 700;
-  font-family: var(--font);
-  margin-bottom: 28px;
-  transition: all .2s;
-  box-shadow: 0 8px 24px rgba(247,181,0,.35);
-  letter-spacing: .2px;
-}
-.btn-free:hover {
-  opacity: .9;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(247,181,0,.45);
-}
-.btn-free-secondary {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  background: linear-gradient(90deg, var(--primary), #ef4444);
-  box-shadow: 0 8px 24px rgba(45,212,191,.3);
-  margin-bottom: 16px;
-}
-.btn-ikigai {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: transparent;
-  color: var(--muted);
-  text-decoration: none;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 12px;
-  padding: 11px 22px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font);
-  margin-bottom: 28px;
-  margin-top: -16px;
-  transition: all .2s;
-}
-.btn-ikigai:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(45,212,191,.06);
-}
-.btn-ikigai .ik-emoji { font-size: 15px; }
-
-/* ══ LANG TOGGLE ══ */
-.lang-toggle {
-  position: fixed; top: 14px; right: 14px; z-index: 5;
-  display: flex; background: var(--s1);
-  border: 1px solid var(--border); border-radius: 20px;
-  padding: 3px; gap: 2px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.4);
-}
-.lang-btn {
-  border: none; background: none; cursor: pointer;
-  font-family: var(--font); font-size: 12px; font-weight: 700;
-  color: var(--muted); padding: 6px 12px; border-radius: 16px;
-  transition: .2s;
-}
-.lang-btn.active { background: var(--primary); color: #fff; }
-@media(max-width:480px){
-  .lang-toggle{ top: 10px; right: 10px; }
-  .lang-btn{ padding:5px 10px; font-size:11px; }
+/* MOBILE */
+@media(max-width:820px){
+  section{padding:52px 0}
+  .g3,.g2,.price-g,.fit,.demo-body{grid-template-columns:1fr}
+  .proof-g{grid-template-columns:repeat(2,1fr);gap:22px}
+  .demo-col+.demo-col{border-right:0;border-top:1px solid var(--line)}
+  .nav .link{display:none}
+  body{font-size:16.5px}
+  .btn{width:100%;text-align:center}
+  .nav-r .btn{width:auto}
 }
 </style>
 </head>
 <body>
-<div class="bg-grid"></div>
-<div class="bg-glow-1"></div>
-<div class="bg-glow-2"></div>
 
-<div class="lang-toggle">
-  <button class="lang-btn active" id="lang-th" onclick="setLang('th')">TH</button>
-  <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
-</div>
+<nav><div class="wrap nav">
+  <div class="logo">Content<span>ThaiAI</span></div>
+  <div class="nav-r">
+    <a class="link" href="#how">วิธีใช้</a>
+    <a class="link" href="#price">ราคา</a>
+    <a class="btn btn-ghost btn-sm" href="#start">เข้าสู่ระบบ</a>
+  </div>
+</div></nav>
 
-<!-- VIDEO HERO SECTION -->
-<div class="video-hero">
-  <div class="video-hero-text">
-    <div class="video-badge" data-i18n="badge">🤖 AI สำหรับคนไทย — ไม่ต้องเขียนโค้ด</div>
-    <h1 class="video-headline" data-i18n-html="headline">สร้างคอนเทนต์ง่าย<br><span>ขายดีขึ้นจริง</span></h1>
-    <p class="video-sub" data-i18n-html="headsub">Prompt AI พร้อมใช้ 1,000 ข้อ ครบทุกธุรกิจ<br>แค่ก็อปไปวาง — ได้ผลลัพธ์ทันที</p>
+<!-- 1. HERO : ปุ่มเดียว -->
+<header class="hero"><div class="wrap center">
+  <div class="badge">🎉 ราคาผู้ก่อตั้ง — เหลือ 47 จาก 50 สิทธิ์</div>
+  <h1>ทำคอนเทนต์ขายของ<br><span class="hl">ทั้งเดือน เสร็จใน 2 ชั่วโมง</span></h1>
+  <p class="hero-sub">ไม่ต้องนั่งคิดแคปชั่นเอง ไม่ต้องเก่ง AI<br>
+     เลือกหัวข้อ → ก๊อป → วาง → ได้โพสต์พร้อมลงทันที</p>
+  <a class="btn btn-main" href="#start">เริ่มใช้ฟรี ไม่ต้องใช้บัตร →</a>
+  <div class="cta-note">ใช้ได้ทันทีใน 30 วินาที · ยกเลิกเมื่อไหร่ก็ได้</div>
 
-    <div class="video-stats video-stats-top">
-      <div class="vstat"><span>1,000+</span><small data-i18n="stat1">Prompt พร้อมใช้</small></div>
-      <div class="vstat-div"></div>
-      <div class="vstat"><span>10</span><small data-i18n="stat2">หมวดหมู่</small></div>
-      <div class="vstat-div"></div>
-      <div class="vstat"><span data-i18n="stat3num">ฟรี 7 วัน</span><small data-i18n="stat3">ไม่ต้องใช้บัตรเครดิต</small></div>
+  <!-- DEMO สด -->
+  <div class="demo">
+    <div class="demo-bar">
+      <span class="dot" style="background:#FF5F57"></span>
+      <span class="dot" style="background:#FEBC2E"></span>
+      <span class="dot" style="background:#28C840"></span>
+      <span class="demo-title">ลองกดดูของจริง ↓</span>
     </div>
-
-    <a href="#form-register" class="btn-free" data-i18n="ctafree" onclick="document.querySelector('.tab:last-child').click()">
-      🎁 ทดลองฟรี 7 วัน — ไม่ต้องใช้บัตรเครดิต →
-    </a>
-  </div>
-
-  <!-- Lazy-load video: โหลดเฉพาะรูปปกก่อน กด Play ถึงจะโหลด iframe จริง -->
-  <div class="video-wrap" id="video-wrap" onclick="loadVideo()">
-    <img class="video-thumb" src="https://img.youtube.com/vi/VeyoT5QANuU/hqdefault.jpg" alt="ContentThai AI demo" loading="lazy">
-    <div class="video-overlay"></div>
-    <button class="play-btn" aria-label="Play video" type="button">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-    <div class="video-caption" data-i18n="videocaption">▶ ดูตัวอย่างการใช้งานจริง 45 วิ</div>
-  </div>
-
-  <a href="#form-register" class="btn-free btn-free-secondary" data-i18n="ctafree2" onclick="document.querySelector('.tab:last-child').click()">
-    ✨ อยากได้ผลแบบนี้บ้าง — เริ่มฟรีเลย →
-  </a>
-
-  <div>
-    <a href="IKIGAI_Starter.html" class="btn-ikigai">
-      <span class="ik-emoji">🧭</span> <span data-i18n="ikigai">ยังไม่รู้จะเริ่มยังไง? หา Niche ของคุณก่อน (ฟรี)</span>
-    </a>
-  </div>
-</div>
-
-<div class="card">
-  <div class="logo">
-    <div class="logo-icon">
-      <img src="logo.png" alt="ContentThai AI Logo">
-    </div>
-    <div class="logo-text">ContentThai <span>AI</span></div>
-  </div>
-  <div class="logo-sub" data-i18n-html="logosub">ใช้ AI ให้ชีวิตและงานดีขึ้น — <span>ไม่ต้องเขียนโค้ด</span></div>
-
-  <div class="tabs">
-    <button class="tab active" data-i18n="tablogin" onclick="switchTab('login')">เข้าสู่ระบบ</button>
-    <button class="tab" data-i18n="tabregister" onclick="switchTab('register')">สมัครสมาชิก</button>
-  </div>
-
-  <!-- ALERT -->
-  <div class="alert" id="alertBox"></div>
-
-  <!-- LOGIN FORM -->
-  <div class="form active" id="form-login">
-    <div class="form-group">
-      <label class="form-label" data-i18n="labelemail">อีเมล</label>
-      <input class="form-input" id="login-email" type="email" placeholder="your@email.com">
-    </div>
-    <div class="form-group">
-      <label class="form-label" data-i18n="labelpw">รหัสผ่าน</label>
-      <div class="pw-wrap">
-        <input class="form-input" id="login-password" type="password" placeholder="••••••••">
-        <button class="btn-pw-toggle" type="button" data-i18n="pwshow" onclick="togglePw('login-password',this)">แสดง</button>
+    <div class="demo-body">
+      <div class="demo-col">
+        <div class="demo-label">คุณกดปุ่มเดียว</div>
+        <div class="demo-text" id="dIn"></div>
+      </div>
+      <div class="demo-col">
+        <div class="demo-label">ได้งานทันที</div>
+        <div class="demo-text typing" id="dOut"></div>
       </div>
     </div>
-    <button class="btn-submit" id="btn-login" data-i18n="btnlogin" onclick="doLogin()">เข้าสู่ระบบ</button>
-    <div class="divider" data-i18n="or">หรือ</div>
-    <button class="btn-submit" style="background:linear-gradient(135deg,#1c2540,#131a2e);box-shadow:none;border:1px solid rgba(255,255,255,.1)" data-i18n="forgotlink" onclick="switchTab('forgot')">
-      ลืมรหัสผ่าน?
-    </button>
+    <div class="demo-tabs" id="tabs"></div>
   </div>
+</div></header>
 
-  <!-- REGISTER FORM -->
-  <div class="form" id="form-register">
-    <div class="form-group">
-      <label class="form-label" data-i18n="labelname">ชื่อ-นามสกุล</label>
-      <input class="form-input" id="reg-name" type="text" placeholder="ชื่อของคุณ" data-i18n-placeholder="phname">
-    </div>
-    <div class="form-group">
-      <label class="form-label" data-i18n="labelemail">อีเมล</label>
-      <input class="form-input" id="reg-email" type="email" placeholder="your@email.com">
-    </div>
-    <div class="form-group">
-      <label class="form-label" data-i18n="labelpw8">รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)</label>
-      <div class="pw-wrap">
-        <input class="form-input" id="reg-password" type="password" placeholder="••••••••">
-        <button class="btn-pw-toggle" type="button" data-i18n="pwshow" onclick="togglePw('reg-password',this)">แสดง</button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" data-i18n="labelpkg">เลือกแพ็กเกจที่สนใจ</label>
-      <div class="packages">
-        <div class="pkg selected" onclick="selectPkg(this,'free')" data-pkg="free">
-          <span class="pkg-hot" data-i18n="pkgstart">⭐ เริ่มต้นที่นี่</span>
-          <div class="pkg-name" data-i18n="pkgfreename">ทดลองฟรี</div>
-          <div class="pkg-price" data-i18n="pkgfreeprice">7 วัน ไม่มีค่าใช้จ่าย</div>
-          <span class="pkg-badge" style="background:rgba(107,127,163,.2);color:var(--muted)" data-i18n="pkgfreebadge">3 Templates</span>
-        </div>
-        <div class="pkg" onclick="selectPkg(this,'monthly')" data-pkg="monthly">
-          <div class="pkg-name" data-i18n="pkgmonthname">รายเดือน</div>
-          <div class="pkg-price">฿199/เดือน</div>
-          <span class="pkg-badge" style="background:rgba(247,181,0,.15);color:var(--primary)" data-i18n="pkgmonthbadge">ลดแรกเข้า</span>
-        </div>
-        <div class="pkg" onclick="selectPkg(this,'yearly')" data-pkg="yearly">
-          <div class="pkg-name" data-i18n="pkgyearname">รายปี</div>
-          <div class="pkg-price">฿1,490/ปี</div>
-          <span class="pkg-badge" style="background:rgba(45,212,191,.15);color:var(--accent)" data-i18n="pkgyearbadge">Best Deal</span>
-        </div>
-        <div class="pkg" onclick="selectPkg(this,'lifetime')" data-pkg="lifetime">
-          <div class="pkg-name" data-i18n="pkglifename">ตลอดชีพ</div>
-          <div class="pkg-price">฿4,990 ครั้งเดียว</div>
-          <span class="pkg-badge" style="background:rgba(34,197,94,.15);color:var(--green)" data-i18n="pkglifebadge">Best Value</span>
-        </div>
-      </div>
-    </div>
-    <button class="btn-submit" id="btn-register" data-i18n="btnregister" onclick="doRegister()">สมัครสมาชิกฟรี →</button>
-    <div class="foot-note">
-      <span data-i18n="approvenote">Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง</span><br>
-      <span style="color:var(--primary)" data-i18n="nocard">ไม่ต้องใช้บัตรเครดิต</span> <span data-i18n="fortrial">สำหรับแพ็กเกจทดลอง</span>
-    </div>
+<!-- 2. PROOF -->
+<div class="proof"><div class="wrap"><div class="proof-g">
+  <div><div class="proof-n">1,000+</div><div class="proof-l">Prompt ภาษาไทย</div></div>
+  <div><div class="proof-n">10</div><div class="proof-l">หมวดธุรกิจ</div></div>
+  <div><div class="proof-n">30 วิ</div><div class="proof-l">จากเปิดถึงได้งาน</div></div>
+  <div><div class="proof-n">0 ฿</div><div class="proof-l">เริ่มต้นฟรี</div></div>
+</div></div></div>
+
+<!-- 3. ปัญหา -->
+<section><div class="wrap">
+  <div class="center"><h2>ถ้าคุณเคยเป็นแบบนี้ — เรารู้จักคุณ</h2>
+  <p class="lead">ปัญหาไม่ใช่คุณขี้เกียจ แต่คือ "การคิดคอนเทนต์" มันกินเวลามากเกินไป</p></div>
+  <div class="g3">
+    <div class="card"><div class="ic">😵</div><h3>นั่งจ้องจอ 40 นาที</h3>
+      <p>เปิดหน้าโพสต์ทิ้งไว้ พิมพ์ไปลบไป สุดท้ายปิดไปเฉย ๆ แล้วบอกตัวเองว่าพรุ่งนี้ค่อยทำ</p></div>
+    <div class="card"><div class="ic">🌀</div><h3>ถาม AI แล้วได้งานกลาง ๆ</h3>
+      <p>พิมพ์ว่า "ช่วยเขียนแคปชั่นขายเสื้อ" แล้วได้ข้อความแข็ง ๆ ที่ดูออกว่าไม่ใช่คนเขียน</p></div>
+    <div class="card"><div class="ic">📉</div><h3>โพสต์ไม่สม่ำเสมอ</h3>
+      <p>ขยันได้ 3 วันแล้วหาย ลูกค้าลืมร้าน ยอดตกทุกครั้งที่หยุดโพสต์</p></div>
   </div>
+</div></section>
 
-  <!-- FORGOT PASSWORD FORM -->
-  <div class="form" id="form-forgot">
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:32px;margin-bottom:8px">🔑</div>
-      <div style="font-size:15px;font-weight:700" data-i18n="resetpw">รีเซ็ตรหัสผ่าน</div>
-      <div style="font-size:13px;color:var(--muted);margin-top:4px" data-i18n="resetsub">ระบบจะส่งลิงก์ไปยังอีเมลของคุณ</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" data-i18n="labelemail">อีเมล</label>
-      <input class="form-input" id="forgot-email" type="email" placeholder="your@email.com">
-    </div>
-    <button class="btn-submit" data-i18n="sendreset" onclick="doForgot()">ส่งลิงก์รีเซ็ต</button>
-    <div class="divider"></div>
-    <button class="btn-submit" style="background:transparent;box-shadow:none;border:1px solid rgba(255,255,255,.1);color:var(--muted)" data-i18n="backtologin" onclick="switchTab('login')">
-      ← กลับไปหน้า Login
-    </button>
+<!-- 4. ทางออก 3 ขั้น -->
+<section id="how" style="background:var(--soft)"><div class="wrap">
+  <div class="center"><h2>ใช้ยากไหม? ง่ายกว่าสั่งข้าวออนไลน์</h2>
+  <p class="lead">ไม่ต้องเรียน ไม่ต้องตั้งค่า ไม่ต้องเขียนโค้ด</p></div>
+  <div class="g3">
+    <div class="card"><div class="step-n">1</div><h3>เลือกสิ่งที่อยากได้</h3>
+      <p>เช่น "แคปชั่นขายของ" หรือ "แผนโพสต์ 7 วัน" — คลิกเดียว</p></div>
+    <div class="card"><div class="step-n">2</div><h3>กดปุ่มเปิด AI</h3>
+      <p>ระบบก๊อป Prompt ให้อัตโนมัติ แล้วเปิด ChatGPT/Claude ให้เลย แค่วาง</p></div>
+    <div class="card"><div class="step-n">3</div><h3>ได้งานพร้อมลง</h3>
+      <p>ปรับชื่อร้าน ชื่อสินค้า แล้วโพสต์ได้ทันที ไม่ต้องแก้เยอะ</p></div>
   </div>
+</div></section>
 
-  <div class="foot-note" style="margin-top:16px" data-i18n-html="sslnote">
-    ContentThai AI · ข้อมูลปลอดภัยด้วย <a href="#">256-bit SSL</a>
+<!-- 5. หมวดหมู่ -->
+<section><div class="wrap center">
+  <h2>ครอบคลุมทุกอย่างที่คนขายของต้องใช้</h2>
+  <p class="lead">เลือกหมวดที่ตรงกับร้านคุณ แล้วใช้ได้เลย</p>
+  <div class="chips">
+    <span class="chip">📱 แคปชั่นขายของ</span><span class="chip">🎬 สคริปต์ TikTok</span>
+    <span class="chip">📅 แผนคอนเทนต์ 30 วัน</span><span class="chip">✍️ บทความ SEO</span>
+    <span class="chip">📧 อีเมลตามลูกค้า</span><span class="chip">🖼️ Prompt สร้างภาพ</span>
+    <span class="chip">💬 ตอบแชทลูกค้า</span><span class="chip">📊 วิเคราะห์คู่แข่ง</span>
+    <span class="chip">🎯 ข้อความยิงแอด</span><span class="chip">🛒 หน้าขายสินค้า</span>
   </div>
-  <div id="logout-bar" style="display:none;text-align:center;margin-top:12px">
-    <span style="font-size:12px;color:var(--muted)" data-i18n="sessionleft">มี Session ค้างอยู่ — </span>
-    <a href="index.html?logout=true" style="font-size:12px;color:var(--red);cursor:pointer" data-i18n="clearsession">ล้าง Session และ Login ใหม่</a>
+</div></section>
+
+<!-- 6. เหมาะกับใคร -->
+<section style="background:var(--soft)"><div class="wrap">
+  <div class="center"><h2>เว็บนี้เหมาะกับคุณไหม</h2>
+  <p class="lead">เราอยากให้คุณได้ผลจริง เลยขอบอกตรง ๆ</p></div>
+  <div class="fit">
+    <div class="fit-box fit-yes"><h3>✅ ใช่เลย ถ้าคุณ…</h3><ul>
+      <li>✓<span>ขายของออนไลน์ แล้วต้องโพสต์เองทุกวัน</span></li>
+      <li>✓<span>เคยลองใช้ AI แล้วรู้สึกว่า "สั่งไม่เป็น"</span></li>
+      <li>✓<span>อยากประหยัดเวลา มากกว่าอยากเก่งเทคโนโลยี</span></li>
+      <li>✓<span>ทำคนเดียว ไม่มีงบจ้างคนทำคอนเทนต์</span></li>
+    </ul></div>
+    <div class="fit-box fit-no"><h3>✕ ยังไม่ใช่ ถ้าคุณ…</h3><ul>
+      <li>✕<span>อยากได้ระบบเขียนโพสต์อัตโนมัติ 100% ไม่แตะเลย</span></li>
+      <li>✕<span>เป็นสาย Prompt Engineer ที่เขียนเองได้อยู่แล้ว</span></li>
+      <li>✕<span>ต้องการคอนเทนต์เฉพาะทางลึกมาก เช่น กฎหมาย/การแพทย์</span></li>
+    </ul></div>
   </div>
-</div>
+</div></section>
 
-<script>
-// ══════════════════════════════════════════
-// ⚙️ CONFIG — แก้ค่านี้หลังสมัคร Supabase
-// ══════════════════════════════════════════
-const SUPABASE_URL = 'https://gpvhnrbhjymgeiujzbjt.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdmhucmJoanltZ2VpdWp6Ymp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjQ3NzEsImV4cCI6MjA5NDI0MDc3MX0.WWKNvrsJiOLtmBL33ze56rkJjL4yMcIBFPPez3A_D8s';
-// ══════════════════════════════════════════
+<!-- 7. ราคา -->
+<section id="price"><div class="wrap">
+  <div class="center"><h2>ราคาชัดเจน ไม่มีค่าซ่อน</h2>
+  <p class="lead">เริ่มฟรีก่อนได้ ชอบแล้วค่อยอัปเกรด</p></div>
+  <div class="price-g">
+    <div class="pc"><h3>ทดลองฟรี</h3>
+      <div class="amt">฿0</div>
+      <p style="font-size:15px">ใช้ได้ตลอด ไม่หมดอายุ</p>
+      <ul><li>✓ 3 Template ยอดนิยม</li><li>✓ ตัวช่วยหา Niche</li>
+          <li>✓ ไม่ต้องใช้บัตรเครดิต</li></ul>
+      <a class="btn btn-ghost btn-full" href="#start">เริ่มฟรี</a></div>
 
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <div class="pc best"><div class="ribbon">🔥 คนเลือกมากที่สุด</div>
+      <h3>ตลอดชีพ</h3>
+      <div><span class="was">฿4,990</span> <span class="save">ประหยัด 60%</span></div>
+      <div class="amt">฿1,990 <small>จ่ายครั้งเดียว</small></div>
+      <p style="font-size:15px">ราคาผู้ก่อตั้ง 50 คนแรกเท่านั้น</p>
+      <ul><li>✓ ครบทุกอย่างตลอดไป</li><li>✓ ของใหม่ทุกเดือน ไม่จ่ายเพิ่ม</li>
+          <li>✓ คลัง 1,000 Prompt เต็มระบบ</li><li>✓ ทักถามผู้พัฒนาได้โดยตรง</li></ul>
+      <a class="btn btn-main btn-full" href="#start">รับสิทธิ์ผู้ก่อตั้ง</a></div>
 
-// ══════════════════════════════════════════
-// 🌐 I18N — ระบบสองภาษา (TH/EN)
-// ══════════════════════════════════════════
-const I18N = {
-  badge:      { th: '🤖 AI สำหรับคนไทย — ไม่ต้องเขียนโค้ด', en: '🤖 AI for Thai businesses — no coding needed' },
-  headline:   { th: 'สร้างคอนเทนต์ง่าย<br><span>ขายดีขึ้นจริง</span>', en: 'Create content easily<br><span>Sell more, for real</span>' },
-  headsub:    { th: 'Prompt AI พร้อมใช้ 1,000 ข้อ ครบทุกธุรกิจ<br>แค่ก็อปไปวาง — ได้ผลลัพธ์ทันที', en: '1,000 ready-to-use AI prompts for every business<br>Just copy & paste — get results instantly' },
-  stat1:      { th: 'Prompt พร้อมใช้', en: 'Ready prompts' },
-  stat2:      { th: 'หมวดหมู่', en: 'Categories' },
-  stat3num:   { th: 'ฟรี 7 วัน', en: '7 days free' },
-  stat3:      { th: 'ไม่ต้องใช้บัตรเครดิต', en: 'No credit card' },
-  ctafree:    { th: '🎁 ทดลองฟรี 7 วัน — ไม่ต้องใช้บัตรเครดิต →', en: '🎁 Try free for 7 days — no credit card →' },
-  ctafree2:   { th: '✨ อยากได้ผลแบบนี้บ้าง — เริ่มฟรีเลย →', en: '✨ Want results like this — start free now →' },
-  videocaption:{ th: '▶ ดูตัวอย่างการใช้งานจริง 45 วิ', en: '▶ Watch a 45-sec real demo' },
-  ikigai:     { th: 'ยังไม่รู้จะเริ่มยังไง? หา Niche ของคุณก่อน (ฟรี)', en: "Not sure where to start? Find your niche first (free)" },
-  logosub:    { th: 'ใช้ AI ให้ชีวิตและงานดีขึ้น — <span>ไม่ต้องเขียนโค้ด</span>', en: 'Make AI work for you — <span>no coding needed</span>' },
-  tablogin:   { th: 'เข้าสู่ระบบ', en: 'Log in' },
-  tabregister:{ th: 'สมัครสมาชิก', en: 'Sign up' },
-  labelemail: { th: 'อีเมล', en: 'Email' },
-  labelpw:    { th: 'รหัสผ่าน', en: 'Password' },
-  labelpw8:   { th: 'รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)', en: 'Password (min. 8 characters)' },
-  labelname:  { th: 'ชื่อ-นามสกุล', en: 'Full name' },
-  phname:     { th: 'ชื่อของคุณ', en: 'Your name' },
-  pwshow:     { th: 'แสดง', en: 'Show' },
-  pwhide:     { th: 'ซ่อน', en: 'Hide' },
-  btnlogin:   { th: 'เข้าสู่ระบบ', en: 'Log in' },
-  or:         { th: 'หรือ', en: 'or' },
-  forgotlink: { th: 'ลืมรหัสผ่าน?', en: 'Forgot password?' },
-  labelpkg:   { th: 'เลือกแพ็กเกจที่สนใจ', en: 'Choose a package' },
-  pkgstart:   { th: '⭐ เริ่มต้นที่นี่', en: '⭐ Start here' },
-  pkgfreename:{ th: 'ทดลองฟรี', en: 'Free trial' },
-  pkgfreeprice:{ th: '7 วัน ไม่มีค่าใช้จ่าย', en: '7 days, no charge' },
-  pkgfreebadge:{ th: '3 Templates', en: '3 Templates' },
-  pkgmonthname:{ th: 'รายเดือน', en: 'Monthly' },
-  pkgmonthbadge:{ th: 'ลดแรกเข้า', en: 'Intro discount' },
-  pkgyearname:{ th: 'รายปี', en: 'Yearly' },
-  pkgyearbadge:{ th: 'Best Deal', en: 'Best Deal' },
-  pkglifename:{ th: 'ตลอดชีพ', en: 'Lifetime' },
-  pkglifebadge:{ th: 'Best Value', en: 'Best Value' },
-  btnregister:{ th: 'สมัครสมาชิกฟรี →', en: 'Sign up free →' },
-  approvenote:{ th: 'Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง', en: 'Admin will approve your account within 24 hours' },
-  nocard:     { th: 'ไม่ต้องใช้บัตรเครดิต', en: 'No credit card needed' },
-  fortrial:   { th: 'สำหรับแพ็กเกจทดลอง', en: 'for the trial package' },
-  resetpw:    { th: 'รีเซ็ตรหัสผ่าน', en: 'Reset password' },
-  resetsub:   { th: 'ระบบจะส่งลิงก์ไปยังอีเมลของคุณ', en: "We'll send a link to your email" },
-  sendreset:  { th: 'ส่งลิงก์รีเซ็ต', en: 'Send reset link' },
-  backtologin:{ th: '← กลับไปหน้า Login', en: '← Back to login' },
-  sslnote:    { th: 'ContentThai AI · ข้อมูลปลอดภัยด้วย <a href="#">256-bit SSL</a>', en: 'ContentThai AI · Secured with <a href="#">256-bit SSL</a>' },
-  sessionleft:{ th: 'มี Session ค้างอยู่ — ', en: 'Active session found — ' },
-  clearsession:{ th: 'ล้าง Session และ Login ใหม่', en: 'Clear session & log in again' },
-  loading:    { th: 'กำลังดำเนินการ...', en: 'Processing...' },
-  err_fillboth:{ th: 'กรุณากรอกอีเมลและรหัสผ่าน', en: 'Please enter your email and password' },
-  err_invalidlogin:{ th: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง', en: 'Incorrect email or password' },
-  info_pending:{ th: '⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', en: '⏳ Your account is awaiting admin approval. Please check your email for updates.' },
-  err_rejected:{ th: '❌ บัญชีของคุณไม่ได้รับการอนุมัติ กรุณาติดต่อ Admin', en: '❌ Your account was not approved. Please contact admin.' },
-  err_name:   { th: 'กรุณาใส่ชื่อ-นามสกุล', en: 'Please enter your full name' },
-  err_email:  { th: 'กรุณาใส่อีเมล', en: 'Please enter your email' },
-  err_pwlen:  { th: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', en: 'Password must be at least 8 characters' },
-  err_emailexists:{ th: 'อีเมลนี้มีบัญชีอยู่แล้ว', en: 'This email is already registered' },
-  success_register:{ th: '✅ สมัครสำเร็จ! ระบบจะส่งอีเมลยืนยัน และ Admin จะอนุมัติสิทธิ์ภายใน 24 ชั่วโมง', en: '✅ Registration successful! Check your email to confirm — admin will approve your account within 24 hours.' },
-  success_register_free:{ th: '✅ สมัครสำเร็จ! กรุณายืนยันอีเมลที่เราส่งไป จากนั้นเข้าสู่ระบบได้ทันที — ไม่ต้องรอ Admin', en: '✅ Registered! Please confirm your email, then log in right away — no admin wait needed.' },
-  success_forgot:{ th: '✅ ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว กรุณาตรวจสอบ Inbox', en: '✅ Reset link sent to your email. Please check your inbox.' },
-  guard_no_session:{ th: 'กรุณาเข้าสู่ระบบก่อนเข้าใช้งานเนื้อหานี้', en: 'Please log in to access this content' },
-  guard_not_approved:{ th: '⏳ บัญชีของคุณยังรออนุมัติจาก Admin กรุณารอการแจ้งเตือนทางอีเมล', en: '⏳ Your account is awaiting admin approval. Please check your email.' },
-  guard_upgrade:{ th: '🔒 เนื้อหานี้สำหรับแพ็กเกจรายเดือน/รายปี/ตลอดชีพเท่านั้น — อัปเกรดเพื่อปลดล็อกทันที', en: '🔒 This content is for Monthly/Yearly/Lifetime members only — upgrade to unlock instantly' },
-  guard_error:{ th: '⚠️ เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์ กรุณาเข้าสู่ระบบอีกครั้ง', en: '⚠️ There was a problem verifying your access. Please log in again.' },
-  guard_expired:{ th: '⏰ แพ็กเกจของคุณหมดอายุแล้ว — กรุณาต่ออายุเพื่อใช้งานต่อ', en: '⏰ Your package has expired — please renew to continue using it' },
-  pagetitle:  { th: 'ContentThai AI — เข้าสู่ระบบ', en: 'ContentThai AI — Log in' }
-};
+    <div class="pc"><h3>รายเดือน</h3>
+      <div class="amt">฿199 <small>/เดือน</small></div>
+      <p style="font-size:15px">ยกเลิกได้ทุกเมื่อ</p>
+      <ul><li>✓ ครบทุก Template</li><li>✓ คลัง 1,000 Prompt</li>
+          <li>✓ ของใหม่ทุกเดือน</li></ul>
+      <a class="btn btn-ghost btn-full" href="#start">เลือกรายเดือน</a></div>
+  </div>
+</div></section>
 
-let currentLang = localStorage.getItem('cta_lang') || 'th';
+<!-- 8. FAQ -->
+<section style="background:var(--soft)"><div class="wrap">
+  <div class="center"><h2>คำถามที่เจอบ่อย</h2></div>
+  <div class="faq">
+    <details open><summary>ไม่เก่งคอมพิวเตอร์เลย ใช้ได้ไหม</summary>
+      <p>ได้ครับ ถ้าใช้ LINE หรือ Facebook เป็น ก็ใช้เว็บนี้เป็น มีแค่ 3 ขั้น คือ เลือก → กด → วาง ไม่มีการตั้งค่าอะไรทั้งนั้น</p></details>
+    <details><summary>ต้องเสียค่า ChatGPT เพิ่มไหม</summary>
+      <p>ไม่ต้องครับ ใช้ ChatGPT หรือ Claude เวอร์ชันฟรีก็ได้ Prompt ของเราออกแบบมาให้ทำงานได้ดีกับเวอร์ชันฟรี</p></details>
+    <details><summary>ต่างจากการหา Prompt ฟรีในเฟซบุ๊กยังไง</summary>
+      <p>Prompt ฟรีทั่วไปเป็นภาษาอังกฤษ แปลไทยแล้วเพี้ยน และไม่ได้เขียนสำหรับตลาดไทย ของเราเขียนภาษาไทย ทดสอบกับสินค้าไทยจริง และจัดหมวดให้หาเจอใน 10 วินาที</p></details>
+    <details><summary>ซื้อตลอดชีพแล้ว เว็บปิดจะทำยังไง</summary>
+      <p>คำถามที่ดีมากครับ ผู้ซื้อตลอดชีพทุกคนดาวน์โหลด Prompt ทั้งหมดเก็บเป็นไฟล์ได้ตลอดเวลา ต่อให้เว็บหยุดให้บริการ ของที่คุณซื้อยังอยู่กับคุณ</p></details>
+    <details><summary>ยกเลิกยากไหม</summary>
+      <p>กดยกเลิกในหน้าโปรไฟล์ได้เอง ไม่ต้องโทร ไม่ต้องทักหาใคร ไม่มีการถามซ้ำ</p></details>
+  </div>
+</div></section>
 
-function applyLang() {
-  document.documentElement.lang = currentLang;
-  document.title = I18N.pagetitle[currentLang];
-  document.getElementById('lang-th').classList.toggle('active', currentLang === 'th');
-  document.getElementById('lang-en').classList.toggle('active', currentLang === 'en');
+<!-- 9. CTA ปิด + ฟอร์ม -->
+<section id="start"><div class="final">
+  <h2>เริ่มวันนี้ ใช้ได้ใน 30 วินาที</h2>
+  <p>ไม่ต้องใช้บัตรเครดิต · ไม่มีข้อผูกมัด · ยกเลิกได้ทุกเมื่อ</p>
+  <form class="form" id="signup">
+    <input type="email" id="em" placeholder="อีเมลของคุณ" required autocomplete="email">
+    <input type="password" id="pw" placeholder="ตั้งรหัสผ่าน (6 ตัวขึ้นไป)" required minlength="6" autocomplete="new-password">
+    <button class="btn btn-main btn-full" type="submit">สร้างบัญชีฟรี →</button>
+    <div class="msg" id="msg"></div>
+  </form>
+  <p style="font-size:14px;margin-top:8px">มีบัญชีแล้ว? <a href="/login.html" style="color:#fff;text-decoration:underline">เข้าสู่ระบบ</a></p>
+</div></section>
 
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (I18N[key]) el.textContent = I18N[key][currentLang];
+<footer><div class="wrap">
+  <div style="margin-bottom:12px">
+    <a href="/terms.html">เงื่อนไขการใช้งาน</a>·
+    <a href="/privacy.html">นโยบายความเป็นส่วนตัว</a>·
+    <a href="https://line.me/R/ti/p/@yourid">ติดต่อทาง LINE</a>
+  </div>
+  © 2026 ContentThaiAI · สร้างด้วยใจในประเทศไทย 🇹🇭
+</div></footer>
+
+<script type="module">
+/* ---------- DEMO สลับตัวอย่างจริง ---------- */
+const DEMO=[
+ {t:'แคปชั่นขายของ',
+  i:'📌 หมวด: แคปชั่นขายของ\n🏪 ร้าน: เสื้อยืดผ้าคอตตอน\n🎯 กลุ่ม: วัยทำงาน 25-40',
+  o:'ใส่ทำงานก็ได้ ใส่เที่ยวก็ดี\nคอตตอน 100% ใส่แล้วไม่ร้อน ซักแล้วไม่ย้วย\n\nไซซ์ S–XXL มี 6 สี\nทักแชทบอกไซซ์ เราแนะนำให้ฟรี 💬\n\n#เสื้อยืดคอตตอน #เสื้อใส่ทำงาน'},
+ {t:'สคริปต์ TikTok',
+  i:'📌 หมวด: สคริปต์วิดีโอสั้น\n🏪 สินค้า: ครีมกันแดด\n⏱️ ความยาว: 30 วินาที',
+  o:'[0-3วิ] "ทากันแดดแล้วหน้าวอก? ไม่ใช่เพราะครีมแพงไป"\n[3-10วิ] โชว์เนื้อครีมบนหลังมือ เกลี่ยให้ดู\n[10-20วิ] "ตัวนี้เนื้อบางมาก ทาแล้วแต่งต่อได้เลย"\n[20-30วิ] "ลิงก์อยู่ในตะกร้า ส่งฟรีวันนี้"'},
+ {t:'แผนคอนเทนต์ 7 วัน',
+  i:'📌 หมวด: วางแผนคอนเทนต์\n🏪 ร้าน: กาแฟคั่วเอง\n📅 ระยะ: 7 วัน',
+  o:'จ. — เบื้องหลังการคั่ว (สร้างความน่าเชื่อถือ)\nอ. — 3 วิธีชงกาแฟที่บ้าน (ให้ความรู้)\nพ. — รีวิวลูกค้าจริง (หลักฐาน)\nพฤ. — ถาม-ตอบ "คั่วอ่อนกับเข้มต่างกันยังไง"\nศ. — โปรส่งฟรี (ปิดการขาย)\nส. — ภาพบรรยากาศร้าน\nอา. — เล่าเรื่องเจ้าของร้าน'}
+];
+let idx=0,timer=null;
+const tabsEl=document.getElementById('tabs'),
+      inEl=document.getElementById('dIn'), outEl=document.getElementById('dOut');
+
+DEMO.forEach((d,n)=>{
+  const b=document.createElement('button');
+  b.className='tab'+(n===0?' on':''); b.textContent=d.t;
+  b.onclick=()=>play(n); tabsEl.appendChild(b);
+});
+function play(n){
+  idx=n; clearInterval(timer);
+  [...tabsEl.children].forEach((b,i)=>b.classList.toggle('on',i===n));
+  inEl.textContent=DEMO[n].i; outEl.textContent='';
+  const txt=DEMO[n].o; let i=0;
+  timer=setInterval(()=>{
+    outEl.textContent=txt.slice(0,++i);
+    if(i>=txt.length){clearInterval(timer);
+      setTimeout(()=>play((n+1)%DEMO.length),4500);}
+  },18);
+}
+play(0);
+
+/* ---------- SUPABASE : สมัครสมาชิก ---------- */
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const SUPA_URL='https://xxxxx.supabase.co';   // ← ใส่ของเจ้านาย
+const SUPA_KEY='eyJhbGci...';                 // ← anon public key
+const sb=createClient(SUPA_URL,SUPA_KEY);
+
+document.getElementById('signup').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const msg=document.getElementById('msg');
+  const btn=e.target.querySelector('button');
+  btn.disabled=true; btn.textContent='กำลังสร้างบัญชี…'; msg.textContent='';
+  const {error}=await sb.auth.signUp({
+    email:document.getElementById('em').value.trim(),
+    password:document.getElementById('pw').value,
+    options:{emailRedirectTo:`${location.origin}/dashboard.html`}
   });
-  document.querySelectorAll('[data-i18n-html]').forEach(el => {
-    const key = el.getAttribute('data-i18n-html');
-    if (I18N[key]) el.innerHTML = I18N[key][currentLang];
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    if (I18N[key]) el.placeholder = I18N[key][currentLang];
-  });
-
-  // อัปเดต dataset.label ของปุ่มที่มีสถานะ Loading
-  document.getElementById('btn-login').dataset.label = I18N.btnlogin[currentLang];
-  document.getElementById('btn-register').dataset.label = I18N.btnregister[currentLang];
-}
-
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('cta_lang', lang);
-  applyLang();
-}
-
-let selectedPkg = 'free';
-
-// ── Lazy-load วิดีโอ: โหลด iframe เฉพาะตอนกด Play ──
-function loadVideo() {
-  const wrap = document.getElementById('video-wrap');
-  wrap.innerHTML = `<iframe
-      src="https://www.youtube.com/embed/VeyoT5QANuU?rel=0&modestbranding=1&autoplay=1"
-      title="ContentThai AI — แนะนำธุรกิจ"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen></iframe>`;
-  wrap.style.cursor = 'default';
-  wrap.onclick = null;
-}
-
-// ── Tab Switching ──
-function togglePw(inputId, btn) {
-  const input = document.getElementById(inputId);
-  const key = input.type === 'password' ? 'pwhide' : 'pwshow';
-  if (input.type === 'password') {
-    input.type = 'text';
-  } else {
-    input.type = 'password';
+  if(error){
+    msg.style.color='#FECACA';
+    msg.textContent = error.message.includes('already')
+      ? 'อีเมลนี้สมัครไว้แล้ว ลองเข้าสู่ระบบดูครับ'
+      : 'เกิดข้อผิดพลาด: '+error.message;
+    btn.disabled=false; btn.textContent='สร้างบัญชีฟรี →';
+  }else{
+    msg.style.color='#BBF7D0';
+    msg.textContent='✅ สำเร็จ! เช็กอีเมลเพื่อยืนยันตัวตนได้เลยครับ';
+    btn.textContent='ส่งอีเมลแล้ว ✓';
   }
-  btn.textContent = I18N[key][currentLang];
-}
-
-function switchTab(tab) {
-  document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('form-' + tab).classList.add('active');
-  if (tab === 'login' || tab === 'register') {
-    document.querySelectorAll('.tab')[tab === 'login' ? 0 : 1].classList.add('active');
-  }
-  hideAlert();
-}
-
-// ── Package Selection ──
-function selectPkg(el, pkg) {
-  document.querySelectorAll('.pkg').forEach(p => p.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedPkg = pkg;
-}
-
-// ── Alert ──
-function showAlert(msg, type = 'error') {
-  const box = document.getElementById('alertBox');
-  box.className = `alert alert-${type} show`;
-  box.textContent = msg;
-}
-function hideAlert() {
-  document.getElementById('alertBox').classList.remove('show');
-}
-
-// ── Loading ──
-function setLoading(btnId, loading) {
-  const btn = document.getElementById(btnId);
-  btn.disabled = loading;
-  btn.innerHTML = loading
-    ? `<span class="spinner"></span> ${I18N.loading[currentLang]}`
-    : btn.dataset.label;
-}
-
-// เริ่มต้นภาษาตามที่บันทึกไว้ (หรือไทยเป็นค่าเริ่มต้น)
-applyLang();
-
-// ── LOGIN ──
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  if (!email || !password) { showAlert(I18N.err_fillboth[currentLang]); return; }
-  setLoading('btn-login', true);
-  hideAlert();
-
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-
-  if (error) {
-    setLoading('btn-login', false);
-    const msg = error.message.includes('Invalid') ? I18N.err_invalidlogin[currentLang] : error.message;
-    showAlert('❌ ' + msg);
-    return;
-  }
-
-  // ตรวจสอบสถานะการอนุมัติ
-  const { data: profile } = await sb
-    .from('profiles')
-    .select('status, package, full_name')
-    .eq('id', data.user.id)
-    .single();
-
-  if (!profile || profile.status === 'pending') {
-    await sb.auth.signOut();
-    setLoading('btn-login', false);
-    showAlert(I18N.info_pending[currentLang], 'info');
-    return;
-  }
-
-  if (profile.status === 'rejected') {
-    await sb.auth.signOut();
-    setLoading('btn-login', false);
-    showAlert(I18N.err_rejected[currentLang]);
-    return;
-  }
-
-  // Admin redirect
-  const { data: adminCheck } = await sb
-    .from('profiles')
-    .select('role')
-    .eq('id', data.user.id)
-    .single();
-
-  if (adminCheck?.role === 'admin') {
-    window.location.href = 'admin_dashboard.html';
-  } else {
-    window.location.href = 'dashboard.html';
-  }
-}
-
-// ── REGISTER ──
-async function doRegister() {
-  const name = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const password = document.getElementById('reg-password').value;
-
-  if (!name) { showAlert(I18N.err_name[currentLang]); return; }
-  if (!email) { showAlert(I18N.err_email[currentLang]); return; }
-  if (password.length < 8) { showAlert(I18N.err_pwlen[currentLang]); return; }
-
-  setLoading('btn-register', true);
-  hideAlert();
-
-  const { data, error } = await sb.auth.signUp({
-    email, password,
-    options: { data: { full_name: name, package: selectedPkg } }
-  });
-
-  if (error) {
-    setLoading('btn-register', false);
-    const msg = error.message.includes('already') ? I18N.err_emailexists[currentLang] : error.message;
-    showAlert('❌ ' + msg);
-    return;
-  }
-
-  // หมายเหตุ: โปรไฟล์ (ตาราง profiles) ถูกสร้างอัตโนมัติโดย Database Trigger
-  // ฝั่ง Supabase แล้ว (ดูไฟล์ supabase_trigger.sql) — ไม่ต้อง insert จาก client อีกต่อไป
-  // เพื่อป้องกันปัญหา RLS บล็อกการบันทึกแบบเงียบๆ เหมือนที่เจอก่อนหน้านี้
-
-  setLoading('btn-register', false);
-
-  if (selectedPkg === 'free' && data.session) {
-    // แพ็กเกจฟรี + ได้ Session ทันที (ไม่ต้องรอยืนยันอีเมล) → เข้าใช้งานได้เลย ไม่ต้องรอ Admin
-    window.location.href = 'dashboard.html';
-    return;
-  } else if (selectedPkg === 'free') {
-    // แพ็กเกจฟรี แต่ Supabase ตั้งให้ต้องยืนยันอีเมลก่อน (ไม่เกี่ยวกับ Admin)
-    showAlert(I18N.success_register_free[currentLang], 'success');
-  } else {
-    // แพ็กเกจเสียเงิน → ยังต้องรอ Admin ตรวจสอบการชำระเงินและอนุมัติเหมือนเดิม
-    showAlert(I18N.success_register[currentLang], 'success');
-  }
-}
-
-// ── FORGOT PASSWORD ──
-async function doForgot() {
-  const email = document.getElementById('forgot-email').value.trim();
-  if (!email) { showAlert(I18N.err_email[currentLang]); return; }
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + '/index.html?reset=true'
-  });
-  if (error) { showAlert('❌ ' + error.message); return; }
-  showAlert(I18N.success_forgot[currentLang], 'success');
-}
-
-// ── ตรวจสอบเหตุผลที่ถูกเด้งกลับจากหน้า Batch/Ebook (auth-guard.js) ──
-function handleGuardReason() {
-  const reason = sessionStorage.getItem('guard_reason');
-  if (!reason) return false;
-  sessionStorage.removeItem('guard_reason');
-
-  const map = {
-    no_session:       { key: 'guard_no_session',   type: 'info'  },
-    not_approved:     { key: 'guard_not_approved',  type: 'info'  },
-    upgrade_required: { key: 'guard_upgrade',       type: 'info'  },
-    expired:          { key: 'guard_expired',       type: 'info'  },
-    no_profile:       { key: 'guard_error',         type: 'error' },
-    error:            { key: 'guard_error',         type: 'error' }
-  };
-  const m = map[reason] || map.error;
-
-  // เนื้อหาต้องอัปเกรดแพ็กเกจ หรือแพ็กเกจหมดอายุ → เปิดแท็บสมัครสมาชิก/ต่ออายุให้เห็นตัวเลือกทันที
-  if (reason === 'upgrade_required' || reason === 'expired') switchTab('register');
-
-  showAlert(I18N[m.key][currentLang], m.type);
-  return true;
-}
-
-// ── Auto-redirect if already logged in ──
-(async () => {
-  try {
-    // ตรวจสอบเหตุผล guard ก่อน ถ้ามี ให้แสดงข้อความและ "ไม่" เด้งไป Dashboard ทับข้อความนั้น
-    const guardHandled = handleGuardReason();
-
-    // ตรวจสอบ URL parameter ก่อน
-    const params = new URLSearchParams(window.location.search);
-    
-    // ถ้ามี ?logout=true ให้ล้าง session แล้วหยุด ไม่ redirect
-    if (params.get('logout') === 'true') {
-      await sb.auth.signOut();
-      // ลบ parameter ออกจาก URL
-      window.history.replaceState({}, '', 'index.html');
-      return;
-    }
-    
-    // ตรวจว่ามี session อยู่ไหม
-    const { data: { session } } = await sb.auth.getSession();
-    
-    if (session) {
-      // แสดง logout bar
-      const bar = document.getElementById('logout-bar');
-      if (bar) bar.style.display = 'block';
-
-      if (guardHandled) return; // อยู่ที่ index.html ต่อ ไม่เด้งไป Dashboard ทับข้อความแจ้งเตือน
-
-      // ดึงข้อมูล profile
-      const { data: profile } = await sb
-        .from('profiles')
-        .select('role, status')
-        .eq('id', session.user.id)
-        .single();
-      
-      // Redirect เฉพาะเมื่อ approved เท่านั้น
-      if (profile && profile.status === 'approved') {
-        window.location.href = profile.role === 'admin' 
-          ? 'admin_dashboard.html' 
-          : 'dashboard.html';
-      }
-    }
-  } catch (err) {
-    console.log('Session check error:', err);
-  }
-})();
-
-// Enter key support
-document.addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  if (document.getElementById('form-login').classList.contains('active')) doLogin();
-  else if (document.getElementById('form-register').classList.contains('active')) doRegister();
 });
 </script>
 </body>
